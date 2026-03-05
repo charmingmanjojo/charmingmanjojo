@@ -1222,7 +1222,7 @@ ${feedText.substring(0,1500)}
 
 Return ONLY JSON array: [{"topic":"#TopicName","category":"🔥 Viral"},...]`;
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
     const data = await resp.json();
     const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
     const trends = JSON.parse(txt);
@@ -1458,7 +1458,7 @@ async function refreshStation(sid, silent=false) {
   }
   try {
     const resp = await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST", headers:{"Content-Type":"application/json"},
+      method:"POST", headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},
       body: JSON.stringify({
         model:"claude-sonnet-4-20250514", max_tokens:800,
         messages:[{role:"user",content:s.persona+"\n\nReturn ONLY the JSON array, no markdown, no explanation."}]
@@ -1714,7 +1714,7 @@ async function moderateImage(b64,type){
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},
       body:JSON.stringify({
         model:"claude-sonnet-4-20250514",
         max_tokens:200,
@@ -1956,7 +1956,7 @@ async function loadAIFeed(){
   const eventCtx=topNews?.[0]?`${topNews[0].title}: ${topNews[0].content.substring(0,200)}`:"A massive gamma-powered creature is rampaging through Midtown Manhattan while a prototype armored figure tries to stop it";
   const prompt=`Generate 5 short authentic social media posts from ordinary NYC civilians reacting to: "${eventCtx}"\nRules: different people (student, barista, office worker, tourist, cabbie), panicked/confused/excited, 1-3 sentences, casual language, typos ok, they don't know hero names, first time anyone has seen this.\nRespond ONLY with JSON array: [{"handle":"user_handle","name":"Display Name","content":"post text"},...]\nNo markdown.`;
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
     const data=await resp.json();
     const txt=data.content?.[0]?.text||"";
     const clean=txt.replace(/```json|```/g,"").trim();
@@ -2432,7 +2432,7 @@ async function generateAINews(prompt){
   const outDiv=document.getElementById("ai-news-out"),btnRow=document.getElementById("ai-use-btn-row");
   outDiv.style.display="";outDiv.textContent="Generating...";btnRow.style.display="none";
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,messages:[{role:"user",content:prompt}]})});
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,messages:[{role:"user",content:prompt}]})});
     const data=await resp.json();
     const txt=(data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
     const parsed=JSON.parse(txt);
