@@ -1143,11 +1143,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </div>
       <div class="call-transcript" id="call-transcript"></div>
       <div class="call-inp-area">
-        <div class="call-speaker-toggle" id="call-speaker-toggle">
-          <button class="call-spk-btn active" id="spk-mine" onclick="setCallSpeaker('mine')">🟢 You</button>
-          <button class="call-spk-btn other" id="spk-other" onclick="setCallSpeaker('other')" id="spk-other-btn">🔵 Them</button>
-        </div>
-        <input class="call-inp" id="call-inp" placeholder='Type dialogue... (auto-quoted)' onkeydown="if(event.key==='Enter')callSay()"/>
+        <div id="call-speaker-label" style="font-size:10px;color:var(--green);font-family:'Orbitron',sans-serif;letter-spacing:1px;margin-bottom:5px;padding:0 2px">🟢 YOU</div>
+        <input class="call-inp" id="call-inp" placeholder='Type your dialogue... (auto-quoted)' onkeydown="if(event.key==='Enter')callSay()"/>
       </div>
       <div class="call-btns">
         <button class="call-say-btn" onclick="callSay()">🎙 Say</button>
@@ -4736,11 +4733,11 @@ async function startCall(toId, name, color, avatarUrl) {
   const anonBtn = document.getElementById("anon-toggle-btn");
   if (anonBtn) { anonBtn.textContent = "🕶 OFF"; anonBtn.classList.remove("active"); }
   // Reset speaker toggle
-  document.getElementById("spk-mine").classList.add("active");
-  document.getElementById("spk-other").classList.remove("active");
-  document.getElementById("spk-other").textContent = "🔵 " + cd.displayName;
   document.getElementById("call-inp").placeholder = currentProfile.hero_name + ": say something...";
   ov.classList.add("active");
+
+  // Subscribe to incoming lines from the receiver in real-time
+  subscribeCallLines(data.id);
 
   // Notify receiver via Supabase realtime broadcast
   const myNum = currentProfile.phone_number || currentProfile.hero_name;
@@ -4794,18 +4791,12 @@ function toggleAnonCall() {
 
 // ── Say a line during a call ──
 // Lines are auto-wrapped in quotes and attributed to the speaker
-let callActiveSpeaker = "mine";   // "mine" | "other"
+let callActiveSpeaker = "mine";   // kept for compat but no longer user-selectable
 let callOtherName = "";
+let callLineChannel = null;       // realtime channel for live call lines
 
 function setCallSpeaker(side) {
-  callActiveSpeaker = side;
-  document.getElementById("spk-mine").classList.toggle("active", side === "mine");
-  document.getElementById("spk-other").classList.toggle("active", side === "other");
-  const inp = document.getElementById("call-inp");
-  if (inp) inp.placeholder = side === "mine"
-    ? `${currentProfile.hero_name}: say something...`
-    : `${callOtherName}: say something...`;
-  inp?.focus();
+  // No-op: speaker is now always locked to the current user
 }
 
 function callSay() {
@@ -4814,20 +4805,49 @@ function callSay() {
   if (!raw || !activeCallId) return;
   inp.value = "";
 
-  const isMine = callActiveSpeaker === "mine";
-  const speaker = isMine ? currentProfile.hero_name : callOtherName;
+  // Always speak as yourself — no more controlling the other side
+  const speaker = currentProfile.hero_name;
   const quoted = `"${raw}"`;
-  const entry = { speaker, line: quoted, mine: isMine, ts: marvelNowISO() };
+  const entry = { speaker, line: quoted, mine: true, ts: marvelNowISO() };
   activeCallTranscript.push(entry);
 
+  // Display locally as "mine"
   const area = document.getElementById("call-transcript");
   const div = document.createElement("div");
-  div.className = "call-line " + (isMine ? "mine" : "theirs");
+  div.className = "call-line mine";
   div.innerHTML = `<div class="call-line-speaker">${escHtml(speaker)}</div>${escHtml(quoted)}`;
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
 
+  // Broadcast to the other participant in real-time
+  if (callLineChannel) {
+    callLineChannel.send({
+      type: "broadcast",
+      event: "call-line",
+      payload: { speaker, line: quoted, sender_id: currentProfile.id }
+    });
+  }
+
   inp.focus();
+}
+
+// Helper: subscribe to a live call channel and display incoming lines from the other side
+function subscribeCallLines(callId) {
+  if (callLineChannel) sb.removeChannel(callLineChannel);
+  callLineChannel = sb.channel("call-lines-" + callId)
+    .on("broadcast", { event: "call-line" }, ({ payload }) => {
+      if (!payload || payload.sender_id === currentProfile.id) return; // skip own echoes
+      const area = document.getElementById("call-transcript");
+      if (!area) return;
+      const div = document.createElement("div");
+      div.className = "call-line theirs";
+      div.innerHTML = `<div class="call-line-speaker">${escHtml(payload.speaker)}</div>${escHtml(payload.line)}`;
+      area.appendChild(div);
+      area.scrollTop = area.scrollHeight;
+      // Track in transcript so it gets saved when the call ends
+      activeCallTranscript.push({ speaker: payload.speaker, line: payload.line, mine: false, ts: marvelNowISO() });
+    })
+    .subscribe();
 }
 
 // ── End call — saves full transcript to DB ──
@@ -4837,6 +4857,7 @@ async function endCall() {
     return;
   }
   clearInterval(callTimerInterval);
+  if (callLineChannel) { sb.removeChannel(callLineChannel); callLineChannel = null; }
   const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
 
   await sb.from("phone_calls").update({
@@ -5264,11 +5285,11 @@ async function openReceivedCall(payload) {
   document.getElementById("call-inp").value = "";
   const anonBtn = document.getElementById("anon-toggle-btn");
   if (anonBtn) { anonBtn.textContent = "🕶 OFF"; anonBtn.classList.remove("active"); }
-  document.getElementById("spk-mine").classList.add("active");
-  document.getElementById("spk-other").classList.remove("active");
-  document.getElementById("spk-other").textContent = "🔵 " + displayName;
   document.getElementById("call-inp").placeholder = currentProfile.hero_name + ": say something...";
   ov.classList.add("active");
+
+  // Subscribe to incoming lines from the caller in real-time
+  subscribeCallLines(call.id);
 
   clearInterval(callTimerInterval);
   callTimerInterval = setInterval(() => {
