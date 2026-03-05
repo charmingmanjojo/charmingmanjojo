@@ -71,6 +71,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .login-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
 .login-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
 .lerr{color:var(--red);font-size:11px;text-align:center;margin-top:8px;min-height:16px;letter-spacing:1px}
+.pass-wrap{position:relative}
+.pass-wrap input{padding-right:38px}
+.pass-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;padding:0;line-height:1}
+.pass-eye:hover{color:var(--accent)}
 
 .navbar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(5,10,20,.96);border-bottom:1px solid var(--border2);backdrop-filter:blur(20px);display:flex;align-items:center;padding:0 18px;z-index:200;gap:10px}
 .navbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);opacity:.4}
@@ -324,6 +328,131 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(0,180,255,.18);border-radius:2px}
 @media(max-width:860px){.layout{grid-template-columns:1fr}.sidebar,.right-col{display:none}}
+
+/* ===================== STATIONS ===================== */
+.stations-hd{background:rgba(0,0,0,.5);padding:9px 14px;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2.5px;color:var(--gold);border-bottom:1px solid var(--border);border-top:1px solid var(--border);flex-shrink:0}
+.station-item{display:flex;align-items:center;gap:9px;padding:10px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:.15s;position:relative}
+.station-item:hover{background:rgba(245,166,35,.05)}
+.station-item.active{background:rgba(245,166,35,.08);border-left:2px solid var(--gold)}
+.st-ico{width:34px;height:34px;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid rgba(255,255,255,.08)}
+.st-info{flex:1;overflow:hidden}
+.st-name{font-weight:700;font-size:11px;color:var(--white)}
+.st-type{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.st-live{position:absolute;top:8px;right:10px;font-size:8px;font-weight:700;letter-spacing:1px;color:var(--red);animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.st-playing{position:absolute;top:8px;right:10px;font-size:8px;font-weight:700;letter-spacing:1px;color:var(--green)}
+
+/* Station chat view */
+.station-view{display:flex;flex-direction:column;overflow:hidden;height:100%}
+.station-hd{padding:14px 16px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.4);flex-shrink:0;display:flex;align-items:center;gap:11px}
+.station-hd-ico{width:42px;height:42px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.station-hd-info{flex:1}
+.station-hd-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--white);letter-spacing:.5px}
+.station-hd-sub{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.5px}
+.now-playing-bar{background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,50,0,.3));border-bottom:1px solid rgba(0,230,118,.15);padding:7px 16px;display:flex;align-items:center;gap:9px;flex-shrink:0}
+.np-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-glow 1.5s infinite}
+@keyframes pulse-glow{0%,100%{box-shadow:0 0 6px var(--green)}50%{box-shadow:0 0 14px var(--green),0 0 20px rgba(0,230,118,.4)}}
+.np-text{font-size:11px;color:var(--green);font-weight:600;letter-spacing:1px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.np-toggle{background:none;border:1px solid rgba(0,230,118,.3);color:var(--green);border-radius:3px;padding:3px 10px;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:1px;cursor:pointer;transition:.2s;flex-shrink:0}
+.np-toggle:hover{background:rgba(0,230,118,.1)}
+.station-feed{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:rgba(0,0,0,.1)}
+.broadcast-msg{background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;animation:fuUp .3s ease}
+.broadcast-msg.urgent{border-color:rgba(255,50,50,.3);background:rgba(40,0,0,.3)}
+.broadcast-msg.highlight{border-color:rgba(245,166,35,.25);background:rgba(40,30,0,.2)}
+.bm-hd{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.bm-tag{font-size:8px;font-weight:700;letter-spacing:2px;padding:2px 7px;border-radius:2px;text-transform:uppercase}
+.bm-time{font-size:9px;color:var(--muted);letter-spacing:.5px;margin-left:auto}
+.bm-text{font-size:13px;color:var(--text);line-height:1.65}
+.station-refresh-bar{padding:11px 14px;border-top:1px solid var(--border);display:flex;gap:8px;background:rgba(0,0,0,.3);flex-shrink:0;align-items:center}
+.refresh-btn{padding:7px 18px;border-radius:3px;border:1px solid var(--gold);color:var(--gold);background:none;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;cursor:pointer;transition:.2s;text-transform:uppercase}
+.refresh-btn:hover{background:rgba(245,166,35,.1)}
+.refresh-btn:disabled{opacity:.5;cursor:not-allowed}
+.station-no-key{font-size:11px;color:var(--muted);letter-spacing:.5px;flex:1;text-align:center}
+
+
+/* ===================== TRENDING ===================== */
+.trend-item{padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s;position:relative}
+.trend-item:hover{background:rgba(0,180,255,.04)}
+.trend-item:last-child{border-bottom:none}
+.trend-cat{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.trend-topic{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--white);font-weight:700;letter-spacing:.5px;margin-bottom:3px}
+.trend-count{font-size:10px;color:var(--muted)}
+.trend-pin{position:absolute;top:9px;right:12px;font-size:10px;color:var(--gold)}
+.trend-boost{display:inline-flex;align-items:center;gap:3px;margin-top:4px;font-size:9px;color:var(--muted);border:1px solid var(--border);border-radius:2px;padding:2px 7px;cursor:pointer;transition:.15s;background:none}
+.trend-boost:hover{border-color:var(--accent);color:var(--accent)}
+.trend-boost.boosted{border-color:var(--red);color:var(--red)}
+
+/* Trending drawer */
+#trend-drawer{position:fixed;top:56px;right:0;width:320px;height:calc(100vh - 56px);background:var(--card);border-left:1px solid var(--border2);z-index:150;transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;overflow:hidden}
+#trend-drawer.open{transform:translateX(0)}
+.tdr-hd{background:rgba(0,0,0,.5);padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:10px}
+.tdr-title{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--white);font-weight:700;letter-spacing:.5px;flex:1}
+.tdr-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;line-height:1}
+.tdr-close:hover{color:var(--white)}
+.tdr-cat-badge{font-size:9px;font-weight:700;letter-spacing:2px;padding:2px 8px;border-radius:2px;text-transform:uppercase}
+.tdr-posts{flex:1;overflow-y:auto;padding:12px}
+.tdr-empty{padding:40px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px;text-transform:uppercase}
+.tdr-post{background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:11px 13px;margin-bottom:9px;animation:fuUp .25s ease}
+.tdr-post-hd{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.tdr-post-av{width:28px;height:28px;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:11px;color:#fff}
+.tdr-post-name{font-family:'Orbitron',sans-serif;font-size:9px;color:var(--white);font-weight:700}
+.tdr-post-time{font-size:9px;color:var(--muted);margin-left:auto}
+.tdr-post-text{font-size:13px;color:var(--text);line-height:1.55}
+
+/* Hashtag links in posts */
+.hashtag{color:var(--accent);cursor:pointer;font-weight:600}
+.hashtag:hover{text-decoration:underline}
+
+/* AI generate btn */
+.trend-ai-btn{width:100%;padding:9px;border-radius:3px;border:1px solid rgba(0,180,255,.25);background:rgba(0,80,150,.1);color:var(--accent);font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;cursor:pointer;transition:.2s;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:2px}
+.trend-ai-btn:hover{background:rgba(0,80,150,.2);border-color:var(--accent)}
+.trend-ai-btn:disabled{opacity:.5;cursor:not-allowed}
+
+
+/* ===================== SETTINGS ===================== */
+.settings-wrap{max-width:680px;margin:0 auto;padding:70px 14px 40px;display:flex;flex-direction:column;gap:16px}
+.sett-sec{background:var(--card);border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.sett-hd{background:rgba(0,0,0,.45);padding:12px 18px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2.5px;color:var(--accent);border-bottom:1px solid var(--border)}
+.sett-body{padding:20px 18px}
+.sett-row{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+
+/* Avatar upload */
+.av-upload-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0}
+.av-large{width:88px;height:88px;border-radius:6px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:30px;font-weight:700;color:#fff;position:relative;overflow:hidden;cursor:pointer;transition:.2s}
+.av-large:hover{border-color:var(--accent)}
+.av-large img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.av-large .av-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;font-size:22px}
+.av-large:hover .av-overlay{opacity:1}
+.av-hint{font-size:9px;color:var(--muted);letter-spacing:.5px;text-align:center;max-width:88px;line-height:1.5}
+.av-remove{font-size:9px;color:var(--red);cursor:pointer;border:none;background:none;letter-spacing:.5px;text-decoration:underline}
+.av-remove:hover{color:#ff6666}
+
+/* Color picker row */
+.color-swatches{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px}
+.color-swatch{width:26px;height:26px;border-radius:4px;cursor:pointer;border:2px solid transparent;transition:.15s;flex-shrink:0}
+.color-swatch:hover{transform:scale(1.15)}
+.color-swatch.selected{border-color:#fff;box-shadow:0 0 8px rgba(255,255,255,.4)}
+.color-swatch.custom{background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);position:relative}
+
+/* Location field */
+.loc-wrap{position:relative}
+.loc-pin{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none}
+.loc-input{padding-left:32px !important}
+
+/* Save button */
+.sett-save{width:100%;padding:11px;border-radius:4px;border:none;background:linear-gradient(90deg,var(--accent2),var(--accent));color:var(--bg);font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;cursor:pointer;transition:.2s;text-transform:uppercase;margin-top:4px}
+.sett-save:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.sett-save:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* Profile card location */
+.oc-location{font-size:11px;color:var(--muted);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px}
+
+/* Feed avatar images */
+.av-img{width:100%;height:100%;object-fit:cover;border-radius:2px}
+
+/* Password change section */
+.pass-section{border-top:1px solid var(--border);margin-top:16px;padding-top:16px}
+
 </style>
 </head>
 <body>
@@ -360,7 +489,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
     <div id="lform-login">
       <div class="lfield"><label>Handle</label><input id="li-handle" placeholder="@your_handle" autocomplete="username"/></div>
-      <div class="lfield"><label>Password</label><input id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="lfield"><label>Password</label>
+        <div class="pass-wrap">
+          <input id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+          <button type="button" class="pass-eye" onclick="togglePass('li-pass',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
       <button class="login-btn" id="li-btn" onclick="doLogin()">ACCESS NETWORK</button>
       <div class="lerr" id="li-err"></div>
     </div>
@@ -378,7 +512,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="lfield"><label>Bio</label><input id="r-bio" placeholder="Brief in-verse bio..."/></div>
       <div class="lfield">
         <label>Password <span style="font-size:9px;color:var(--muted)">(min 8 characters)</span></label>
-        <input id="r-pass" type="password" placeholder="••••••••" autocomplete="new-password" oninput="checkPass(this.value)"/>
+        <div class="pass-wrap">
+          <input id="r-pass" type="password" placeholder="••••••••" autocomplete="new-password" oninput="checkPass(this.value)"/>
+          <button type="button" class="pass-eye" onclick="togglePass('r-pass',this)" tabindex="-1">👁</button>
+        </div>
         <div class="field-hint" id="r-pass-hint"></div>
       </div>
       <button class="login-btn" id="r-btn" onclick="doRegister()" style="margin-top:14px">CREATE OC</button>
@@ -415,8 +552,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <button class="nav-tab" id="tab-intel" onclick="showPage('intel')">INTEL</button>
       <button class="nav-tab" id="tab-dms" onclick="showPage('dms')">MESSAGES <span class="nbadge" id="dm-badge" style="display:none">!</span></button>
       <button class="nav-tab" id="tab-admin" style="display:none" onclick="showPage('admin')">ADMIN</button>
+      <button class="nav-tab" id="tab-settings" onclick="showPage('settings')">⚙ SETTINGS</button>
     </div>
-    <div class="nav-av" id="nav-av" title="Your profile"></div>
+    <div class="nav-av" id="nav-av" title="Your profile" onclick="showPage('settings')" style="cursor:pointer"></div>
+    <button onclick="doLogout()" title="Log out" style="padding:5px 11px;border-radius:3px;border:1px solid var(--border);background:none;color:var(--muted);font-family:Rajdhani,sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:.15s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">LOG OUT</button>
   </nav>
 
   <div id="page-feed" class="layout">
@@ -453,6 +592,13 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
     <div class="right-col" style="display:flex;flex-direction:column;gap:11px">
       <div class="panel">
+        <div class="panel-head" style="justify-content:space-between">
+          <span style="display:flex;align-items:center;gap:8px"><span class="dot"></span>TRENDING NOW</span>
+          <button class="trend-ai-btn" id="trend-ai-btn" onclick="aiGenerateTrends()" style="width:auto;padding:3px 10px;margin-top:0;font-size:8px">⚡ SCAN</button>
+        </div>
+        <div id="trending-list"><div style="padding:14px;font-size:10px;color:var(--muted);text-align:center;letter-spacing:1px">Loading...</div></div>
+      </div>
+      <div class="panel">
         <div class="panel-head"><span class="dot"></span>LATEST INTEL</div>
         <div id="sidebar-news"></div>
       </div>
@@ -473,6 +619,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="dm-list">
         <div class="dm-list-hd">💬 DIRECT CHANNELS</div>
         <div class="dm-threads" id="dm-threads"></div>
+        <div class="stations-hd">📻 BROADCAST STATIONS</div>
+        <div id="station-list"></div>
       </div>
       <div id="dm-chat-area" class="dm-chat">
         <div class="dm-empty"><div class="dm-empty-ico">📡</div><p style="font-size:11px;letter-spacing:1px;text-transform:uppercase">Select a channel</p></div>
@@ -485,6 +633,17 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="admin-wrap" id="admin-wrap"><div class="loading-state"><div class="spinner"></div>LOADING</div></div>
   </div>
 
+  <!-- SETTINGS PAGE -->
+  <div id="page-settings" style="display:none">
+    <div class="settings-wrap" id="settings-content">
+      <div style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:3px;color:var(--accent);display:flex;align-items:center;gap:8px;padding-bottom:4px">
+        <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px var(--accent);display:inline-block"></span>
+        OPERATIVE SETTINGS
+      </div>
+      <div class="loading-state"><div class="spinner"></div>LOADING</div>
+    </div>
+  </div>
+
   <div id="page-search" class="layout-wide" style="display:none">
     <div style="font-family:Orbitron,sans-serif;font-size:12px;letter-spacing:3px;color:var(--accent);padding:0 0 12px;display:flex;align-items:center;gap:8px">
       <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px var(--accent);display:inline-block"></span>
@@ -494,6 +653,21 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
 </div>
 
+<audio id="radio-audio" style="display:none" preload="none"></audio>
+
+<!-- TRENDING DRAWER -->
+<div id="trend-drawer">
+  <div class="tdr-hd">
+    <div>
+      <div class="tdr-title" id="tdr-title">Trending Topic</div>
+      <div id="tdr-cat-wrap" style="margin-top:4px"></div>
+    </div>
+    <button class="tdr-close" onclick="closeTrendDrawer()">✕</button>
+  </div>
+  <div class="tdr-posts" id="tdr-posts">
+    <div class="tdr-empty">Select a trending topic</div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -521,6 +695,757 @@ const LOGO_B64="iVBORw0KGgoAAAANSUhEUgAAAZAAAADhCAYAAADmtuMcAAD3kUlEQVR42uz9d7xk
 document.getElementById("login-logo").src="data:image/png;base64,"+LOGO_B64;
 document.getElementById("nav-logo").src="data:image/png;base64,"+LOGO_B64;
 
+
+
+
+// =====================================================
+// SETTINGS
+// =====================================================
+const SWATCH_COLORS = [
+  "#2b6b9e","#4b7c3f","#7c3b7c","#7c6b3b","#9e4b2b",
+  "#2b7c6b","#4b2b9e","#9e7c2b","#6b7a8a","#c8302b",
+  "#1a6e8a","#5a4b9e","#8a6b1a","#1a8a5a","#8a1a6e"
+];
+let settingsPendingAvatar = null;
+let settingsPendingAvatarType = null;
+let settingsAvatarB64 = null;
+let settingsCurrentColor = null;
+
+async function renderSettingsPage() {
+  const u = currentProfile;
+  settingsCurrentColor = u.color;
+  const avatarHtml = u.avatar_url
+    ? `<img src="${escAttr(u.avatar_url)}" class="av-img" alt="avatar"/>`
+    : `<span style="position:relative;z-index:1">${u.hero_name[0]}</span>`;
+
+  document.getElementById("settings-content").innerHTML = `
+    <div style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:3px;color:var(--accent);display:flex;align-items:center;gap:8px;padding-bottom:4px">
+      <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px var(--accent);display:inline-block"></span>
+      OPERATIVE SETTINGS
+    </div>
+
+    <!-- PROFILE IDENTITY -->
+    <div class="sett-sec">
+      <div class="sett-hd">🪪 OPERATIVE IDENTITY</div>
+      <div class="sett-body">
+        <div class="sett-row">
+          <div class="av-upload-wrap">
+            <div class="av-large" id="av-preview" style="background:${u.color}" onclick="document.getElementById('av-file-in').click()">
+              ${avatarHtml}
+              <div class="av-overlay">📷</div>
+            </div>
+            <input type="file" id="av-file-in" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="handleAvatarSelect(event)"/>
+            <div class="av-hint">JPG PNG GIF WEBP<br>Max 8 MB</div>
+            ${u.avatar_url ? `<button class="av-remove" onclick="removeAvatar()">Remove photo</button>` : ""}
+          </div>
+          <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:11px">
+            <div class="afield" style="margin-bottom:0">
+              <label>Hero / OC Name</label>
+              <input id="s-hero" value="${escAttr(u.hero_name)}" placeholder="Your hero name"/>
+            </div>
+            <div class="afield" style="margin-bottom:0">
+              <label>Real Name</label>
+              <input id="s-real" value="${escAttr(u.real_name)}" placeholder="Real name"/>
+            </div>
+            <div class="afield" style="margin-bottom:0">
+              <label>Handle</label>
+              <input id="s-handle" value="${escAttr(u.handle)}" placeholder="@handle" oninput="checkHandleSettings(this.value)"/>
+              <div class="field-hint" id="s-handle-hint"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="afield" style="margin-top:14px;margin-bottom:0">
+          <label>Bio</label>
+          <textarea id="s-bio" rows="3" style="width:100%;padding:9px 11px;border-radius:3px;border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Rajdhani,sans-serif;font-size:14px;outline:none;resize:vertical">${escAttr(u.bio||"")}</textarea>
+        </div>
+
+        <div class="afield" style="margin-top:11px;margin-bottom:0">
+          <label>📍 In-Verse Location</label>
+          <div class="loc-wrap">
+            <span class="loc-pin">📍</span>
+            <input id="s-location" class="loc-input" value="${escAttr(u.location||"")}" placeholder="e.g. Manhattan, NYC · Hell's Kitchen · Wakanda" style="width:100%;padding:9px 11px;padding-left:32px;border-radius:3px;border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Rajdhani,sans-serif;font-size:14px;outline:none"/>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:.5px">In-roleplay location only. Never your real address.</div>
+        </div>
+
+        <div class="afield" style="margin-top:11px;margin-bottom:0">
+          <label>Faction</label>
+          <select id="s-faction" style="width:100%;padding:9px 11px;border-radius:3px;border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Rajdhani,sans-serif;font-size:14px;outline:none">
+            ${["Independent","Military","Science Division","Vigilante","Government"].map(f=>`<option value="${f}" ${u.faction===f?"selected":""}>${f}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPEARANCE -->
+    <div class="sett-sec">
+      <div class="sett-hd">🎨 OC COLOR</div>
+      <div class="sett-body">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;letter-spacing:.5px">Your accent color appears on your avatar, post stripe, and profile.</div>
+        <div class="color-swatches" id="color-swatches">
+          ${SWATCH_COLORS.map(c=>`
+            <div class="color-swatch ${u.color===c?"selected":""}" style="background:${c}" onclick="selectColor('${c}')" title="${c}"></div>
+          `).join("")}
+          <div class="color-swatch custom" title="Custom color" onclick="document.getElementById('custom-color-in').click()">
+            <input type="color" id="custom-color-in" style="opacity:0;position:absolute;width:0;height:0" onchange="selectColor(this.value)"/>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:10px">
+          <div id="color-preview" style="width:36px;height:36px;border-radius:4px;background:${u.color};border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:14px;font-weight:700;color:#fff">${u.hero_name[0]}</div>
+          <span style="font-size:11px;color:var(--muted)" id="color-val">${u.color}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSWORD CHANGE -->
+    <div class="sett-sec">
+      <div class="sett-hd">🔐 CHANGE PASSWORD</div>
+      <div class="sett-body">
+        <div class="afield" style="margin-bottom:11px">
+          <label>New Password</label>
+          <div class="pass-wrap">
+            <input type="password" id="s-pass-new" placeholder="New password (min 8 chars)" autocomplete="new-password" oninput="checkPass(this.value,'s-pass-hint')"/>
+            <button type="button" class="pass-eye" onclick="togglePass('s-pass-new',this)" tabindex="-1">👁</button>
+          </div>
+          <div class="field-hint" id="s-pass-hint"></div>
+        </div>
+        <div class="afield" style="margin-bottom:0">
+          <label>Confirm Password</label>
+          <div class="pass-wrap">
+            <input type="password" id="s-pass-confirm" placeholder="Confirm new password" autocomplete="new-password" oninput="checkPassConfirm()"/>
+            <button type="button" class="pass-eye" onclick="togglePass('s-pass-confirm',this)" tabindex="-1">👁</button>
+          </div>
+          <div class="field-hint" id="s-pass-confirm-hint"></div>
+        </div>
+        <button class="sett-save" style="margin-top:14px;background:linear-gradient(90deg,#443,var(--gold))" onclick="changePassword()">UPDATE PASSWORD</button>
+        <div class="lerr" id="s-pass-err" style="text-align:left;margin-top:6px"></div>
+      </div>
+    </div>
+
+    <!-- SAVE PROFILE -->
+    <button class="sett-save" id="sett-save-btn" onclick="saveSettings()">SAVE CHANGES</button>
+    <div class="lerr" id="sett-err" style="text-align:center"></div>
+
+    <!-- DANGER ZONE -->
+    <div class="sett-sec" style="border-color:rgba(255,50,50,.2)">
+      <div class="sett-hd" style="color:var(--red)">⚠ DANGER ZONE</div>
+      <div class="sett-body">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">Deleting your account is permanent. All your posts, comments, and messages will be removed.</div>
+        <button class="abtn danger" onclick="deleteOwnAccount()">DELETE MY ACCOUNT</button>
+      </div>
+    </div>
+  `;
+}
+
+function selectColor(c) {
+  settingsCurrentColor = c;
+  document.querySelectorAll(".color-swatch").forEach(el => {
+    el.classList.toggle("selected", el.style.background === c || el.title === c);
+  });
+  const prev = document.getElementById("color-preview");
+  const val = document.getElementById("color-val");
+  if (prev) { prev.style.background = c; prev.textContent = currentProfile.hero_name[0]; }
+  if (val) val.textContent = c;
+}
+
+async function handleAvatarSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const ALLOWED = ["image/jpeg","image/png","image/gif","image/webp"];
+  if (!ALLOWED.includes(file.type)) { showToast("JPG, PNG, GIF or WEBP only.", true); e.target.value=""; return; }
+  if (file.size > 8*1024*1024) { showToast("Image too large. Max 8MB.", true); e.target.value=""; return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    settingsPendingAvatarType = file.type;
+    settingsAvatarB64 = ev.target.result.split(",")[1];
+    const prev = document.getElementById("av-preview");
+    if (prev) prev.innerHTML = `<img src="${ev.target.result}" class="av-img"/><div class="av-overlay">📷</div>`;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+}
+
+async function removeAvatar() {
+  if (!currentProfile.avatar_url) return;
+  if (!confirm("Remove profile photo?")) return;
+  const path = currentProfile.avatar_url.split("/avatars/")[1];
+  if (path) await sb.storage.from("avatars").remove([path]);
+  await sb.from("profiles").update({avatar_url:null}).eq("id",currentProfile.id);
+  currentProfile.avatar_url = null;
+  showToast("Photo removed.");
+  renderSettingsPage();
+  updateNavAvatar();
+  renderMyCard();
+}
+
+let handleSettingsTimer = null;
+async function checkHandleSettings(val) {
+  const hint = document.getElementById("s-handle-hint");
+  const h = val.trim().toLowerCase().replace("@","");
+  if (h === currentProfile.handle) { hint.textContent = ""; hint.className = "field-hint"; return; }
+  if (h.length < 3) { hint.textContent = "Too short"; hint.className = "field-hint err"; return; }
+  if (!/^[a-z0-9_]+$/.test(h)) { hint.textContent = "Letters, numbers, underscores only"; hint.className = "field-hint err"; return; }
+  hint.textContent = "Checking..."; hint.className = "field-hint warn";
+  clearTimeout(handleSettingsTimer);
+  handleSettingsTimer = setTimeout(async () => {
+    const {data} = await sb.from("profiles").select("id").eq("handle",h).maybeSingle();
+    if (data) { hint.textContent = "⚠ Handle taken"; hint.className = "field-hint err"; }
+    else { hint.textContent = "✓ Available"; hint.className = "field-hint ok"; }
+  }, 600);
+}
+
+function checkPassConfirm() {
+  const np = document.getElementById("s-pass-new")?.value;
+  const cp = document.getElementById("s-pass-confirm")?.value;
+  const hint = document.getElementById("s-pass-confirm-hint");
+  if (!cp) { hint.textContent = ""; hint.className = "field-hint"; return; }
+  if (np === cp) { hint.textContent = "✓ Passwords match"; hint.className = "field-hint ok"; }
+  else { hint.textContent = "✗ Passwords don't match"; hint.className = "field-hint err"; }
+}
+
+async function changePassword() {
+  const np = document.getElementById("s-pass-new")?.value;
+  const cp = document.getElementById("s-pass-confirm")?.value;
+  const errEl = document.getElementById("s-pass-err");
+  if (!np || !cp) { errEl.textContent = "FILL BOTH FIELDS"; return; }
+  if (np.length < 8) { errEl.textContent = "PASSWORD TOO SHORT — MIN 8 CHARACTERS"; return; }
+  if (np !== cp) { errEl.textContent = "PASSWORDS DON'T MATCH"; return; }
+  const { error } = await sb.auth.updateUser({ password: np });
+  if (error) { errEl.textContent = error.message.toUpperCase(); return; }
+  errEl.textContent = "";
+  document.getElementById("s-pass-new").value = "";
+  document.getElementById("s-pass-confirm").value = "";
+  document.getElementById("s-pass-hint").textContent = "";
+  document.getElementById("s-pass-confirm-hint").textContent = "";
+  showToast("Password updated!");
+}
+
+async function saveSettings() {
+  const hero = document.getElementById("s-hero")?.value.trim();
+  const real = document.getElementById("s-real")?.value.trim();
+  const handle = document.getElementById("s-handle")?.value.trim().toLowerCase().replace("@","");
+  const bio = document.getElementById("s-bio")?.value.trim();
+  const location = document.getElementById("s-location")?.value.trim();
+  const faction = document.getElementById("s-faction")?.value;
+  const errEl = document.getElementById("sett-err");
+  const btn = document.getElementById("sett-save-btn");
+
+  if (!hero || !real || !handle) { errEl.textContent = "HERO NAME, REAL NAME AND HANDLE ARE REQUIRED"; return; }
+  if (handle.length < 3) { errEl.textContent = "HANDLE TOO SHORT"; return; }
+  if (!/^[a-z0-9_]+$/.test(handle)) { errEl.textContent = "HANDLE: LETTERS, NUMBERS & UNDERSCORES ONLY"; return; }
+
+  // Check handle if changed
+  if (handle !== currentProfile.handle) {
+    const {data:taken} = await sb.from("profiles").select("id").eq("handle",handle).maybeSingle();
+    if (taken) { errEl.textContent = "HANDLE ALREADY TAKEN"; return; }
+  }
+
+  btn.disabled = true; btn.textContent = "SAVING...";
+
+  // Upload avatar if pending
+  let avatarUrl = currentProfile.avatar_url;
+  if (settingsAvatarB64) {
+    // AI moderation check
+    if (apiKey) {
+      const modResult = await moderateImage(settingsAvatarB64, settingsPendingAvatarType);
+      if (!modResult.pass) {
+        btn.disabled = false; btn.textContent = "SAVE CHANGES";
+        showToast("Avatar blocked: " + (modResult.reason||"Content policy"), true);
+        return;
+      }
+    }
+    try {
+      const ext = settingsPendingAvatarType.split("/")[1].replace("jpeg","jpg");
+      const path = `avatars/${currentProfile.id}.${ext}`;
+      const blob = b64ToBlob(settingsAvatarB64, settingsPendingAvatarType);
+      await sb.storage.from("avatars").upload(path, blob, {contentType:settingsPendingAvatarType, upsert:true});
+      const {data:{publicUrl}} = sb.storage.from("avatars").getPublicUrl(path);
+      avatarUrl = publicUrl;
+    } catch(err) {
+      btn.disabled = false; btn.textContent = "SAVE CHANGES";
+      showToast("Avatar upload failed: " + err.message, true); return;
+    }
+    settingsAvatarB64 = null; settingsPendingAvatarType = null;
+  }
+
+  const updates = { hero_name:hero, real_name:real, handle, bio, location, faction, color:settingsCurrentColor, avatar_url:avatarUrl };
+  const { error } = await sb.from("profiles").update(updates).eq("id", currentProfile.id);
+  if (error) { btn.disabled=false; btn.textContent="SAVE CHANGES"; errEl.textContent=error.message.toUpperCase(); return; }
+
+  // Refresh local profile
+  Object.assign(currentProfile, updates);
+  profilesCache[currentProfile.id] = {...currentProfile};
+  btn.disabled = false; btn.textContent = "SAVE CHANGES";
+  errEl.textContent = "";
+  showToast("Profile updated!");
+  updateNavAvatar();
+  renderMyCard();
+  renderSettingsPage();
+}
+
+function updateNavAvatar() {
+  const av = document.getElementById("nav-av");
+  const ca = document.getElementById("compose-av");
+  if (currentProfile.avatar_url) {
+    av.innerHTML = `<img src="${escAttr(currentProfile.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:2px"/>`;
+    av.style.background = "transparent";
+    if (ca) { ca.innerHTML = `<img src="${escAttr(currentProfile.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:2px"/>`; ca.style.background = "transparent"; }
+  } else {
+    av.textContent = currentProfile.hero_name[0];
+    av.style.background = currentProfile.color;
+    if (ca) { ca.textContent = currentProfile.hero_name[0]; ca.style.background = currentProfile.color; }
+  }
+}
+
+async function deleteOwnAccount() {
+  if (!confirm("Delete your account permanently? This cannot be undone.")) return;
+  if (!confirm("Are you absolutely sure? All your posts and messages will be deleted.")) return;
+  const uid = currentProfile.id;
+  // Remove avatar
+  if (currentProfile.avatar_url) {
+    const path = currentProfile.avatar_url.split("/avatars/")[1];
+    if (path) await sb.storage.from("avatars").remove([path]).catch(()=>{});
+  }
+  // Remove images from posts
+  const {data:imgPosts} = await sb.from("posts").select("image_url").eq("user_id",uid).not("image_url","is",null);
+  if (imgPosts?.length) {
+    const paths = imgPosts.map(p=>p.image_url.split("/post-images/")[1]).filter(Boolean);
+    if (paths.length) await sb.storage.from("post-images").remove(paths).catch(()=>{});
+  }
+  await sb.from("comments").delete().eq("user_id",uid);
+  await sb.from("likes").delete().eq("user_id",uid);
+  await sb.from("trend_boosts").delete().eq("user_id",uid);
+  await sb.from("messages").delete().or(`sender_id.eq.${uid},receiver_id.eq.${uid}`);
+  await sb.from("posts").delete().eq("user_id",uid);
+  await sb.from("profiles").delete().eq("id",uid);
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// =====================================================
+// TRENDING
+// =====================================================
+const TREND_CATS = {
+  "🔥 Viral":    {color:"#ff6b35", bg:"rgba(255,107,53,.15)"},
+  "⚡ Breaking": {color:"#00b4ff", bg:"rgba(0,180,255,.12)"},
+  "👁 Watching": {color:"#9e4b9e", bg:"rgba(158,75,158,.12)"},
+  "🦸 Hero Sighting":{color:"#f5a623", bg:"rgba(245,166,35,.12)"},
+  "🏙 NYC":      {color:"#4b9e4b", bg:"rgba(75,158,75,.12)"}
+};
+
+let trendingData = [];
+let userBoosts = {};
+
+async function loadTrending() {
+  const { data } = await sb.from("trending").select("*").order("boost_count", {ascending:false}).limit(8);
+  trendingData = data || [];
+  // Load user's boosts
+  if (trendingData.length) {
+    const ids = trendingData.map(t=>t.id);
+    const { data: boosts } = await sb.from("trend_boosts").select("trend_id").eq("user_id", currentProfile.id).in("trend_id", ids);
+    if (boosts) boosts.forEach(b => userBoosts[b.trend_id] = true);
+  }
+  renderTrending();
+}
+
+function renderTrending() {
+  if (!trendingData.length) {
+    document.getElementById("trending-list").innerHTML = `<div style="padding:14px;font-size:10px;color:var(--muted);text-align:center;letter-spacing:1px">No trends yet — click ⚡ SCAN</div>`;
+    return;
+  }
+  document.getElementById("trending-list").innerHTML = trendingData.map((t,i) => {
+    const cat = TREND_CATS[t.category] || {color:"#555",bg:"rgba(85,85,85,.1)"};
+    const boosted = userBoosts[t.id];
+    return `<div class="trend-item" onclick="openTrendDrawer('${t.id}')">
+      ${t.pinned ? `<span class="trend-pin">📌</span>` : ""}
+      <div class="trend-cat" style="color:${cat.color}">${t.category}</div>
+      <div class="trend-topic">${escH(t.topic)}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="trend-count">${t.boost_count||0} talking about this</span>
+        <button class="trend-boost ${boosted?"boosted":""}" onclick="event.stopPropagation();toggleBoost('${t.id}',${boosted})">${boosted?"🔥":"↑"} ${boosted?"Boosted":"Boost"}</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function toggleBoost(tid, boosted) {
+  if (boosted) {
+    await sb.from("trend_boosts").delete().eq("trend_id",tid).eq("user_id",currentProfile.id);
+    await sb.from("trending").update({boost_count: Math.max(0,(trendingData.find(t=>t.id===tid)?.boost_count||1)-1)}).eq("id",tid);
+    delete userBoosts[tid];
+  } else {
+    await sb.from("trend_boosts").insert({trend_id:tid, user_id:currentProfile.id});
+    await sb.from("trending").update({boost_count: (trendingData.find(t=>t.id===tid)?.boost_count||0)+1}).eq("id",tid);
+    userBoosts[tid] = true;
+  }
+  loadTrending();
+}
+
+async function openTrendDrawer(tid) {
+  const t = trendingData.find(x=>x.id===tid);
+  if (!t) return;
+  const cat = TREND_CATS[t.category] || {color:"#555", bg:"rgba(85,85,85,.1)"};
+  document.getElementById("tdr-title").textContent = t.topic;
+  document.getElementById("tdr-cat-wrap").innerHTML = `<span class="tdr-cat-badge" style="background:${cat.bg};color:${cat.color};border:1px solid ${cat.color}44">${t.category}</span>`;
+  document.getElementById("tdr-posts").innerHTML = `<div class="loading-state" style="padding:30px"><div class="spinner"></div>LOADING</div>`;
+  document.getElementById("trend-drawer").classList.add("open");
+
+  // Search posts for hashtag or topic keywords
+  const keyword = t.topic.replace(/^#/,"").toLowerCase();
+  const { data: posts } = await sb.from("posts").select("*,profiles(hero_name,color,handle)").ilike("content", `%${keyword}%`).order("created_at",{ascending:false}).limit(20);
+
+  const postsEl = document.getElementById("tdr-posts");
+  if (!posts?.length) {
+    postsEl.innerHTML = `<div class="tdr-empty">No posts about ${escH(t.topic)} yet</div>`;
+    return;
+  }
+  postsEl.innerHTML = posts.map(p => {
+    const u = p.profiles;
+    if (!u) return "";
+    return `<div class="tdr-post">
+      <div class="tdr-post-hd">
+        <div class="tdr-post-av" style="background:${u.color}">${u.hero_name[0]}</div>
+        <div>
+          <div class="tdr-post-name">${u.hero_name}</div>
+          <div style="font-size:9px;color:var(--muted)">@${u.handle}</div>
+        </div>
+        <span class="tdr-post-time">${timeAgo(p.created_at)}</span>
+      </div>
+      <div class="tdr-post-text">${renderHashtags(escH(p.content||""))}</div>
+    </div>`;
+  }).join("");
+}
+
+function closeTrendDrawer() {
+  document.getElementById("trend-drawer").classList.remove("open");
+}
+
+// Close drawer on ESC
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") closeTrendDrawer();
+});
+
+// Render hashtags as clickable links
+function renderHashtags(text) {
+  return text.replace(/#([a-zA-Z0-9_]+)/g, (match, tag) =>
+    `<span class="hashtag" onclick="searchHashtag('${tag}')">#${tag}</span>`
+  );
+}
+
+function searchHashtag(tag) {
+  // Find trend with this tag or open search
+  const t = trendingData.find(x => x.topic.toLowerCase().replace(/^#/,"") === tag.toLowerCase());
+  if (t) { openTrendDrawer(t.id); return; }
+  handleSearch("#"+tag);
+}
+
+// Parse hashtags in post content for display
+function escHWithTags(s) {
+  return renderHashtags(escH(s));
+}
+
+async function aiGenerateTrends() {
+  if (!apiKey) { showToast("Set API key in Admin panel first.", true); return; }
+  const btn = document.getElementById("trend-ai-btn");
+  btn.disabled = true; btn.innerHTML = "<div class='spinner'></div> SCANNING";
+  const { data: recentPosts } = await sb.from("posts").select("content").order("created_at",{ascending:false}).limit(30);
+  const feedText = (recentPosts||[]).map(p=>p.content).filter(Boolean).join("
+");
+  const prompt = `You are analyzing a Marvel universe social network feed where heroes have just appeared for the first time. Scan these posts and generate 5 trending topics. For each, pick the most fitting category from EXACTLY these options: "🔥 Viral", "⚡ Breaking", "👁 Watching", "🦸 Hero Sighting", "🏙 NYC". Topics should be hashtag-style (#GammaCreature, #WhoIsHe, etc.) or short phrases. Base them on what people are actually discussing in the posts, and invent plausible ones if needed.
+
+Posts:
+${feedText.substring(0,1500)}
+
+Return ONLY JSON array: [{"topic":"#TopicName","category":"🔥 Viral"},...]`;
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
+    const data = await resp.json();
+    const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
+    const trends = JSON.parse(txt);
+    let added = 0;
+    for (const t of trends) {
+      const validCats = Object.keys(TREND_CATS);
+      const cat = validCats.find(c=>c===t.category) || "🔥 Viral";
+      const { data: existing } = await sb.from("trending").select("id").ilike("topic",t.topic).maybeSingle();
+      if (!existing) {
+        await sb.from("trending").insert({topic:t.topic, category:cat, boost_count:0, pinned:false});
+        added++;
+      }
+    }
+    showToast(`${added} new trends detected!`);
+    loadTrending();
+  } catch(e) { showToast("Trend scan failed.", true); }
+  btn.disabled = false; btn.innerHTML = "⚡ SCAN";
+}
+
+// ─── ADMIN TRENDING SECTION ───────────────────────────────────────────────────
+async function renderAdminTrending() {
+  const { data: trends } = await sb.from("trending").select("*").order("boost_count",{ascending:false});
+  return `
+  <div class="adm-sec">
+    <div class="adm-hd">🔥 MANAGE TRENDING TOPICS (${(trends||[]).length})</div>
+    <div class="adm-body">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <input id="new-trend-topic" placeholder="#NewTopic or phrase..." style="flex:1;min-width:140px;padding:8px 11px;border-radius:3px;border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Rajdhani,sans-serif;font-size:13px;outline:none"/>
+        <select id="new-trend-cat" style="padding:8px 11px;border-radius:3px;border:1px solid var(--border);background:rgba(0,0,0,.5);color:var(--white);font-family:Rajdhani,sans-serif;font-size:12px;outline:none">
+          ${Object.keys(TREND_CATS).map(c=>`<option value="${c}">${c}</option>`).join("")}
+        </select>
+        <button class="abtn sm" onclick="adminAddTrend()">+ ADD</button>
+      </div>
+      ${(trends||[]).length ? trends.map(t => {
+        const cat = TREND_CATS[t.category]||{color:"#555"};
+        return `<div class="adm-urow" id="atrend-${t.id}">
+          <span style="font-size:16px">${t.pinned?"📌":"📈"}</span>
+          <div class="adm-ui">
+            <div class="adm-un" style="color:${cat.color}">${escH(t.topic)}</div>
+            <div class="adm-us">${t.category} · ${t.boost_count||0} boosts</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="abtn sm" onclick="adminTogglePin('${t.id}',${t.pinned})">${t.pinned?"📌 Unpin":"📌 Pin"}</button>
+            <button class="abtn danger sm" onclick="adminDeleteTrend('${t.id}')">✕</button>
+          </div>
+        </div>`;
+      }).join("") : `<p style="font-size:11px;color:var(--muted)">No trends yet — use ⚡ SCAN on the feed or add manually above.</p>`}
+    </div>
+  </div>`;
+}
+
+async function adminAddTrend() {
+  const topic = document.getElementById("new-trend-topic").value.trim();
+  const category = document.getElementById("new-trend-cat").value;
+  if (!topic) { showToast("Enter a topic.", true); return; }
+  await sb.from("trending").insert({topic, category, boost_count:0, pinned:false});
+  showToast("Trend added!");
+  document.getElementById("new-trend-topic").value = "";
+  loadTrending();
+  renderAdminPanel();
+}
+
+async function adminTogglePin(tid, pinned) {
+  await sb.from("trending").update({pinned:!pinned}).eq("id",tid);
+  loadTrending();
+  renderAdminPanel();
+}
+
+async function adminDeleteTrend(tid) {
+  await sb.from("trend_boosts").delete().eq("trend_id",tid);
+  await sb.from("trending").delete().eq("id",tid);
+  showToast("Trend removed.");
+  loadTrending();
+  renderAdminPanel();
+}
+
+// =====================================================
+// STATIONS
+// =====================================================
+const STATIONS = [
+  // TEXT STATIONS
+  {
+    id:"daily-bugle", name:"The Daily Bugle", sub:"NYC's #1 News Source",
+    icon:"📰", color:"#c8a020", type:"text",
+    persona:"You are J. Jonah Jameson's Daily Bugle broadcast feed in a virgin Marvel universe where heroes are just emerging. Write 5 short news bulletins in the style of sensationalist tabloid journalism — dramatic, slightly paranoid, obsessed with the gamma creature and the 'vigilante in a suit'. Mix breaking news, opinion, and outrage. Format as JSON array: [{tag:'BREAKING',text:'...'},{tag:'OPINION',text:'...'},{tag:'EXCLUSIVE',text:'...'},{tag:'UPDATE',text:'...'},{tag:'EDITORIAL',text:'...'}]"
+  },
+  {
+    id:"sports-central", name:"Sports Central", sub:"Live Sports Coverage",
+    icon:"🏀", color:"#e65c00", type:"text",
+    persona:"You are a Marvel-universe sports radio station. The city is in chaos due to a gamma event in Midtown but sports must go on. Write 5 sports broadcast items covering fictional NYC teams — mix basketball (Knicks), baseball (Mets/Yankees), soccer (NYCFC), plus commentary on how tonight's games are being affected by the Manhattan situation. Format as JSON array: [{tag:'LIVE',text:'...'},{tag:'SCORES',text:'...'},{tag:'REPORT',text:'...'},{tag:'BREAKING',text:'...'},{tag:'ANALYSIS',text:'...'}]"
+  },
+  {
+    id:"freq-x", name:"Frequency X", sub:"Truth They Don't Want You to Hear",
+    icon:"👽", color:"#7c3b9e", type:"text",
+    persona:"You are a paranoid conspiracy theory radio station in a Marvel universe where gamma experiments and strange beings have just appeared publicly for the first time. Write 5 short conspiracy broadcasts — theories about the gamma creature being a government weapon, the armored figure being corporate espionage, secret labs, cover-ups, MK-Ultra style programs, lizard people who caused it, etc. Entertaining and unhinged but internally consistent. Format as JSON array: [{tag:'THEORY',text:'...'},{tag:'EXPOSED',text:'...'},{tag:'CLASSIFIED',text:'...'},{tag:'CALLER',text:'...'},{tag:'PROOF',text:'...'}]"
+  },
+  // MUSIC STATIONS
+  {
+    id:"rnb-soul", name:"Smooth R&B & Soul", sub:"Vibes Only",
+    icon:"🎵", color:"#c2185b", type:"music",
+    stream:"https://ice1.somafm.com/lush-128-mp3",
+    nowPlaying:"Smooth R&B & Soul — Lush"
+  },
+  {
+    id:"hiphop-rap", name:"Hip-Hop & Rap", sub:"Street Anthems",
+    icon:"🎤", color:"#ff6f00", type:"music",
+    stream:"https://ice1.somafm.com/illstreet-128-mp3",
+    nowPlaying:"Hip-Hop Radio — Ill Street"
+  },
+  {
+    id:"classical-jazz", name:"Classical & Jazz", sub:"Timeless Sound",
+    icon:"🎹", color:"#1565c0", type:"music",
+    stream:"https://ice1.somafm.com/piano-128-mp3",
+    nowPlaying:"Classical Piano — SomaFM"
+  },
+  {
+    id:"house-edm", name:"House & EDM", sub:"Keep the City Moving",
+    icon:"🏠", color:"#00897b", type:"music",
+    stream:"https://ice1.somafm.com/groovesalad-256-mp3",
+    nowPlaying:"Groove Salad — Ambient Electronic"
+  }
+];
+
+let currentStation = null;
+let radioPlaying = false;
+
+function renderStationList() {
+  document.getElementById("station-list").innerHTML = STATIONS.map(s => `
+    <div class="station-item ${currentStation===s.id?'active':''}" id="st-${s.id}" onclick="openStation('${s.id}')">
+      <div class="st-ico" style="background:${s.color}22;border-color:${s.color}33">${s.icon}</div>
+      <div class="st-info">
+        <div class="st-name">${s.name}</div>
+        <div class="st-type">${s.type==='music'?'🎵 Music':'📡 Broadcast'}</div>
+      </div>
+      ${s.type==='text'?`<span class="st-live">LIVE</span>`:""}
+      ${s.type==='music'&&currentStation===s.id&&radioPlaying?`<span class="st-playing">▶ ON</span>`:""}
+    </div>`).join("");
+}
+
+async function openStation(sid) {
+  currentStation = sid;
+  renderStationList();
+  const s = STATIONS.find(x=>x.id===sid);
+  if (!s) return;
+
+  // Stop any playing radio if switching stations
+  const audio = document.getElementById("radio-audio");
+
+  if (s.type === "music") {
+    renderMusicStation(s, audio);
+  } else {
+    renderTextStation(s);
+  }
+}
+
+function renderMusicStation(s, audio) {
+  const isThisPlaying = audio.src.includes(s.stream.split("//")[1]) && !audio.paused;
+  document.getElementById("dm-chat-area").innerHTML = `
+    <div class="station-view">
+      <div class="station-hd">
+        <div class="station-hd-ico" style="background:${s.color}22;border:1px solid ${s.color}44">${s.icon}</div>
+        <div class="station-hd-info">
+          <div class="station-hd-name">${s.name}</div>
+          <div class="station-hd-sub">${s.sub}</div>
+        </div>
+      </div>
+      <div class="now-playing-bar" id="np-bar-${s.id}">
+        <div class="np-dot" id="np-dot-${s.id}" style="${isThisPlaying?'':'background:var(--muted);box-shadow:none;animation:none'}"></div>
+        <div class="np-text">${isThisPlaying?'♫ '+s.nowPlaying:'— Tuned out'}</div>
+        <button class="np-toggle" id="np-btn-${s.id}" onclick="toggleRadio('${s.id}')">${isThisPlaying?'⏸ PAUSE':'▶ TUNE IN'}</button>
+      </div>
+      <div class="station-feed" style="align-items:center;justify-content:center">
+        <div style="text-align:center;padding:30px 20px">
+          <div style="font-size:52px;margin-bottom:14px">${s.icon}</div>
+          <div style="font-family:Orbitron,sans-serif;font-size:13px;color:var(--white);letter-spacing:1px;margin-bottom:8px">${s.name}</div>
+          <div style="font-size:11px;color:var(--muted);letter-spacing:.5px;margin-bottom:20px">${s.sub}</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.7">Free internet radio stream.<br>No account required. No data collected.</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleRadio(sid) {
+  const s = STATIONS.find(x=>x.id===sid);
+  if (!s) return;
+  const audio = document.getElementById("radio-audio");
+  const btn = document.getElementById("np-btn-"+sid);
+  const dot = document.getElementById("np-dot-"+sid);
+  const npBar = document.getElementById("np-bar-"+sid);
+
+  if (!audio.paused && audio.src.includes(s.stream.split("//")[1])) {
+    // Pause
+    audio.pause();
+    radioPlaying = false;
+    if (btn) btn.textContent = "▶ TUNE IN";
+    if (dot) { dot.style.background="var(--muted)"; dot.style.boxShadow="none"; dot.style.animation="none"; }
+    if (npBar) npBar.querySelector(".np-text").textContent = "— Tuned out";
+  } else {
+    // Play
+    audio.src = s.stream;
+    audio.play().catch(()=>showToast("Stream unavailable. Try another station.",true));
+    radioPlaying = true;
+    if (btn) btn.textContent = "⏸ PAUSE";
+    if (dot) { dot.style.background="var(--green)"; dot.style.boxShadow="0 0 6px var(--green)"; dot.style.animation="pulse-glow 1.5s infinite"; }
+    if (npBar) npBar.querySelector(".np-text").textContent = "♫ " + s.nowPlaying;
+  }
+  renderStationList();
+}
+
+const TAG_COLORS = {
+  BREAKING:"#ff3333", EXCLUSIVE:"#f5a623", UPDATE:"#00b4ff",
+  OPINION:"#9e4b9e", EDITORIAL:"#4b9e4b", LIVE:"#ff6f00",
+  SCORES:"#2b7c6b", REPORT:"#2b6b9e", ANALYSIS:"#6b7a8a",
+  THEORY:"#7c3b9e", EXPOSED:"#ff3333", CLASSIFIED:"#c8a020",
+  CALLER:"#4b9e4b", PROOF:"#f5a623", default:"#555"
+};
+
+async function renderTextStation(s) {
+  document.getElementById("dm-chat-area").innerHTML = `
+    <div class="station-view">
+      <div class="station-hd">
+        <div class="station-hd-ico" style="background:${s.color}22;border:1px solid ${s.color}44">${s.icon}</div>
+        <div class="station-hd-info">
+          <div class="station-hd-name">${s.name}</div>
+          <div class="station-hd-sub">${s.sub}</div>
+        </div>
+        <span class="st-live" style="position:static;margin-left:auto">● LIVE</span>
+      </div>
+      <div class="station-feed" id="st-feed-${s.id}">
+        <div class="loading-state"><div class="spinner"></div>TUNING IN...</div>
+      </div>
+      <div class="station-refresh-bar">
+        ${apiKey
+          ? `<button class="refresh-btn" id="refresh-btn-${s.id}" onclick="refreshStation('${s.id}')">⚡ REFRESH BROADCAST</button>
+             <span style="font-size:10px;color:var(--muted);letter-spacing:.5px">AI-generated • Updates on demand</span>`
+          : `<span class="station-no-key">⚠ Set API key in Admin to enable live broadcasts</span>`}
+      </div>
+    </div>`;
+  await refreshStation(s.id, true);
+}
+
+async function refreshStation(sid, silent=false) {
+  if (!apiKey) { showToast("Set API key in Admin panel first.", true); return; }
+  const s = STATIONS.find(x=>x.id===sid);
+  if (!s) return;
+  const feedEl = document.getElementById("st-feed-"+sid);
+  const btn = document.getElementById("refresh-btn-"+sid);
+  if (!feedEl) return;
+  if (!silent) {
+    if (btn) { btn.disabled=true; btn.textContent="LOADING..."; }
+    feedEl.innerHTML = `<div class="loading-state"><div class="spinner"></div>GENERATING BROADCAST...</div>`;
+  }
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514", max_tokens:800,
+        messages:[{role:"user",content:s.persona+"
+
+Return ONLY the JSON array, no markdown, no explanation."}]
+      })
+    });
+    const data = await resp.json();
+    const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
+    const items = JSON.parse(txt);
+    const now = new Date();
+    feedEl.innerHTML = items.map((item,i) => {
+      const tagColor = TAG_COLORS[item.tag] || TAG_COLORS.default;
+      const isUrgent = ["BREAKING","EXPOSED","EXCLUSIVE"].includes(item.tag);
+      const isHL = ["THEORY","LIVE","SCORES"].includes(item.tag);
+      const t = new Date(now - (items.length-1-i)*180000);
+      const timeStr = t.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+      return `<div class="broadcast-msg ${isUrgent?"urgent":isHL?"highlight":""}">
+        <div class="bm-hd">
+          <span class="bm-tag" style="background:${tagColor}22;color:${tagColor};border:1px solid ${tagColor}44">${item.tag}</span>
+          <span class="bm-time">${timeStr}</span>
+        </div>
+        <div class="bm-text">${escH(item.text)}</div>
+      </div>`;
+    }).join("");
+  } catch(e) {
+    if (feedEl) feedEl.innerHTML = `<div class="empty"><div class="empty-ico">📡</div><p>Broadcast signal lost</p></div>`;
+  }
+  if (btn) { btn.disabled=false; btn.textContent="⚡ REFRESH BROADCAST"; }
+}
+
 // =====================================================
 // INIT
 // =====================================================
@@ -546,7 +1471,21 @@ function showScreen(id){
 function dismissDisclaimer(){
   document.getElementById("disclaimer-screen").style.display="none";
   const url=localStorage.getItem("sb_url");
-  if(!url)showScreen("config-screen");else init();
+  if(!url)showScreen("config-screen");else async function doLogout(){
+  await sb.auth.signOut();
+  currentUser=null;currentProfile=null;
+  document.getElementById("app").style.display="none";
+  document.getElementById("tab-admin").style.display="none";
+  showScreen("login-screen");
+}
+
+function togglePass(id,btn){
+  const inp=document.getElementById(id);
+  if(inp.type==="password"){inp.type="text";btn.textContent="🙈";}
+  else{inp.type="password";btn.textContent="👁";}
+}
+
+init();
 }
 
 async function saveConfig(){
@@ -605,8 +1544,8 @@ async function checkHandle(val){
     else{hint.textContent="✓ Available";hint.className="field-hint ok";}
   },600);
 }
-function checkPass(val){
-  const hint=document.getElementById("r-pass-hint");
+function checkPass(val,hintId="r-pass-hint"){
+  const hint=document.getElementById(hintId);
   if(!val){hint.textContent="";hint.className="field-hint";return;}
   if(val.length<8){hint.textContent=`${val.length}/8 characters minimum`;hint.className="field-hint err";}
   else{hint.textContent="✓ Strong enough";hint.className="field-hint ok";}
@@ -630,9 +1569,19 @@ async function doRegister(){
   const email=rhandle+"@marvel-essence.local";
   const color=OC_COLORS[Math.floor(Math.random()*OC_COLORS.length)];
   const{data,error}=await sb.auth.signUp({email,password:rpass});
-  if(error){btn.disabled=false;btn.textContent="CREATE OC";document.getElementById("r-err").textContent=error.message;return;}
+  if(error){
+    btn.disabled=false;btn.textContent="CREATE OC";
+    if(error.message.includes("already registered")){document.getElementById("r-err").textContent="HANDLE ALREADY TAKEN";}
+    else{document.getElementById("r-err").textContent=error.message.toUpperCase();}
+    return;
+  }
+  if(!data.user){
+    btn.disabled=false;btn.textContent="CREATE OC";
+    document.getElementById("r-err").textContent="REGISTRATION FAILED — DISABLE EMAIL CONFIRMATION IN SUPABASE AUTH SETTINGS";
+    return;
+  }
   const{error:perr}=await sb.from("profiles").insert({id:data.user.id,handle:rhandle,hero_name:rhero,real_name:rname,faction:rfaction,bio:rbio,color,is_admin:false});
-  if(perr){btn.disabled=false;btn.textContent="CREATE OC";document.getElementById("r-err").textContent=perr.message;return;}
+  if(perr){btn.disabled=false;btn.textContent="CREATE OC";document.getElementById("r-err").textContent=perr.message.toUpperCase();return;}
   btn.disabled=false;btn.textContent="CREATE OC";
   await loadProfile(data.user.id);showApp();
 }
@@ -643,21 +1592,20 @@ async function doRegister(){
 function showApp(){
   document.getElementById("login-screen").style.display="none";
   document.getElementById("app").style.display="block";
-  const av=document.getElementById("nav-av");
-  av.textContent=currentProfile.hero_name[0];av.style.background=currentProfile.color;
   if(currentProfile.is_admin)document.getElementById("tab-admin").style.display="";
-  const ca=document.getElementById("compose-av");
-  ca.textContent=currentProfile.hero_name[0];ca.style.background=currentProfile.color;
+  updateNavAvatar();
   renderMyCard();renderFactionFilter();
-  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();setupRealtimeDMs();
+  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();setupRealtimeDMs();renderStationList();loadTrending();
 }
 
 function renderMyCard(){
   const u=currentProfile,fc=FC_COLORS[u.faction]||"#555";
+  const avHtml=u.avatar_url?`<img src="${escAttr(u.avatar_url)}" class="av-img" style="border-radius:3px"/>`:``;
   document.getElementById("my-oc-card").innerHTML=`
-    <div class="oc-av" style="background:${u.color}">${u.hero_name[0]}</div>
+    <div class="oc-av" style="background:${u.avatar_url?'transparent':u.color};overflow:hidden">${avHtml||u.hero_name[0]}</div>
     <div class="oc-hero-n">${u.hero_name}</div>
     <div class="oc-handle">@${u.handle}</div>
+    ${u.location?`<div class="oc-location">📍 ${escH(u.location)}</div>`:""}
     <div class="fc-badge" style="background:${fc}22;color:${fc};border:1px solid ${fc}44">${u.faction}</div>
     <div class="oc-bio">${escH(u.bio||"")}</div>`;
 }
@@ -773,6 +1721,7 @@ function renderPost(p){
   const u=p.profiles;if(!u)return"";
   const fc=FC_COLORS[u.faction]||"#555";
   const liked=p.likes?.some(l=>l.user_id===currentProfile.id);
+  const avHtml=u.avatar_url?`<img src="${escAttr(u.avatar_url)}" class="av-img"/>`:``;
   const isAdmin=currentProfile.is_admin;
   const isOwner=p.user_id===currentProfile.id;
   const commHtml=(p.comments||[]).map(c=>{
@@ -793,14 +1742,14 @@ function renderPost(p){
     <div class="post-stripe" style="background:${u.color}"></div>
     <div class="post-body">
       <div class="post-hd">
-        <div class="p-av" style="background:${u.color}">${u.hero_name[0]}</div>
+        <div class="p-av" style="background:${u.avatar_url?'transparent':u.color}">${avHtml||u.hero_name[0]}</div>
         <div class="post-meta">
           <div class="post-name">${u.hero_name}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Rajdhani,sans-serif">[civilian AI]</span>`:""}</div>
           <div class="post-sub"><span>@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
         </div>
         ${delBtn}
       </div>
-      ${p.content?`<div class="post-content" id="pcontent-${p.id}">${escH(p.content)}</div>`:""}
+      ${p.content?`<div class="post-content" id="pcontent-${p.id}">${renderHashtags(escH(p.content))}</div>`:""}
     </div>
     ${imgHtml}
     <div class="post-body" style="padding-top:0">
@@ -1119,13 +2068,14 @@ async function handleSearch(q){
 // =====================================================
 function showPage(p){
   currentPage=p;
-  ["feed","intel","dms","admin","search"].forEach(x=>{
+  ["feed","intel","dms","admin","search","settings"].forEach(x=>{
     const el=document.getElementById("page-"+x);if(el)el.style.display=x===p?"":"none";
   });
-  ["feed","intel","dms","admin"].forEach(x=>{const t=document.getElementById("tab-"+x);if(t)t.classList.toggle("active",x===p);});
+  ["feed","intel","dms","admin","settings"].forEach(x=>{const t=document.getElementById("tab-"+x);if(t)t.classList.toggle("active",x===p);});
   if(p==="intel")loadNewsFull();
-  if(p==="dms"){loadDMThreads();document.getElementById("dm-badge").style.display="none";}
-  if(p==="admin"&&currentProfile.is_admin)renderAdminPanel();
+  if(p==="dms"){loadDMThreads();renderStationList();document.getElementById("dm-badge").style.display="none";}
+  if(p==="admin"&&currentProfile.is_admin){renderAdminPanel();setTimeout(injectAdminTrending,600);}
+  if(p==="settings")renderSettingsPage();
 }
 
 // =====================================================
@@ -1175,7 +2125,9 @@ async function renderAdminPanel(){
   const users=usersRes.data||[],posts=postsRes.data||[],news=newsRes.data||[];
   const postsWithImages=posts.filter(p=>p.image_url);
 
+  // render trending async
   document.getElementById("admin-wrap").innerHTML=`
+    <div id="admin-trending-wrap"><div class="loading-state" style="padding:16px"><div class="spinner"></div></div></div>
     <!-- API KEY -->
     <div class="adm-sec">
       <div class="adm-hd">🔑 API CONFIGURATION</div>
@@ -1293,6 +2245,16 @@ async function renderAdminPanel(){
           </div>`).join(""):`<p style="font-size:11px;color:var(--muted)">No posts.</p>`}
       </div>
     </div>`;
+}
+
+  setTimeout(injectAdminTrending, 100);
+}
+
+// Load trending into admin panel
+async function injectAdminTrending(){
+  const el=document.getElementById("admin-trending-wrap");
+  if(!el)return;
+  el.innerHTML=await renderAdminTrending();
 }
 
 async function renderAdminPosts(){
@@ -1448,6 +2410,20 @@ function showToast(msg,err=false){
   const t=document.getElementById("toast");t.textContent=msg;
   t.className="toast show"+(err?" error":"");
   setTimeout(()=>t.classList.remove("show"),3400);
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  currentUser=null;currentProfile=null;
+  document.getElementById("app").style.display="none";
+  document.getElementById("tab-admin").style.display="none";
+  showScreen("login-screen");
+}
+
+function togglePass(id,btn){
+  const inp=document.getElementById(id);
+  if(inp.type==="password"){inp.type="text";btn.textContent="🙈";}
+  else{inp.type="password";btn.textContent="👁";}
 }
 
 init();
