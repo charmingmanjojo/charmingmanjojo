@@ -2774,9 +2774,40 @@ async function adminGenerateStation(sid, btnEl) {
       if(btn){btn.disabled=false;btn.textContent="⚡ GENERATE & BROADCAST";}
       return;
     }
-    const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
-    if(!txt){if(statusEl)statusEl.innerHTML=`<span style="color:var(--red)">✗ Empty response — try again</span>`;if(btn){btn.disabled=false;btn.textContent="⚡ GENERATE & BROADCAST";}return;}
-    const items = JSON.parse(txt);
+    const raw = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
+    if(!raw){if(statusEl)statusEl.innerHTML=`<span style="color:var(--red)">✗ Empty response — try again</span>`;if(btn){btn.disabled=false;btn.textContent="⚡ GENERATE & BROADCAST";}return;}
+
+    // Robust JSON extraction — find the outermost [...] array even if extra text surrounds it
+    let txt = raw;
+    const arrStart = raw.indexOf("[");
+    const arrEnd = raw.lastIndexOf("]");
+    if (arrStart !== -1 && arrEnd > arrStart) txt = raw.slice(arrStart, arrEnd + 1);
+
+    // Sanitize common AI JSON-breaking patterns before parsing:
+    // Replace unescaped newlines inside string values, fix smart quotes, etc.
+    txt = txt
+      .replace(/[‘’]/g, "'")           // smart single quotes → straight
+      .replace(/[“”]/g, '\"')          // smart double quotes → escaped
+      .replace(/[–—]/g, "-")            // en/em dashes → hyphen (safe in JSON strings)
+      .replace(/
+?
+/g, "\n");                  // literal newlines inside strings → 
+
+
+    let items;
+    try {
+      items = JSON.parse(txt);
+    } catch(parseErr) {
+      // Last-resort: extract individual objects with regex and rebuild array
+      console.warn("JSON.parse failed, attempting recovery:", parseErr.message);
+      const objMatches = [...txt.matchAll(/\{[^{}]*"tag"\s*:\s*"([^"]+)"[^{}]*"text"\s*:\s*"((?:[^"\]|\.)*)"/g)];
+      if (objMatches.length) {
+        items = objMatches.map(m => ({ tag: m[1], text: m[2].replace(/\n/g, "
+") }));
+      } else {
+        throw new Error("Could not parse AI response as JSON. " + parseErr.message);
+      }
+    }
 
     await sb.from("broadcasts").delete().eq("station_id", sid);
     const rows = items.map(item => ({station_id: sid, tag: item.tag, text: item.text}));
