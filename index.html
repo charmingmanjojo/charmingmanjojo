@@ -2034,10 +2034,11 @@ async function openStation(sid) {
 }
 
 function renderMusicStation(s) {
-  const startIdx = Math.floor(Math.random() * 15) + 1;
+  const startIdx = Math.floor(Math.random() * 80) + 1;
+  const startSec = Math.floor(Math.random() * 120); // start up to 2 mins into the track
   const embedUrl = "https://www.youtube.com/embed/" + s.ytVideo +
-    "?list=" + s.ytList + "&autoplay=1&shuffle=1&index=" + startIdx +
-    "&rel=0&modestbranding=1&color=white";
+    "?list=" + s.ytList + "&autoplay=1&index=" + startIdx +
+    "&start=" + startSec + "&rel=0&modestbranding=1&color=white";
 
   document.getElementById("dm-chat-area").innerHTML =
     '<div class="station-view">' +
@@ -2137,13 +2138,13 @@ async function loadStationFromDB(sid) {
   } catch(e) { return false; }
 }
 
-async function adminGenerateStation(sid) {
+async function adminGenerateStation(sid, btnEl) {
   const s = STATIONS.find(x=>x.id===sid);
   if (!s) return;
   const customPrompt = (document.getElementById("station-prompt-"+sid)||{}).value?.trim();
   const statusEl = document.getElementById("station-gen-status-"+sid);
-  const btn = event.target;
-  btn.disabled = true; btn.textContent = "GENERATING...";
+  const btn = btnEl || document.querySelector(`[onclick="adminGenerateStation('${sid}')"]`);
+  if (btn) { btn.disabled = true; btn.textContent = "GENERATING..."; }
   if (statusEl) statusEl.textContent = "Contacting AI...";
 
   const prompt = customPrompt
@@ -2170,9 +2171,10 @@ async function adminGenerateStation(sid) {
     }
     showToast(`${s.name} broadcast updated!`);
   } catch(e) {
-    if (statusEl) statusEl.innerHTML = `<span style="color:var(--red)">✗ Generation failed — try again</span>`;
+    console.error("Station gen error:", e);
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--red)">✗ ${e.message||"Generation failed"} — check console</span>`;
   }
-  btn.disabled = false; btn.textContent = "⚡ GENERATE & BROADCAST";
+  if (btn) { btn.disabled = false; btn.textContent = "⚡ GENERATE & BROADCAST"; }
 }
 
 async function refreshStation(sid, silent=false) {
@@ -3027,7 +3029,7 @@ async function renderAdminPanel(){
             <label>Custom Prompt (optional)</label>
             <textarea id="station-prompt-${s.id}" placeholder="e.g. Breaking: The Hulk has been spotted heading toward Central Park — cover this from ${s.name}'s perspective..." style="min-height:70px"></textarea>
           </div>
-          <button class="abtn" style="width:100%" onclick="adminGenerateStation('${s.id}')">⚡ GENERATE &amp; BROADCAST</button>
+          <button class="abtn" style="width:100%" onclick="adminGenerateStation('${s.id}', this)">⚡ GENERATE &amp; BROADCAST</button>
           <div id="station-gen-status-${s.id}" style="font-size:10px;color:var(--muted);margin-top:7px;min-height:14px"></div>
         </div>`).join("")}
       </div>
