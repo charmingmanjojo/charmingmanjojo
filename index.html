@@ -49,7 +49,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 .login-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(0,100,200,.15) 0%,transparent 60%),radial-gradient(ellipse at 70% 60%,rgba(0,180,255,.08) 0%,transparent 50%);pointer-events:none}
 .login-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,150,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,150,255,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
-.login-box{background:rgba(10,18,33,.92);border:1px solid rgba(0,180,255,.2);border-radius:8px;padding:44px 38px;width:390px;max-width:94%;position:relative;backdrop-filter:blur(20px);box-shadow:0 0 60px rgba(0,100,200,.15)}
+.login-box{background:rgba(10,18,33,.92);border:1px solid rgba(0,180,255,.2);border-radius:8px;padding:36px 34px;width:400px;max-width:95%;position:relative;backdrop-filter:blur(20px);box-shadow:0 0 60px rgba(0,100,200,.15);max-height:92vh;overflow-y:auto}
+.field-hint{font-size:10px;margin-top:4px;letter-spacing:.5px;min-height:13px}
+.field-hint.ok{color:var(--green)}
+.field-hint.err{color:var(--red)}
+.field-hint.warn{color:var(--gold)}
 .login-box::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
 .login-logo{text-align:center;margin-bottom:28px}
 .login-logo img{width:260px;filter:drop-shadow(0 0 20px rgba(245,166,35,.5))}
@@ -363,13 +367,21 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div id="lform-reg" style="display:none">
       <div class="lfield"><label>Real Name</label><input id="r-name" placeholder="Jane Foster"/></div>
       <div class="lfield"><label>Hero / OC Name</label><input id="r-hero" placeholder="Mighty Thor"/></div>
-      <div class="lfield"><label>Handle</label><input id="r-handle" placeholder="@handle"/></div>
+      <div class="lfield">
+        <label>Handle</label>
+        <input id="r-handle" placeholder="@handle" oninput="checkHandle(this.value)"/>
+        <div class="field-hint" id="r-handle-hint"></div>
+      </div>
       <div class="lfield"><label>Faction</label>
         <select id="r-faction"><option>Independent</option><option>Military</option><option>Science Division</option><option>Vigilante</option><option>Government</option></select>
       </div>
       <div class="lfield"><label>Bio</label><input id="r-bio" placeholder="Brief in-verse bio..."/></div>
-      <div class="lfield"><label>Password</label><input id="r-pass" type="password" placeholder="••••••••" autocomplete="new-password"/></div>
-      <button class="login-btn" id="r-btn" onclick="doRegister()">CREATE OC</button>
+      <div class="lfield">
+        <label>Password <span style="font-size:9px;color:var(--muted)">(min 8 characters)</span></label>
+        <input id="r-pass" type="password" placeholder="••••••••" autocomplete="new-password" oninput="checkPass(this.value)"/>
+        <div class="field-hint" id="r-pass-hint"></div>
+      </div>
+      <button class="login-btn" id="r-btn" onclick="doRegister()" style="margin-top:14px">CREATE OC</button>
       <div class="lerr" id="r-err"></div>
     </div>
   </div>
@@ -578,6 +590,27 @@ async function doLogin(){
   await loadProfile(data.user.id);showApp();
 }
 
+let handleCheckTimer=null;
+async function checkHandle(val){
+  const hint=document.getElementById("r-handle-hint");
+  const h=val.trim().toLowerCase().replace("@","");
+  if(!h){hint.textContent="";hint.className="field-hint";return;}
+  if(h.length<3){hint.textContent="Too short (min 3 characters)";hint.className="field-hint err";return;}
+  if(!/^[a-z0-9_]+$/.test(h)){hint.textContent="Only letters, numbers, underscores";hint.className="field-hint err";return;}
+  hint.textContent="Checking...";hint.className="field-hint warn";
+  clearTimeout(handleCheckTimer);
+  handleCheckTimer=setTimeout(async()=>{
+    const{data}=await sb.from("profiles").select("id").eq("handle",h).maybeSingle();
+    if(data){hint.textContent="⚠ Handle already taken";hint.className="field-hint err";}
+    else{hint.textContent="✓ Available";hint.className="field-hint ok";}
+  },600);
+}
+function checkPass(val){
+  const hint=document.getElementById("r-pass-hint");
+  if(!val){hint.textContent="";hint.className="field-hint";return;}
+  if(val.length<8){hint.textContent=`${val.length}/8 characters minimum`;hint.className="field-hint err";}
+  else{hint.textContent="✓ Strong enough";hint.className="field-hint ok";}
+}
 async function doRegister(){
   const rname=document.getElementById("r-name").value.trim();
   const rhero=document.getElementById("r-hero").value.trim();
@@ -586,7 +619,12 @@ async function doRegister(){
   const rbio=document.getElementById("r-bio").value.trim();
   const rpass=document.getElementById("r-pass").value;
   if(!rname||!rhero||!rhandle||!rpass){document.getElementById("r-err").textContent="ALL FIELDS REQUIRED";return;}
-  if(rhandle.length<3){document.getElementById("r-err").textContent="HANDLE TOO SHORT";return;}
+  if(rhandle.length<3){document.getElementById("r-err").textContent="HANDLE TOO SHORT — MIN 3 CHARACTERS";return;}
+  if(!/^[a-z0-9_]+$/.test(rhandle)){document.getElementById("r-err").textContent="HANDLE: LETTERS, NUMBERS & UNDERSCORES ONLY";return;}
+  if(rpass.length<8){document.getElementById("r-err").textContent="PASSWORD TOO SHORT — MIN 8 CHARACTERS";return;}
+  // Check handle availability one more time
+  const{data:taken}=await sb.from("profiles").select("id").eq("handle",rhandle).maybeSingle();
+  if(taken){document.getElementById("r-err").textContent="HANDLE ALREADY TAKEN";return;}
   const btn=document.getElementById("r-btn");
   btn.disabled=true;btn.textContent="CREATING OC...";
   const email=rhandle+"@marvel-essence.local";
