@@ -273,7 +273,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .mcp-field label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;width:50px;flex-shrink:0}
 .mcp-field input{flex:1;background:transparent;border:none;outline:none;color:var(--white);font-family:"Barlow",sans-serif;font-size:13px}
 .mcp-field input::placeholder{color:var(--muted)}
-.mcp-to-results{background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.6);margin:0 16px 4px;}
+.mcp-to-results{position:fixed;background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow-y:auto;max-height:220px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.7);min-width:300px}
 .mcp-to-result{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;transition:.15s;font-size:13px}
 .mcp-to-result:hover{background:rgba(59,130,246,.1)}
 .mcp-body{flex:1;overflow:hidden;display:flex}
@@ -822,7 +822,6 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <label>To</label>
         <input id="mcp-to-input" placeholder="Search by handle or name..." oninput="searchMailRecipient(this.value)" autocomplete="off" onfocus="if(this.value.trim())searchMailRecipient(this.value)"/>
       </div>
-      <div id="mcp-to-results" class="mcp-to-results" style="display:none"></div>
       <div class="mcp-field">
         <label>Subject</label>
         <input id="mcp-subject" placeholder="Subject"/>
@@ -3722,6 +3721,7 @@ function forwardMail(subject, body) {
 async function searchMailRecipient(val) {
   mailToUserId = null;
   const results = document.getElementById("mcp-to-results");
+  const input = document.getElementById("mcp-to-input");
   clearTimeout(mailSearchTimer);
   if(!val.trim()) { results.style.display = "none"; return; }
   mailSearchTimer = setTimeout(async () => {
@@ -3731,7 +3731,12 @@ async function searchMailRecipient(val) {
         .or(`handle.ilike.%${q}%,hero_name.ilike.%${q}%`)
         .neq("id", currentProfile.id).limit(6);
       if(!data?.length) { results.style.display = "none"; return; }
-      results.style.display = "";
+      // Position dropdown relative to the input using fixed coords
+      const rect = input.getBoundingClientRect();
+      results.style.top = (rect.bottom + 4) + "px";
+      results.style.left = rect.left + "px";
+      results.style.width = rect.width + "px";
+      results.style.display = "block";
       results.innerHTML = data.map(p => {
         const init = p.hero_name.split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
         return `<div class="mcp-to-result" onclick="selectMailTo('${p.id}','${escAttr(p.hero_name)}','${escAttr(p.handle)}')">
@@ -3740,7 +3745,7 @@ async function searchMailRecipient(val) {
         </div>`;
       }).join("");
     } catch(e) { results.style.display = "none"; }
-  }, 350);
+  }, 300);
 }
 
 function selectMailTo(id, name, handle) {
@@ -3892,5 +3897,7 @@ setInterval(() => { if(currentProfile) updateMailBadge(); }, 60000);
 applyTheme(currentTheme);
 startDisclaimerTimer();
 </script>
+<!-- Mail recipient dropdown rendered at body level to avoid clipping -->
+<div id="mcp-to-results" class="mcp-to-results" style="display:none"></div>
 </body>
 </html>
