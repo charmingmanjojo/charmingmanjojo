@@ -94,6 +94,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .nbadge{position:absolute;top:2px;right:4px;width:14px;height:14px;background:var(--red);color:#fff;border-radius:50%;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .nav-av{width:34px;height:34px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:.2s;color:#fff;flex-shrink:0;overflow:hidden}
 .nav-av:hover{border-color:var(--accent)}
+.marvel-clock{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:0 10px;border-left:1px solid var(--border);margin-left:4px;flex-shrink:0}
+.marvel-clock-date{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;line-height:1.2}
+.marvel-clock-time{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--white);letter-spacing:1px;line-height:1.3}
 
 #app{display:none;position:relative;z-index:1}
 .layout{padding-top:72px;padding-bottom:28px;max-width:1060px;margin:0 auto;display:grid;grid-template-columns:210px 1fr 250px;gap:14px;padding-left:14px;padding-right:14px}
@@ -705,6 +708,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
     <div class="nav-av" id="nav-av" title="Your profile" onclick="showPage('settings')" style="cursor:pointer"></div>
     <button class="notif-bell" id="notif-bell" onclick="toggleNotifPanel()" title="Notifications" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:5px 9px;position:relative;line-height:1">🔔<span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
+    <div class="marvel-clock" title="In-universe Marvel date">
+      <div class="marvel-clock-date" id="mclock-date">APR 05 2012</div>
+      <div class="marvel-clock-time" id="mclock-time">00:00 AM</div>
+    </div>
     <button onclick="doLogout()" title="Log out" style="padding:7px 14px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);font-family:Barlow,sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:.15s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">LOG OUT</button>
   </nav>
 
@@ -1730,12 +1737,12 @@ async function unmuteUser(userId, heroName) {
 // ONLINE STATUS
 // =====================================================
 async function updateLastSeen() {
-  await sb.from("profiles").update({last_seen:new Date().toISOString()}).eq("id",currentProfile.id);
+  await sb.from("profiles").update({last_seen:marvelNowISO()}).eq("id",currentProfile.id);
 }
 
 function isOnline(lastSeen) {
   if (!lastSeen) return false;
-  return (Date.now() - new Date(lastSeen).getTime()) < 5 * 60 * 1000; // 5 min
+  return (marvelNow().getTime() - toMarvelDate(lastSeen).getTime()) < 5 * 60 * 1000; // 5 min
 }
 
 // =====================================================
@@ -2280,12 +2287,12 @@ async function renderTextStation(s) {
 }
 
 function renderBroadcastItems(items, feedEl) {
-  const now = new Date();
+  const now = marvelNow();
   feedEl.innerHTML = items.map((item, i) => {
     const tagColor = TAG_COLORS[item.tag] || TAG_COLORS.default;
     const isUrgent = ["BREAKING","EXPOSED","EXCLUSIVE"].includes(item.tag);
     const isHL = ["THEORY","LIVE","SCORES"].includes(item.tag);
-    const t = item.created_at ? new Date(item.created_at) : new Date(now - (items.length-1-i)*180000);
+    const t = item.created_at ? toMarvelDate(item.created_at) : new Date(marvelNow().getTime() - (items.length-1-i)*180000);
     const timeStr = t.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
     return `<div class="broadcast-msg ${isUrgent?"urgent":isHL?"highlight":""}">
       <div class="bm-hd">
@@ -2307,8 +2314,8 @@ async function loadStationFromDB(sid) {
       .order("created_at", {ascending:true});
     if (error || !data || data.length === 0) return false;
     // Check if broadcast is less than 2 hours old
-    const newest = new Date(data[data.length-1].created_at);
-    const ageMs = Date.now() - newest.getTime();
+    const newest = toMarvelDate(data[data.length-1].created_at);
+    const ageMs = marvelNow().getTime() - toMarvelDate(newest.toISOString()).getTime();
     if (ageMs > 2 * 60 * 60 * 1000) return false; // expired
     renderBroadcastItems(data, feedEl);
     // Show age info
@@ -2951,7 +2958,7 @@ async function loadAIFeed(){
     if(!Array.isArray(civs)||civs.length===0){showToast("AI returned unexpected format. Try again.",true);btn.disabled=false;btn.innerHTML="<span>⚡</span> CITIZEN FEED";return;}
     let count=0;
     for(const c of civs){
-      const handle=(c.handle||"citizen"+Date.now()).replace(/[^a-z0-9_]/gi,"").toLowerCase().substring(0,20);
+      const handle=(c.handle||"citizen"+marvelNow().getTime()).replace(/[^a-z0-9_]/gi,"").toLowerCase().substring(0,20);
       const heroName=c.name||handle;
       const col=OC_COLORS[Math.floor(Math.random()*OC_COLORS.length)];
       let{data:existing}=await sb.from("profiles").select("id").eq("handle",handle).single().catch(()=>({data:null}));
@@ -3480,12 +3487,46 @@ function useAINews(){
 // =====================================================
 // UTILS
 // =====================================================
+// =====================================================
+// MARVEL TIME ENGINE — Universe clock anchored to April 2012
+// Real "now" (March 5, 2026) maps to April 5, 2012 in-universe.
+// Every real timestamp is shifted by MARVEL_OFFSET_MS for display.
+// =====================================================
+const _MARVEL_ANCHOR_REAL = new Date("2026-03-05T00:00:00.000Z").getTime();
+const _MARVEL_ANCHOR_FICT = new Date("2012-04-05T00:00:00.000Z").getTime();
+const MARVEL_OFFSET_MS = _MARVEL_ANCHOR_FICT - _MARVEL_ANCHOR_REAL;
+
+function marvelNow(){ return new Date(Date.now() + MARVEL_OFFSET_MS); }
+function toMarvelDate(ts){ if(!ts)return null; return new Date(new Date(ts).getTime() + MARVEL_OFFSET_MS); }
+function marvelNowISO(){ return marvelNow().toISOString(); }
+
+function updateMarvelClock(){
+  const now = marvelNow();
+  const dateStr = now.toLocaleDateString("en-US",{month:"short",day:"2-digit",year:"numeric"}).toUpperCase().replace(",","");
+  const timeStr = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+  const dateEl = document.getElementById("mclock-date");
+  const timeEl = document.getElementById("mclock-time");
+  if(dateEl) dateEl.textContent = dateStr;
+  if(timeEl) timeEl.textContent = timeStr;
+}
+setInterval(updateMarvelClock, 10000);
+setTimeout(updateMarvelClock, 100);
+
 function timeAgo(ts){
-  if(!ts)return"";const d=Date.now()-new Date(ts).getTime(),m=Math.floor(d/60000);
+  if(!ts)return"";
+  const d=marvelNow().getTime()-toMarvelDate(ts).getTime(),m=Math.floor(d/60000);
   if(m<1)return"just now";if(m<60)return m+"m ago";
   const h=Math.floor(m/60);if(h<24)return h+"h ago";return Math.floor(h/24)+"d ago";
 }
-function fmtDate(ts){if(!ts)return"";return new Date(ts).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});}
+function fmtDate(ts){
+  if(!ts)return"";
+  return toMarvelDate(ts).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
+}
+function fmtDateTime(ts){
+  if(!ts)return"";
+  const d=toMarvelDate(ts);
+  return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})+" "+d.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+}
 function escH(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\n/g,"<br>");}
 function escAttr(s){return String(s||"").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
 function escHtml(s){return escH(s);}
