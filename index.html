@@ -762,6 +762,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <!-- Sidebar -->
       <div class="mail-sidebar">
         <div class="mail-sidebar-hd">✉ MAIL</div>
+        <div id="mail-my-address" style="padding:10px 14px 2px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);word-break:break-all;line-height:1.5">
+          <span style="color:var(--muted);letter-spacing:.3px">Your address:</span><br>
+          <span id="mail-addr-text" style="color:var(--accent);font-weight:600;font-size:12px"></span>
+        </div>
         <button class="mail-compose-btn" onclick="openCompose()">✏ Compose</button>
         <nav class="mail-nav">
           <button class="mail-nav-item active" id="mail-nav-inbox" onclick="switchMailView('inbox')">
@@ -2580,6 +2584,7 @@ function renderMyCard(){
     <div class="oc-hero-n">${u.hero_name}</div>
     <div class="oc-handle">@${u.handle}</div>
     ${u.location?`<div class="oc-location">📍 ${escH(u.location)}</div>`:""}
+    <div style="font-size:11px;color:var(--accent);margin-top:5px;opacity:.8;cursor:pointer" onclick="showPage('mail')" title="Go to Mail">✉ ${u.handle}@marvel-essence.net</div>
     <div class="fc-badge" style="background:${fc}22;color:${fc};border:1px solid ${fc}44">${u.faction}</div>
     <div class="oc-bio">${escH(u.bio||"")}</div>`;
 }
@@ -3086,7 +3091,7 @@ function showPage(p){
   ["feed","intel","dms","admin","settings","mail"].forEach(x=>{const t=document.getElementById("tab-"+x);if(t)t.classList.toggle("active",x===p);});
   if(p==="intel")loadNewsFull();
   if(p==="dms"){loadDMThreads();renderStationList();document.getElementById("dm-badge").style.display="none";}
-  if(p==="mail"){loadMailView("inbox");document.getElementById("mail-badge").style.display="none";}
+  if(p==="mail"){loadMailView("inbox");document.getElementById("mail-badge").style.display="none";const addrEl=document.getElementById("mail-addr-text");if(addrEl&&currentProfile)addrEl.textContent=currentProfile.handle+"@marvel-essence.net";}
   if(p==="admin"&&currentProfile.is_admin){renderAdminPanel();setTimeout(injectAdminTrending,600);}
   if(p==="settings"){renderSettingsPage();setTimeout(()=>{const el=document.getElementById('theme-picker-wrap');if(el)el.innerHTML=renderThemePicker();},50);}
 }
