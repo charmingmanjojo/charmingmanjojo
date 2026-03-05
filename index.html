@@ -456,6 +456,38 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 /* Password change section */
 .pass-section{border-top:1px solid var(--border);margin-top:16px;padding-top:16px}
 
+
+/* ===================== PROFILE DRAWER ===================== */
+#profile-drawer{position:fixed;top:56px;right:0;width:340px;height:calc(100vh - 56px);background:var(--card);border-left:1px solid var(--border2);z-index:160;transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;overflow:hidden}
+#profile-drawer.open{transform:translateX(0)}
+.pdr-banner{height:80px;flex-shrink:0;position:relative;background:linear-gradient(135deg,var(--surface),var(--card2))}
+.pdr-banner-color{position:absolute;inset:0;opacity:.35}
+.pdr-av{position:absolute;bottom:-28px;left:18px;width:58px;height:58px;border-radius:6px;border:3px solid var(--card);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:#fff;flex-shrink:0}
+.pdr-close{position:absolute;top:10px;right:12px;background:rgba(0,0,0,.5);border:none;color:var(--white);font-size:16px;cursor:pointer;border-radius:3px;padding:3px 8px;line-height:1}
+.pdr-info{padding:38px 18px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.pdr-hero{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--white);letter-spacing:.5px}
+.pdr-handle{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.5px}
+.pdr-location{font-size:11px;color:var(--muted);margin-top:5px;display:flex;align-items:center;gap:4px}
+.pdr-bio{font-size:13px;color:var(--text);margin-top:10px;line-height:1.6}
+.pdr-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.pdr-stats{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0}
+.pdr-stat{flex:1;padding:12px;text-align:center;border-right:1px solid var(--border)}
+.pdr-stat:last-child{border-right:none}
+.pdr-stat-n{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--white)}
+.pdr-stat-l{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.pdr-actions{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.pdr-btn{flex:1;padding:8px;border-radius:3px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:.2s;text-transform:uppercase;text-align:center}
+.pdr-btn-primary{background:var(--accent);border:none;color:var(--bg)}
+.pdr-btn-primary:hover{filter:brightness(1.15)}
+.pdr-btn-secondary{background:none;border:1px solid var(--border2);color:var(--accent)}
+.pdr-btn-secondary:hover{background:rgba(0,180,255,.08)}
+.pdr-posts{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.pdr-post{background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:11px 13px;cursor:pointer;transition:.15s}
+.pdr-post:hover{border-color:var(--border2);background:rgba(0,180,255,.03)}
+.pdr-post-text{font-size:13px;color:var(--text);line-height:1.55;margin-bottom:6px}
+.pdr-post-meta{font-size:10px;color:var(--muted);display:flex;gap:10px}
+.pdr-empty{padding:30px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px}
+
 </style>
 </head>
 <body>
@@ -662,6 +694,20 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 </div>
 
 <audio id="radio-audio" style="display:none" preload="none"></audio>
+
+
+<!-- PROFILE DRAWER -->
+<div id="profile-drawer">
+  <div class="pdr-banner" id="pdr-banner">
+    <div class="pdr-banner-color" id="pdr-banner-color"></div>
+    <div class="pdr-av" id="pdr-av"></div>
+    <button class="pdr-close" onclick="closeProfileDrawer()">✕</button>
+  </div>
+  <div class="pdr-info" id="pdr-info"></div>
+  <div class="pdr-stats" id="pdr-stats"></div>
+  <div class="pdr-actions" id="pdr-actions"></div>
+  <div class="pdr-posts" id="pdr-posts"><div class="pdr-empty">Loading...</div></div>
+</div>
 
 <!-- TRENDING DRAWER -->
 <div id="trend-drawer">
@@ -1104,6 +1150,146 @@ function renderThemePickerActive() {
 }
 
 
+
+// =====================================================
+// PROFILE DRAWER
+// =====================================================
+let profileDrawerOpen = false;
+
+async function openProfileDrawer(userId) {
+  if (!userId) return;
+  const drawer = document.getElementById("profile-drawer");
+  drawer.classList.add("open");
+  profileDrawerOpen = true;
+
+  // Close trend drawer if open
+  document.getElementById("trend-drawer").classList.remove("open");
+
+  // Show loading state
+  document.getElementById("pdr-posts").innerHTML = '<div class="pdr-empty"><div class="spinner"></div></div>';
+  document.getElementById("pdr-info").innerHTML = '<div class="loading-state" style="padding:16px"><div class="spinner"></div></div>';
+
+  // Fetch profile
+  const { data: u } = await sb.from("profiles").select("*").eq("id", userId).single();
+  if (!u) { closeProfileDrawer(); return; }
+
+  const fc = FC_COLORS[u.faction] || "#555";
+  const isOwnProfile = userId === currentProfile.id;
+
+  // Banner + avatar
+  document.getElementById("pdr-banner-color").style.background = u.color;
+  const avEl = document.getElementById("pdr-av");
+  avEl.style.background = u.avatar_url ? "transparent" : u.color;
+  avEl.innerHTML = u.avatar_url
+    ? '<img src="' + escAttr(u.avatar_url) + '" style="width:100%;height:100%;object-fit:cover"/>'
+    : u.hero_name[0];
+
+  // Info section
+  document.getElementById("pdr-info").innerHTML =
+    '<div class="pdr-hero">' + escH(u.hero_name) + '</div>' +
+    '<div class="pdr-handle">@' + escH(u.handle) + '</div>' +
+    (u.location ? '<div class="pdr-location">📍 ' + escH(u.location) + '</div>' : '') +
+    (u.bio ? '<div class="pdr-bio">' + escH(u.bio) + '</div>' : '') +
+    '<div class="pdr-badges">' +
+      '<span class="fc-badge" style="background:' + fc + '22;color:' + fc + ';border:1px solid ' + fc + '44;font-size:9px;padding:2px 8px">' + escH(u.faction||"Independent") + '</span>' +
+    '</div>';
+
+  // Fetch post count + like count
+  const { count: postCount } = await sb.from("posts").select("*", {count:"exact",head:true}).eq("user_id", userId);
+  const { data: userPosts } = await sb.from("posts").select("id").eq("user_id", userId);
+  const postIds = (userPosts||[]).map(p=>p.id);
+  let likeCount = 0;
+  if (postIds.length) {
+    const { count } = await sb.from("likes").select("*", {count:"exact",head:true}).in("post_id", postIds);
+    likeCount = count || 0;
+  }
+
+  // Stats
+  document.getElementById("pdr-stats").innerHTML =
+    '<div class="pdr-stat"><div class="pdr-stat-n">' + (postCount||0) + '</div><div class="pdr-stat-l">Posts</div></div>' +
+    '<div class="pdr-stat"><div class="pdr-stat-n">' + likeCount + '</div><div class="pdr-stat-l">Likes</div></div>' +
+    '<div class="pdr-stat"><div class="pdr-stat-n">' + (u.faction||"—") + '</div><div class="pdr-stat-l">Faction</div></div>';
+
+  // Actions
+  const _actEl = document.getElementById("pdr-actions");
+  _actEl.innerHTML = "";
+  if (isOwnProfile) {
+    const _b = document.createElement("button");
+    _b.className = "pdr-btn pdr-btn-primary";
+    _b.textContent = "EDIT PROFILE";
+    _b.onclick = function(){ showPage("settings"); closeProfileDrawer(); };
+    _actEl.appendChild(_b);
+  } else {
+    const _m = document.createElement("button");
+    _m.className = "pdr-btn pdr-btn-primary";
+    _m.innerHTML = "&#x1F4AC; MESSAGE";
+    _m.onclick = function(){ openDMUser(userId); closeProfileDrawer(); };
+    const _n = document.createElement("button");
+    _n.className = "pdr-btn pdr-btn-secondary";
+    _n.textContent = "@ MENTION";
+    _n.onclick = function(){ copyHandle(u.handle); };
+    _actEl.appendChild(_m);
+    _actEl.appendChild(_n);
+  }
+
+  // Posts
+  const { data: posts } = await sb.from("posts")
+    .select("id,content,created_at,image_url,likes(user_id),comments(id)")
+    .eq("user_id", userId)
+    .order("created_at", {ascending:false})
+    .limit(12);
+
+  const postsEl = document.getElementById("pdr-posts");
+  if (!posts?.length) {
+    postsEl.innerHTML = '<div class="pdr-empty">No posts yet</div>';
+    return;
+  }
+  postsEl.innerHTML = "";
+  posts.forEach(function(p) {
+    const div = document.createElement("div");
+    div.className = "pdr-post";
+    div.onclick = function(){ scrollToPost(p.id); };
+    let inner = "";
+    if (p.content) inner += '<div class="pdr-post-text">' + renderHashtags(escH(p.content)) + '</div>';
+    if (p.image_url) inner += '<div style="margin-bottom:6px"><img src="' + escAttr(p.image_url) + '" style="width:100%;border-radius:3px;max-height:120px;object-fit:cover"/></div>';
+    inner += '<div class="pdr-post-meta">' +
+      '<span>&#x2665; ' + (p.likes?.length||0) + '</span>' +
+      '<span>&#x1F4AC; ' + (p.comments?.length||0) + '</span>' +
+      '<span>' + timeAgo(p.created_at) + '</span>' +
+    '</div>';
+    div.innerHTML = inner;
+    postsEl.appendChild(div);
+  });
+}
+
+function closeProfileDrawer() {
+  document.getElementById("profile-drawer").classList.remove("open");
+  profileDrawerOpen = false;
+}
+
+function copyHandle(handle) {
+  navigator.clipboard.writeText("@" + handle).catch(()=>{});
+  showToast("@" + handle + " copied!");
+}
+
+async function scrollToPost(postId) {
+  closeProfileDrawer();
+  closeTrendDrawer();
+  showPage("feed");
+  await new Promise(r => setTimeout(r, 200));
+  const el = document.getElementById("post-" + postId);
+  if (el) {
+    el.scrollIntoView({behavior:"smooth", block:"center"});
+    el.style.outline = "1px solid var(--accent)";
+    setTimeout(() => el.style.outline = "", 1500);
+  }
+}
+
+// Close on ESC (add to existing listener)
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") { closeProfileDrawer(); closeTrendDrawer(); }
+});
+
 // =====================================================
 // TRENDING
 // =====================================================
@@ -1324,17 +1510,17 @@ const STATIONS = [
   {
     id:"daily-bugle", name:"The Daily Bugle", sub:"NYC's #1 News Source",
     icon:"📰", color:"#c8a020", type:"text",
-    persona:"You are J. Jonah Jameson's Daily Bugle broadcast feed in a virgin Marvel universe where heroes are just emerging. Write 5 short news bulletins in the style of sensationalist tabloid journalism — dramatic, slightly paranoid, obsessed with the gamma creature and the 'vigilante in a suit'. Mix breaking news, opinion, and outrage. Format as JSON array: [{tag:'BREAKING',text:'...'},{tag:'OPINION',text:'...'},{tag:'EXCLUSIVE',text:'...'},{tag:'UPDATE',text:'...'},{tag:'EDITORIAL',text:'...'}]"
+    persona:"You are J. Jonah Jameson himself — editor-in-chief of the Daily Bugle — doing a live emergency radio broadcast. This is a virgin Marvel universe. First time anyone has ever seen a gamma-powered creature or a man in a flying suit of armor. You are reading your own copy on air. Stay in character completely.\n\nJJJ VOICE RULES:\n- He swings between thunderous outrage and grim clipped authority — never just one tone\n- When outraged: ALL CAPS, interrupts himself, asks rhetorical questions and answers them immediately and wrongly\n- When grim: short declarative sentences. Almost calm. More chilling than the shouting.\n- He DESPISES the creature — calls it: menace, abomination, this GREEN CATASTROPHE, that THING\n- Deeply suspicious of the armored figure too — vigilante, mystery man in a tin suit, who IS this person\n- Blames scientists, the government, irresponsible so-called PROGRESS\n- Mentions reporters by name — Robertson is reliable. Parker is late. As usual.\n- Occasional gravelly beat of genuine fear he immediately buries under more outrage\n- You can almost hear the mustache\n\nWrite 5 broadcast segments alternating between outraged and grim. Use tags: BREAKING, EYEWITNESS, EDITORIAL, DEMAND, BULLETIN\nReturn ONLY a JSON array: [{\"tag\":\"BREAKING\",\"text\":\"...\"}, ...] No markdown. No explanation."
   },
   {
     id:"sports-central", name:"Sports Central", sub:"Live Sports Coverage",
     icon:"🏀", color:"#e65c00", type:"text",
-    persona:"You are a Marvel-universe sports radio station. The city is in chaos due to a gamma event in Midtown but sports must go on. Write 5 sports broadcast items covering fictional NYC teams — mix basketball (Knicks), baseball (Mets/Yankees), soccer (NYCFC), plus commentary on how tonight's games are being affected by the Manhattan situation. Format as JSON array: [{tag:'LIVE',text:'...'},{tag:'SCORES',text:'...'},{tag:'REPORT',text:'...'},{tag:'BREAKING',text:'...'},{tag:'ANALYSIS',text:'...'}]"
+    persona:"You are a no-nonsense NYC sports radio anchor — gravel-voiced, passionate about the Knicks, furious at the Mets — doing a live broadcast that keeps getting interrupted by the Midtown chaos. You REFUSE to let a gamma creature derail the sports show but cannot ignore the helicopters outside.\n\nVoice: deadpan professionalism cracking at the edges. Your co-host keeps sending creature updates and you keep pivoting back to scores.\n\nWrite 5 items: real game updates with made-up scores, a stadium evacuation announcement, a trade rumor nobody cares about today, and one moment where you trail off watching something out the window.\nTags: LIVE, SCORES, POSTPONED, TRADE, BULLETIN\nReturn ONLY a JSON array: [{\"tag\":\"LIVE\",\"text\":\"...\"}, ...] No markdown."
   },
   {
     id:"freq-x", name:"Frequency X", sub:"Truth They Don't Want You to Hear",
     icon:"👽", color:"#7c3b9e", type:"text",
-    persona:"You are a paranoid conspiracy theory radio station in a Marvel universe where gamma experiments and strange beings have just appeared publicly for the first time. Write 5 short conspiracy broadcasts — theories about the gamma creature being a government weapon, the armored figure being corporate espionage, secret labs, cover-ups, MK-Ultra style programs, lizard people who caused it, etc. Entertaining and unhinged but internally consistent. Format as JSON array: [{tag:'THEORY',text:'...'},{tag:'EXPOSED',text:'...'},{tag:'CLASSIFIED',text:'...'},{tag:'CALLER',text:'...'},{tag:'PROOF',text:'...'}]"
+    persona:"You are the host of Frequency X — a pirate conspiracy broadcast that has been warning people about this EXACT thing for years and is now absolutely losing its mind that they were right.\n\nPersonality: frantic vindication energy, talks too fast, keeps saying I told you and they laughed at me. Has a regular caller named Dennis. Believes everything is connected — gamma program, the armored figure, Roswell 1947, fluoride, Queens zoning laws.\n\nThis is a virgin Marvel universe — no superheroes before today. You have theories about what the creature is (failed Soviet bioweapon? Government experiment? Ancient being from the Arctic?). The armored figure is either a hero OR a government drone and you keep switching opinions mid-sentence.\n\nWrite 5 segments — mix your own rants, a Dennis caller transcript, a classified document you are reading live on air, and one moment where you hear something outside your studio window and go genuinely quiet for a beat.\nTags: THEORY, CALLER, CLASSIFIED, EXPOSED, SIGNAL\nReturn ONLY a JSON array: [{\"tag\":\"THEORY\",\"text\":\"...\"}, ...] No markdown."
   },
   // MUSIC STATIONS — YouTube playlists
   {id:"hiphop-rnb", name:"Hip-Hop & R&B", sub:"Street anthems & smooth vibes", icon:"🎤", color:"#ff6f00", type:"music", ytVideo:"DtrIWQ8J9jw", ytList:"PLm90DCMQmtllGPVGffVk5kqNCIdRsi3q9"},
@@ -1767,7 +1953,7 @@ function renderPost(p){
   const commHtml=(p.comments||[]).map(c=>{
     const cu=c.profiles;
     return`<div class="comment">
-      <div style="width:24px;height:24px;border-radius:2px;background:${cu?.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:10px;color:#fff;flex-shrink:0">${cu?.hero_name?.[0]||"?"}</div>
+      <div style="width:24px;height:24px;border-radius:2px;background:${cu?.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:10px;color:#fff;flex-shrink:0;cursor:pointer" onclick="openProfileDrawer('${c.user_id}')">${cu?.hero_name?.[0]||'?'}</div>
       <div class="c-bub"><div class="c-auth">@${cu?.handle||"?"}</div>${escH(c.content)}</div>
     </div>`;
   }).join("");
@@ -1782,10 +1968,10 @@ function renderPost(p){
     <div class="post-stripe" style="background:${u.color}"></div>
     <div class="post-body">
       <div class="post-hd">
-        <div class="p-av" style="background:${u.avatar_url?'transparent':u.color}">${avHtml||u.hero_name[0]}</div>
+        <div class="p-av" style="background:${u.avatar_url?'transparent':u.color};cursor:pointer" onclick="openProfileDrawer('${p.user_id}')">${avHtml||u.hero_name[0]}</div>
         <div class="post-meta">
-          <div class="post-name">${u.hero_name}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Rajdhani,sans-serif">[civilian AI]</span>`:""}</div>
-          <div class="post-sub"><span>@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
+          <div class="post-name" style="cursor:pointer" onclick="openProfileDrawer('${p.user_id}')">${u.hero_name}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Rajdhani,sans-serif">[civilian AI]</span>`:""}</div>
+          <div class="post-sub"><span style="cursor:pointer" onclick="openProfileDrawer('${p.user_id}')">@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
         </div>
         ${delBtn}
       </div>
@@ -1936,7 +2122,7 @@ async function loadAIFeed(){
   btn.disabled=true;btn.innerHTML="<div class='spinner'></div> SCANNING...";
   const{data:topNews}=await sb.from("news").select("title,content").order("created_at",{ascending:false}).limit(1);
   const eventCtx=topNews?.[0]?`${topNews[0].title}: ${topNews[0].content.substring(0,200)}`:"A massive gamma-powered creature is rampaging through Midtown Manhattan while a prototype armored figure tries to stop it";
-  const prompt=`Generate 5 short authentic social media posts from ordinary NYC civilians reacting to: "${eventCtx}"\nRules: different people (student, barista, office worker, tourist, cabbie), panicked/confused/excited, 1-3 sentences, casual language, typos ok, they don't know hero names, first time anyone has seen this.\nRespond ONLY with JSON array: [{"handle":"user_handle","name":"Display Name","content":"post text"},...]\nNo markdown.`;
+  const prompt=`You are generating authentic social media posts from 20 different ordinary people in New York City witnessing a live catastrophe for the very first time. This is a world where nothing like this has ever happened. No powered armor exists. No gamma experiments have been public. No enhanced soldiers. No secret organizations. The military and police are the only known defense forces. These people have NO reference point for what they are seeing.\n\nEVENT: ${eventCtx}\n\nGenerate exactly 8 posts per refresh, pulling randomly from these 20 character archetypes (pick 8 different ones each time):\n1. 19yo NYU student — lowercase no punctuation panicked texting energy says bro and literally\n2. Bronx cabdriver 45 — blunt seen-it-all until NOW furious about traffic occasional Spanish\n3. Brooklyn barista 28 — first instinct is to film it dark humor worried about their shift\n4. Retired NYPD 62 — measured but alarmed uses cop phrasing thinks tactically\n5. Midwestern tourist first time in NYC — disbelief references home overly polite even while terrified\n6. Harlem mom 35 — furious kids are nearby protective done with this city\n7. Manhattan lifestyle influencer 24 — filmed everything before realizing the danger now having a crisis about whether to post\n8. Finance bro 32 — first tweet is a joke then goes silent then comes back completely shaken\n9. Food blogger who was JUST doing a restaurant review when this started — keeps pivoting between the food and the chaos\n10. Twitter conspiracy theorist who has been waiting for this moment their whole life — now actually scared\n11. Elderly Chinatown shop owner — practical, worried about property, has seen worse in their life, almost calm\n12. 16yo high schooler who thinks this is the coolest thing ever until it gets too close\n13. A nurse off-duty heading to help — terse, professional, asking where the triage points are\n14. Comedian who cannot stop making jokes as a coping mechanism even now\n15. Local news reporter whose station lost their feed — posting personal updates since they have no camera\n16. Gym bro who unironically thinks he could help — posting workout-style motivation about the situation\n17. Anxious person who was already having a bad mental health day — dark humor and exhaustion\n18. Dog owner whose dog will not stop barking and refuses to leave — more concerned about the dog than themselves\n19. Tech startup founder trying to find an angle to pitch investors in this moment — publicly embarrassing\n20. Just an extremely normal person from Queens who drove in for a dentist appointment and wants to go home\n\nHARD RULES:\n- NO powered armor. NO gamma science terminology. NO secret agencies. NO enhanced soldiers. Nothing like this exists yet in this world.\n- They describe only what they physically SEE — a massive green creature, military vehicles, destroyed buildings, a person or object moving at impossible speed.\n- Write in THAT person's actual voice. Not how a writer imagines them. How THEY type.\n- 1-3 sentences max. Social media posts, not essays.\n- At least 2 posts should be funny or ironic. At least 1 should be genuinely quiet and scared.\n- Vary the energy — not everyone is screaming.\n- Each handle should feel real and specific to that character (e.g. @fitnessmotivation_tony not @user123).\n\nReturn ONLY JSON array of exactly 8 objects: [{\"handle\":\"handle\",\"name\":\"Display Name\",\"content\":\"post text\"}, ...] No markdown. No explanation.`;
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
     const data=await resp.json();
@@ -1993,7 +2179,7 @@ async function loadNewsFull(){
 async function loadFollowList(){
   const{data}=await sb.from("profiles").select("id,handle,hero_name,color,faction").neq("id",currentProfile.id).eq("is_admin",false).limit(5);
   document.getElementById("follow-list").innerHTML=(data||[]).map(u=>`
-    <div class="follow-item" onclick="openDMUser('${u.id}')">
+    <div class="follow-item" onclick="openProfileDrawer('${u.id}')">
       <div class="fi-av" style="background:${u.color}">${u.hero_name[0]}</div>
       <div><div class="fi-name">${u.hero_name}</div><div class="fi-handle">@${u.handle}</div></div>
     </div>`).join("")||`<div style="padding:12px;font-size:11px;color:var(--muted);text-align:center">No operatives found</div>`;
