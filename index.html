@@ -462,7 +462,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <h2>⚠ SECURITY NOTICE</h2>
     <p><strong>DO NOT</strong> use your real passwords from social media, email, or any other service when creating an OC or logging in.<br><br>
     Marvel Essence is a <strong>fictional roleplay platform</strong>. Create a unique password for this site only.</p>
-    <button class="disc-btn" onclick="dismissDisclaimer()">I UNDERSTAND — ENTER</button>
+    <div style="margin-top:16px">
+      <div style="font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Entering in <span id="disc-count">5</span>s</div>
+      <div style="height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;width:260px;margin:0 auto">
+        <div id="disc-bar" style="height:100%;width:0%;background:var(--accent);transition:width 1s linear;border-radius:2px"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1463,7 +1468,22 @@ function showScreen(id){
   });
 }
 
-function dismissDisclaimer(){
+function startDisclaimerTimer(){
+  let secs = 5;
+  const bar = document.getElementById("disc-bar");
+  const count = document.getElementById("disc-count");
+  setTimeout(()=>{ if(bar) bar.style.width="100%"; }, 50);
+  const iv = setInterval(()=>{
+    secs--;
+    if(count) count.textContent = secs;
+    if(secs <= 0){
+      clearInterval(iv);
+      document.getElementById("disclaimer-screen").style.display="none";
+      init();
+    }
+  }, 1000);
+}
+function dismissDisclaimer(){ 
   document.getElementById("disclaimer-screen").style.display="none";
   init();
 }
@@ -1482,7 +1502,7 @@ function togglePass(id,btn){
   else{inp.type="password";btn.textContent="👁";}
 }
 
-init();
+startDisclaimerTimer();
 
 async function saveConfig(){
   const url=document.getElementById("cfg-url").value.trim();
@@ -2420,7 +2440,7 @@ function togglePass(id,btn){
   else{inp.type="password";btn.textContent="👁";}
 }
 
-init();
+startDisclaimerTimer();
 </script>
 </body>
 </html>
