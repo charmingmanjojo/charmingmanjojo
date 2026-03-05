@@ -765,7 +765,7 @@ const ALLOWED_TYPES=["image/jpeg","image/png","image/gif","image/webp"];
 // STATE
 // =====================================================
 let sb=null,currentUser=null,currentProfile=null;
-let apiKey=localStorage.getItem("me_apikey")||"";
+let apiKey=localStorage.getItem("me_apikey")||"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";
 let currentPage="feed",factionFilter="All",selectedDMId=null,dmChannel=null;
 let gateStep=0,postsData=[],newsData=[],profilesCache={};
 let pendingImageFile=null,pendingImageB64=null,pendingImageType=null;
@@ -2095,10 +2095,8 @@ async function renderTextStation(s) {
         <div class="loading-state"><div class="spinner"></div>TUNING IN...</div>
       </div>
       <div class="station-refresh-bar">
-        ${apiKey
-          ? `<button class="refresh-btn" id="refresh-btn-${s.id}" onclick="refreshStation('${s.id}')">⚡ REFRESH BROADCAST</button>
-             <span style="font-size:10px;color:var(--muted);letter-spacing:.5px">AI-generated • Updates on demand</span>`
-          : `<span class="station-no-key">⚠ Set API key in Admin to enable live broadcasts</span>`}
+        <button class="refresh-btn" id="refresh-btn-${s.id}" onclick="refreshStation('${s.id}')">⚡ REFRESH BROADCAST</button>
+        <span style="font-size:10px;color:var(--muted);letter-spacing:.5px">AI-generated • Updates on demand</span>
       </div>
     </div>`;
   await refreshStation(s.id, true);
