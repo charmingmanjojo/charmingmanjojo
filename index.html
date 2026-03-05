@@ -1755,11 +1755,23 @@ async function openProfileDrawer(userId) {
     _m.className = "pdr-btn pdr-btn-primary";
     _m.innerHTML = "&#x1F4AC; MESSAGE";
     _m.onclick = function(){ openDMUser(userId); closeProfileDrawer(); };
+
+    const isFollowing = userFollowing.includes(userId);
+    const _f = document.createElement("button");
+    _f.id = "follow-btn-" + userId;
+    _f.className = "pdr-btn pdr-btn-secondary";
+    _f.textContent = isFollowing ? "✓ FOLLOWING" : "+ FOLLOW";
+    _f.style.borderColor = isFollowing ? "var(--green)" : "";
+    _f.style.color = isFollowing ? "var(--green)" : "";
+    _f.onclick = async function(){ await toggleFollow(userId); };
+
     const _n = document.createElement("button");
     _n.className = "pdr-btn pdr-btn-secondary";
     _n.textContent = "@ MENTION";
     _n.onclick = function(){ copyHandle(u.handle); };
+
     _actEl.appendChild(_m);
+    _actEl.appendChild(_f);
     _actEl.appendChild(_n);
   }
 
@@ -4357,12 +4369,11 @@ let incomingCallId = null;
 
 // ── Fetch contacts (people you follow OR follow you) ──
 function generatePhoneNumber() {
-  // NYC area codes: 212, 347, 646, 718, 917
+  // NYC area codes — 4 digits only after code so it's clearly fictional
   const areaCodes = ["212","347","646","718","917"];
   const area = areaCodes[Math.floor(Math.random() * areaCodes.length)];
-  const mid = String(Math.floor(Math.random() * 900) + 100);
-  const end = String(Math.floor(Math.random() * 9000) + 1000);
-  return `(${area}) ${mid}-${end}`;
+  const num = String(Math.floor(Math.random() * 9000) + 1000);
+  return `(${area}) ${num}`;
 }
 
 function getMyContacts() {
