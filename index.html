@@ -552,7 +552,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <button type="button" class="pass-eye" onclick="togglePass('li-pass',this)" tabindex="-1">👁</button>
         </div>
       </div>
-      <button class="login-btn" id="li-btn" onclick="doLogin()">ACCESS NETWORK</button>
+      <button class="login-btn" id="li-btn" onclick="doLogin()">LOG IN</button>
       <div class="lerr" id="li-err"></div>
     </div>
     <div id="lform-reg" style="display:none">
@@ -583,8 +583,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
 <div class="overlay" id="admin-gate">
   <div class="gate-box">
-    <div class="gate-title">⛔ NEXUS COMMAND ACCESS</div>
-    <div class="gate-sub">CLASSIFIED — TRIPLE AUTHORIZATION REQUIRED</div>
+    <div class="gate-title">⛔ Admin ACCESS</div>
+    <div class="gate-sub">This area is restricted to admins only.</div>
     <div class="gate-step" id="gate-step-lbl">LEVEL 1 OF 3 — ORIGIN VERIFICATION</div>
     <input class="gate-in" id="gate-in" type="password" placeholder="Enter authorization code" onkeydown="if(event.key==='Enter')submitGate()"/>
     <div class="gate-err" id="gate-err"></div>
@@ -606,7 +606,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
     <div class="nav-tabs">
       <button class="nav-tab active" id="tab-feed" onclick="showPage('feed')">FEED</button>
-      <button class="nav-tab" id="tab-intel" onclick="showPage('intel')">INTEL</button>
+      <button class="nav-tab" id="tab-intel" onclick="showPage('intel')">NEWS</button>
       <button class="nav-tab" id="tab-dms" onclick="showPage('dms')">MESSAGES <span class="nbadge" id="dm-badge" style="display:none">!</span></button>
       <button class="nav-tab" id="tab-admin" style="display:none" onclick="showPage('admin')">ADMIN</button>
       <button class="nav-tab" id="tab-settings" onclick="showPage('settings')">⚙ SETTINGS</button>
@@ -657,11 +657,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div id="trending-list"><div style="padding:14px;font-size:10px;color:var(--muted);text-align:center;letter-spacing:1px">Loading...</div></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><span class="dot"></span>LATEST INTEL</div>
+        <div class="panel-head"><span class="dot"></span>LATEST NEWS</div>
         <div id="sidebar-news"></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><span class="dot"></span>OPERATIVES</div>
+        <div class="panel-head"><span class="dot"></span>MEMBERS</div>
         <div id="follow-list"></div>
       </div>
     </div>
@@ -669,7 +669,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
   <div id="page-intel" class="layout-wide" style="display:none">
     <div style="padding:0 0 12px"><div style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:3px;color:var(--accent);display:flex;align-items:center;gap:8px"><span style="width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px var(--accent);display:inline-block"></span>INTELLIGENCE BOARD</div></div>
-    <div id="news-full-list" style="display:flex;flex-direction:column;gap:11px"><div class="loading-state"><div class="spinner"></div>LOADING INTEL</div></div>
+    <div id="news-full-list" style="display:flex;flex-direction:column;gap:11px"><div class="loading-state"><div class="spinner"></div>LOADING</div></div>
   </div>
 
   <div id="page-dms" style="display:none;padding:70px 14px 20px;max-width:850px;margin:0 auto">
@@ -687,7 +687,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
 
   <div id="page-admin" style="display:none;padding:70px 14px 20px;max-width:820px;margin:0 auto">
-    <div style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:3px;color:var(--red);padding-bottom:14px;display:flex;align-items:center;gap:8px">⚙ NEXUS COMMAND CENTER</div>
+    <div style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:3px;color:var(--red);padding-bottom:14px;display:flex;align-items:center;gap:8px">⚙ Admin CENTER</div>
     <div class="admin-wrap" id="admin-wrap"><div class="loading-state"><div class="spinner"></div>LOADING</div></div>
   </div>
 
@@ -696,7 +696,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     <div class="settings-wrap" id="settings-content">
       <div style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:3px;color:var(--accent);display:flex;align-items:center;gap:8px;padding-bottom:4px">
         <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px var(--accent);display:inline-block"></span>
-        OPERATIVE SETTINGS
+        PROFILE SETTINGS
       </div>
       <div class="loading-state"><div class="spinner"></div>LOADING</div>
     </div>
@@ -788,12 +788,12 @@ async function renderSettingsPage() {
   document.getElementById("settings-content").innerHTML = `
     <div style="font-family:Orbitron,sans-serif;font-size:13px;letter-spacing:3px;color:var(--accent);display:flex;align-items:center;gap:8px;padding-bottom:4px">
       <span style="width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 5px var(--accent);display:inline-block"></span>
-      OPERATIVE SETTINGS
+      PROFILE SETTINGS
     </div>
 
     <!-- PROFILE IDENTITY -->
     <div class="sett-sec">
-      <div class="sett-hd">🪪 OPERATIVE IDENTITY</div>
+      <div class="sett-hd">🪪 YOUR IDENTITY</div>
       <div class="sett-body">
         <div class="sett-row">
           <div class="av-upload-wrap">
@@ -1334,7 +1334,7 @@ async function loadNotifications() {
   if (badge) { badge.style.display = unread > 0 ? "flex" : "none"; badge.textContent = unread > 9 ? "9+" : unread; }
   const list = document.getElementById("notif-list");
   if (!list) return;
-  if (!data?.length) { list.innerHTML = '<div class="notif-empty">All clear, operative</div>'; return; }
+  if (!data?.length) { list.innerHTML = '<div class="notif-empty">Nothing here yet</div>'; return; }
   const icons = {like:"❤️",comment:"💬",dm:"📨",mention:"@",follow:"👤",reaction:"✨"};
   list.innerHTML = data.map(n => {
     const u = n.from_user;
@@ -1899,7 +1899,7 @@ ${feedText.substring(0,1500)}
 
 Return ONLY JSON array: [{"topic":"#TopicName","category":"🔥 Viral"},...]`;
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:400,messages:[{role:"user",content:prompt}]})});
     const data = await resp.json();
     const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
     const trends = JSON.parse(txt);
@@ -2158,10 +2158,17 @@ async function adminGenerateStation(sid, btnEl) {
     const resp = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
       headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-      body: JSON.stringify({model:"claude-sonnet-4-20250514", max_tokens:800, messages:[{role:"user",content:prompt}]})
+      body: JSON.stringify({model:"claude-sonnet-4-6", max_tokens:800, messages:[{role:"user",content:prompt}]})
     });
     const data = await resp.json();
+    if(!resp.ok){
+      const errMsg=data?.error?.message||`API error ${resp.status}`;
+      if(statusEl)statusEl.innerHTML=`<span style="color:var(--red)">✗ ${errMsg}</span>`;
+      if(btn){btn.disabled=false;btn.textContent="⚡ GENERATE & BROADCAST";}
+      return;
+    }
     const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
+    if(!txt){if(statusEl)statusEl.innerHTML=`<span style="color:var(--red)">✗ Empty response — try again</span>`;if(btn){btn.disabled=false;btn.textContent="⚡ GENERATE & BROADCAST";}return;}
     const items = JSON.parse(txt);
 
     await sb.from("broadcasts").delete().eq("station_id", sid);
@@ -2203,12 +2210,19 @@ async function refreshStation(sid, silent=false) {
     const resp = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST", headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
       body: JSON.stringify({
-        model:"claude-sonnet-4-20250514", max_tokens:800,
+        model:"claude-sonnet-4-6", max_tokens:800,
         messages:[{role:"user",content:s.persona+"\n\nReturn ONLY the JSON array, no markdown, no explanation."}]
       })
     });
     const data = await resp.json();
+    if(!resp.ok){
+      const errMsg=data?.error?.message||`API error ${resp.status}`;
+      if(feedEl)feedEl.innerHTML=`<div class="empty"><div class="empty-ico">📡</div><p>${errMsg}</p></div>`;
+      if(btn){btn.disabled=false;btn.textContent="⚡ REFRESH BROADCAST";}
+      return;
+    }
     const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
+    if(!txt){if(feedEl)feedEl.innerHTML=`<div class="empty"><div class="empty-ico">📡</div><p>Empty response — try again</p></div>`;if(btn){btn.disabled=false;btn.textContent="⚡ REFRESH BROADCAST";}return;}
     const items = JSON.parse(txt);
 
     // Delete old entries for this station, then insert new ones
@@ -2325,11 +2339,11 @@ async function doLogin(){
   try{
     const email=handle+"@marvel-essence.local";
     const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
-    btn.disabled=false;btn.textContent="ACCESS NETWORK";
+    btn.disabled=false;btn.textContent="LOG IN";
     if(error){errEl.textContent="INVALID CREDENTIALS";return;}
     await loadProfile(data.user.id);showApp();
   }catch(e){
-    btn.disabled=false;btn.textContent="ACCESS NETWORK";
+    btn.disabled=false;btn.textContent="LOG IN";
     if(e.message&&e.message.toLowerCase().includes("fetch")){
       errEl.textContent="CONNECTION LOST — SUPABASE PROJECT MAY BE PAUSED. CHECK DASHBOARD.";
     } else {
@@ -2485,7 +2499,7 @@ async function moderateImage(b64,type){
       method:"POST",
       headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
       body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
+        model:"claude-sonnet-4-6",
         max_tokens:200,
         messages:[{
           role:"user",
@@ -2741,11 +2755,20 @@ async function loadAIFeed(){
   const eventCtx=topNews?.[0]?`${topNews[0].title}: ${topNews[0].content.substring(0,200)}`:"A massive gamma-powered creature is rampaging through Midtown Manhattan while a prototype armored figure tries to stop it";
   const prompt=`You are generating authentic social media posts from 20 different ordinary people in New York City witnessing a live catastrophe for the very first time. This is a world where nothing like this has ever happened. No powered armor exists. No gamma experiments have been public. No enhanced soldiers. No secret organizations. The military and police are the only known defense forces. These people have NO reference point for what they are seeing.\n\nEVENT: ${eventCtx}\n\nGenerate exactly 8 posts per refresh, pulling randomly from these 20 character archetypes (pick 8 different ones each time):\n1. 19yo NYU student — lowercase no punctuation panicked texting energy says bro and literally\n2. Bronx cabdriver 45 — blunt seen-it-all until NOW furious about traffic occasional Spanish\n3. Brooklyn barista 28 — first instinct is to film it dark humor worried about their shift\n4. Retired NYPD 62 — measured but alarmed uses cop phrasing thinks tactically\n5. Midwestern tourist first time in NYC — disbelief references home overly polite even while terrified\n6. Harlem mom 35 — furious kids are nearby protective done with this city\n7. Manhattan lifestyle influencer 24 — filmed everything before realizing the danger now having a crisis about whether to post\n8. Finance bro 32 — first tweet is a joke then goes silent then comes back completely shaken\n9. Food blogger who was JUST doing a restaurant review when this started — keeps pivoting between the food and the chaos\n10. Twitter conspiracy theorist who has been waiting for this moment their whole life — now actually scared\n11. Elderly Chinatown shop owner — practical, worried about property, has seen worse in their life, almost calm\n12. 16yo high schooler who thinks this is the coolest thing ever until it gets too close\n13. A nurse off-duty heading to help — terse, professional, asking where the triage points are\n14. Comedian who cannot stop making jokes as a coping mechanism even now\n15. Local news reporter whose station lost their feed — posting personal updates since they have no camera\n16. Gym bro who unironically thinks he could help — posting workout-style motivation about the situation\n17. Anxious person who was already having a bad mental health day — dark humor and exhaustion\n18. Dog owner whose dog will not stop barking and refuses to leave — more concerned about the dog than themselves\n19. Tech startup founder trying to find an angle to pitch investors in this moment — publicly embarrassing\n20. Just an extremely normal person from Queens who drove in for a dentist appointment and wants to go home\n\nHARD RULES:\n- NO powered armor. NO gamma science terminology. NO secret agencies. NO enhanced soldiers. Nothing like this exists yet in this world.\n- They describe only what they physically SEE — a massive green creature, military vehicles, destroyed buildings, a person or object moving at impossible speed.\n- Write in THAT person's actual voice. Not how a writer imagines them. How THEY type.\n- 1-3 sentences max. Social media posts, not essays.\n- At least 2 posts should be funny or ironic. At least 1 should be genuinely quiet and scared.\n- Vary the energy — not everyone is screaming.\n- Each handle should feel real and specific to that character (e.g. @fitnessmotivation_tony not @user123).\n\nReturn ONLY JSON array of exactly 8 objects: [{\"handle\":\"handle\",\"name\":\"Display Name\",\"content\":\"post text\"}, ...] No markdown. No explanation.`;
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})});
     const data=await resp.json();
+    if(!resp.ok){
+      const errMsg=data?.error?.message||`API error ${resp.status}`;
+      showToast(`API error: ${errMsg}`,true);
+      btn.disabled=false;btn.innerHTML="<span>⚡</span> CITIZEN FEED";
+      return;
+    }
     const txt=data.content?.[0]?.text||"";
+    if(!txt){showToast("AI returned empty response. Try again.",true);btn.disabled=false;btn.innerHTML="<span>⚡</span> CITIZEN FEED";return;}
     const clean=txt.replace(/```json|```/g,"").trim();
-    const civs=JSON.parse(clean);
+    let civs;
+    try{civs=JSON.parse(clean);}catch(pe){showToast("Couldn't parse AI response. Try again.",true);btn.disabled=false;btn.innerHTML="<span>⚡</span> CITIZEN FEED";return;}
+    if(!Array.isArray(civs)||civs.length===0){showToast("AI returned unexpected format. Try again.",true);btn.disabled=false;btn.innerHTML="<span>⚡</span> CITIZEN FEED";return;}
     let count=0;
     for(const c of civs){
       const handle=(c.handle||"citizen"+Date.now()).replace(/[^a-z0-9_]/gi,"").toLowerCase().substring(0,20);
@@ -2761,7 +2784,11 @@ async function loadAIFeed(){
       count++;
     }
     showToast(`Citizen feed activated — ${count} posts loaded.`);loadFeed();
-  }catch(e){console.error(e);showToast("AI feed error. Check API key.",true);}
+  }catch(e){
+    console.error(e);
+    const msg=e.message?.toLowerCase().includes("fetch")?"Connection error — check your internet connection.":"AI feed error: "+(e.message||"unknown error");
+    showToast(msg,true);
+  }
   btn.disabled=false;btn.innerHTML="<span>⚡</span> CITIZEN FEED";
 }
 
@@ -2776,7 +2803,7 @@ async function loadSidebarNews(){
       ${n.is_urgent?`<div class="urg-tag">URGENT</div>`:""}
       <div class="news-ttl-s">${escH(n.title)}</div>
       <div class="news-date-s">${fmtDate(n.created_at)}</div>
-    </div>`).join(""):`<div style="padding:14px;color:var(--muted);font-size:11px;text-align:center">No intel yet</div>`;
+    </div>`).join(""):`<div style="padding:14px;color:var(--muted);font-size:11px;text-align:center">No news yet</div>`;
 }
 
 async function loadNewsFull(){
@@ -2788,9 +2815,9 @@ async function loadNewsFull(){
         ${n.is_urgent?`<div class="urg-tag" style="margin-bottom:9px">⚠ URGENT</div>`:""}
         <div class="nf-title">${escH(n.title)}</div>
         <div class="nf-text">${escH(n.content)}</div>
-        <div class="nf-meta"><span>📅 ${fmtDate(n.created_at)}</span><span>NEXUS COMMAND</span></div>
+        <div class="nf-meta"><span>📅 ${fmtDate(n.created_at)}</span><span>Admin</span></div>
       </div>
-    </div>`).join(""):`<div class="empty"><div class="empty-ico">📰</div><p>No intel available</p></div>`;
+    </div>`).join(""):`<div class="empty"><div class="empty-ico">📰</div><p>No news yet</p></div>`;
 }
 
 async function loadFollowList(){
@@ -2799,7 +2826,7 @@ async function loadFollowList(){
     <div class="follow-item" onclick="openProfileDrawer('${u.id}')">
       <div class="fi-av" style="background:${u.color}">${u.hero_name[0]}</div>
       <div><div class="fi-name">${u.hero_name}</div><div class="fi-handle">@${u.handle}</div></div>
-    </div>`).join("")||`<div style="padding:12px;font-size:11px;color:var(--muted);text-align:center">No operatives found</div>`;
+    </div>`).join("")||`<div style="padding:12px;font-size:11px;color:var(--muted);text-align:center">No users found</div>`;
 }
 
 // =====================================================
@@ -2889,7 +2916,7 @@ async function handleSearch(q){
   if(searchTab==="posts"){searchPosts(sq);return;}
   if(searchTab==="tags"){searchHashtags(sq);return;}
   const{data}=await sb.from("profiles").select("*").or(`handle.ilike.%${sq_lower}%,hero_name.ilike.%${sq_lower}%,real_name.ilike.%${sq_lower}%`).eq("is_admin",false);
-  if(!data?.length){document.getElementById("search-results").innerHTML=`<div class="empty"><div class="empty-ico">🔍</div><p>No operatives found</p></div>`;return;}
+  if(!data?.length){document.getElementById("search-results").innerHTML=`<div class="empty"><div class="empty-ico">🔍</div><p>No users found</p></div>`;return;}
   document.getElementById("search-results").innerHTML=data.map(u=>{
     const fc=FC_COLORS[u.faction]||"#555";
     const av=u.avatar_url?`<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>`:`${u.hero_name[0]}`;
@@ -2951,7 +2978,7 @@ async function submitGate(){
       await sb.from("profiles").update({is_admin:true}).eq("id",currentProfile.id);
       currentProfile.is_admin=true;
       document.getElementById("tab-admin").style.display="";
-      showPage("admin");showToast("NEXUS COMMAND ACCESS GRANTED");
+      showPage("admin");showToast("Admin access granted");
     }else{
       document.getElementById("gate-step-lbl").textContent=GATE_HINTS[gateStep];
       document.getElementById("gate-in").focus();
@@ -3015,10 +3042,10 @@ async function renderAdminPanel(){
 
     <!-- BROADCAST NEWS -->
     <div class="adm-sec">
-      <div class="adm-hd">📡 BROADCAST INTEL</div>
+      <div class="adm-hd">📡 POST NEWS</div>
       <div class="adm-body">
         <div class="afield"><label>Headline</label><input id="a-ntitle" placeholder="Breaking: Gamma event in Manhattan..."/></div>
-        <div class="afield"><label>Full Report</label><textarea id="a-nbody" placeholder="Full intelligence details..."></textarea></div>
+        <div class="afield"><label>Full Report</label><textarea id="a-nbody" placeholder="Write the full story..."></textarea></div>
         <div class="a-row" style="margin-bottom:12px">
           <div class="toggle-wrap">
             <label class="tgl"><input type="checkbox" id="a-urgent"/><span class="tgl-sl"></span></label>
@@ -3068,7 +3095,7 @@ async function renderAdminPanel(){
 
     <!-- MANAGE NEWS -->
     <div class="adm-sec">
-      <div class="adm-hd">📰 MANAGE INTEL POSTS (${news.length})</div>
+      <div class="adm-hd">📰 MANAGE NEWS POSTS (${news.length})</div>
       <div class="adm-body" id="admin-news-list">
         ${news.length?news.map(n=>`
           <div class="adm-nrow" id="anrow-${n.id}">
@@ -3084,13 +3111,13 @@ async function renderAdminPanel(){
               <button class="abtn sm" id="nsave-${n.id}" onclick="saveNewsEdit('${n.id}')" style="display:none">💾 SAVE</button>
               <button class="abtn danger sm" onclick="deleteNews('${n.id}')">✕ DELETE</button>
             </div>
-          </div>`).join(""):`<p style="font-size:11px;color:var(--muted)">No intel posted yet.</p>`}
+          </div>`).join(""):`<p style="font-size:11px;color:var(--muted)">No news posted yet.</p>`}
       </div>
     </div>
 
     <!-- ROLE MANAGEMENT -->
     <div class="adm-sec">
-      <div class="adm-hd">👥 ROLE MANAGEMENT (${users.length} operatives)</div>
+      <div class="adm-hd">👥 ROLE MANAGEMENT (${users.length} users)</div>
       <div class="adm-body">
         ${users.length?users.map(u=>`
           <div class="adm-urow">
@@ -3182,7 +3209,7 @@ async function adminPostNews(){
   const{error}=await sb.from("news").insert({title,content,is_urgent});
   if(error){showToast("Error: "+error.message,true);return;}
   document.getElementById("a-ntitle").value="";document.getElementById("a-nbody").value="";document.getElementById("a-urgent").checked=false;
-  showToast("Intel broadcast!");loadSidebarNews();renderAdminPanel();
+  showToast("News posted!");loadSidebarNews();renderAdminPanel();
 }
 
 function toggleNewsEdit(nid){
@@ -3198,13 +3225,13 @@ async function saveNewsEdit(nid){
   if(!title||!content){showToast("Fill both fields.",true);return;}
   const{error}=await sb.from("news").update({title,content,is_urgent}).eq("id",nid);
   if(error){showToast("Error: "+error.message,true);return;}
-  showToast("Intel updated!");loadSidebarNews();renderAdminPanel();
+  showToast("News updated!");loadSidebarNews();renderAdminPanel();
 }
 
 async function deleteNews(nid){
-  if(!confirm("Delete this intel post?"))return;
+  if(!confirm("Delete this news post?"))return;
   await sb.from("news").delete().eq("id",nid);
-  showToast("Intel removed.");loadSidebarNews();renderAdminPanel();
+  showToast("News removed.");loadSidebarNews();renderAdminPanel();
 }
 
 async function setUserAdmin(uid,isAdmin){
@@ -3214,7 +3241,7 @@ async function setUserAdmin(uid,isAdmin){
 }
 
 async function removeUser(uid,name){
-  if(!confirm(`Remove operative "${name}"? This deletes their posts, images, and account.`))return;
+  if(!confirm(`Remove user "${name}"? This deletes their posts, images, and account.`))return;
   // Delete their images from storage
   const{data:imgPosts}=await sb.from("posts").select("image_url").eq("user_id",uid).not("image_url","is",null);
   if(imgPosts?.length){
@@ -3226,7 +3253,7 @@ async function removeUser(uid,name){
   await sb.from("messages").delete().or(`sender_id.eq.${uid},receiver_id.eq.${uid}`);
   await sb.from("posts").delete().eq("user_id",uid);
   await sb.from("profiles").delete().eq("id",uid);
-  showToast("Operative removed.");renderAdminPanel();loadFeed();
+  showToast("User removed.");renderAdminPanel();loadFeed();
 }
 
 // =====================================================
@@ -3236,21 +3263,21 @@ async function aiNewsFromPrompt(){
   if(!apiKey){showToast("Set API key first.",true);return;}
   const prompt=document.getElementById("a-ai-prompt").value.trim();
   if(!prompt){showToast("Enter a prompt first.",true);return;}
-  await generateAINews(`Write a breaking intelligence report for a Marvel universe roleplay platform. Topic: "${prompt}". World is fresh — heroes are brand new, no one knows what's happening. Write as official SHIELD-style broadcast. Return ONLY JSON: {"title":"headline","content":"full report","is_urgent":true/false}`);
+  await generateAINews(`Write a breaking news story for a Marvel universe civilian social platform. Topic: "${prompt}". The world is fresh — heroes are brand new, civilians are witnessing extraordinary things for the first time. Write from a civilian journalist or eyewitness perspective. Return ONLY JSON: {"title":"headline","content":"full story","is_urgent":true/false}`);
 }
 
 async function aiNewsFromFeed(){
   if(!apiKey){showToast("Set API key first.",true);return;}
   const{data:recentPosts}=await sb.from("posts").select("content,profiles(hero_name)").order("created_at",{ascending:false}).limit(10);
   const feedContext=(recentPosts||[]).map(p=>`${p.profiles?.hero_name||"Someone"}: ${p.content}`).join("\n");
-  await generateAINews(`Based on these Marvel Essence social posts, write a breaking intelligence report summarizing events. Return ONLY JSON: {"title":"headline","content":"full report","is_urgent":true/false}\n\nFeed:\n${feedContext}`);
+  await generateAINews(`Based on these Marvel Essence social posts, write a breaking news summary from a civilian social media perspective. Return ONLY JSON: {"title":"headline","content":"full story","is_urgent":true/false}\n\nFeed:\n${feedContext}`);
 }
 
 async function generateAINews(prompt){
   const outDiv=document.getElementById("ai-news-out"),btnRow=document.getElementById("ai-use-btn-row");
   outDiv.style.display="";outDiv.textContent="Generating...";btnRow.style.display="none";
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,messages:[{role:"user",content:prompt}]})});
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:600,messages:[{role:"user",content:prompt}]})});
     const data=await resp.json();
     const txt=(data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
     const parsed=JSON.parse(txt);
@@ -3266,7 +3293,7 @@ function useAINews(){
   document.getElementById("a-nbody").value=outDiv.dataset.content||"";
   document.getElementById("a-urgent").checked=outDiv.dataset.urgent==="true";
   outDiv.style.display="none";document.getElementById("ai-use-btn-row").style.display="none";
-  showToast("Draft loaded — review and broadcast.");
+  showToast("Draft loaded — review and post.");
 }
 
 // =====================================================
