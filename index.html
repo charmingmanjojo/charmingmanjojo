@@ -513,8 +513,9 @@ document.getElementById("nav-logo").src="data:image/png;base64,"+LOGO_B64;
 // INIT
 // =====================================================
 async function init(){
-  const url=localStorage.getItem("sb_url"),key=localStorage.getItem("sb_key");
-  if(!url||!key){showScreen("config-screen");return;}
+  const url="https://hxsoneopropnlyibycmy.supabase.co";
+  const key="sb_publishable_jMz_39bKpYjXSyaWJbxhQQ_pFe9eHq-";
+  localStorage.setItem("sb_url",url);localStorage.setItem("sb_key",key);
   try{
     sb=window.supabase.createClient(url,key);
     const{data:{session}}=await sb.auth.getSession();
