@@ -832,7 +832,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
     </div>
     <div class="mcp-attach-bar" id="mcp-attach-bar">
       <label for="mcp-file-in" class="mcp-attach-btn" style="cursor:pointer">📎 Attach file</label>
-      <input type="file" id="mcp-file-in" style="display:none;position:absolute" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,.docx,.doc,.txt" onchange="handleMailAttach(event)"/>
+      <input type="file" id="mcp-file-in" style="opacity:0;position:absolute;width:1px;height:1px;overflow:hidden" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,.docx,.doc,.txt" onchange="handleMailAttach(event)"/>
       <div id="mcp-file-chips" style="display:flex;flex-wrap:wrap;gap:6px;flex:1"></div>
     </div>
     <div class="mcp-foot">
@@ -3802,7 +3802,7 @@ function removeAttachment(i) {
 }
 
 async function uploadAttachment(att) {
-  const path = `mail-attachments/${currentProfile.id}/${Date.now()}-${att.name.replace(/[^a-zA-Z0-9._-]/g,"_")}`;
+  const path = `${currentProfile.id}/${Date.now()}-${att.name.replace(/[^a-zA-Z0-9._-]/g,"_")}`;
   const {data, error} = await sb.storage.from("mail-attachments").upload(path, att.file, {contentType: att.type, upsert: false});
   if(error) throw error;
   const {data: {publicUrl}} = sb.storage.from("mail-attachments").getPublicUrl(path);
