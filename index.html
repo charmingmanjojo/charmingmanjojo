@@ -273,7 +273,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .mcp-field label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;width:50px;flex-shrink:0}
 .mcp-field input{flex:1;background:transparent;border:none;outline:none;color:var(--white);font-family:"Barlow",sans-serif;font-size:13px}
 .mcp-field input::placeholder{color:var(--muted)}
-.mcp-to-results{position:absolute;top:100%;left:0;right:0;background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.mcp-to-results{background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.6);margin:0 16px 4px;}
 .mcp-to-result{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;transition:.15s;font-size:13px}
 .mcp-to-result:hover{background:rgba(59,130,246,.1)}
 .mcp-body{flex:1;overflow:hidden;display:flex}
@@ -818,11 +818,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <button class="mcp-close" onclick="closeCompose()" title="Close">✕</button>
     </div>
     <div class="mcp-fields">
-      <div class="mcp-field" style="position:relative">
+      <div class="mcp-field" style="position:relative;z-index:20">
         <label>To</label>
-        <input id="mcp-to-input" placeholder="Search by handle or name..." oninput="searchMailRecipient(this.value)" autocomplete="off"/>
-        <div id="mcp-to-results" class="mcp-to-results" style="display:none"></div>
+        <input id="mcp-to-input" placeholder="Search by handle or name..." oninput="searchMailRecipient(this.value)" autocomplete="off" onfocus="if(this.value.trim())searchMailRecipient(this.value)"/>
       </div>
+      <div id="mcp-to-results" class="mcp-to-results" style="display:none"></div>
       <div class="mcp-field">
         <label>Subject</label>
         <input id="mcp-subject" placeholder="Subject"/>
@@ -832,9 +832,9 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <textarea class="mcp-ta" id="mcp-body" placeholder="Write your message..."></textarea>
     </div>
     <div class="mcp-attach-bar" id="mcp-attach-bar">
-      <button class="mcp-attach-btn" onclick="document.getElementById('mcp-file-in').click()">📎 Attach file</button>
-      <input type="file" id="mcp-file-in" style="display:none" accept="image/*,.pdf,.docx,.doc,.txt" onchange="handleMailAttach(event)"/>
-      <div id="mcp-file-chips"></div>
+      <label for="mcp-file-in" class="mcp-attach-btn" style="cursor:pointer">📎 Attach file</label>
+      <input type="file" id="mcp-file-in" style="display:none;position:absolute" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,.docx,.doc,.txt" onchange="handleMailAttach(event)"/>
+      <div id="mcp-file-chips" style="display:flex;flex-wrap:wrap;gap:6px;flex:1"></div>
     </div>
     <div class="mcp-foot">
       <button class="mcp-discard" onclick="closeCompose()">Discard</button>
@@ -3771,10 +3771,11 @@ function fmtFileSize(bytes) {
 
 function handleMailAttach(e) {
   const file = e.target.files[0];
-  e.target.value = "";
   if(!file) return;
-  if(file.size > 10*1024*1024) { showToast("File too large — max 10MB.", true); return; }
+  if(file.size > 10*1024*1024) { showToast("File too large — max 10MB.", true); e.target.value=""; return; }
+  if(mailAttachments.length >= 5) { showToast("Max 5 attachments per message.", true); e.target.value=""; return; }
   mailAttachments.push({file, name: file.name, size: file.size, type: file.type, url: null});
+  e.target.value = ""; // reset so same file can be attached again if needed
   renderAttachChips();
 }
 
@@ -3881,7 +3882,8 @@ document.addEventListener("keydown", e => { if(e.key === "Escape") closePreviewM
 // Close recipient dropdown on outside click
 document.addEventListener("click", e => {
   const results = document.getElementById("mcp-to-results");
-  if(results && !results.contains(e.target) && e.target.id !== "mcp-to-input") results.style.display = "none";
+  const input = document.getElementById("mcp-to-input");
+  if(results && !results.contains(e.target) && e.target !== input) results.style.display = "none";
 });
 
 // Poll for new mail every 60 seconds
