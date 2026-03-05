@@ -17,6 +17,38 @@
 }
 
 
+
+/* ── Phone number chip on contact ── */
+.phone-num-chip{font-size:9px;color:var(--muted);letter-spacing:.5px;font-family:'Orbitron',sans-serif;margin-top:1px}
+/* ── Contact editor panel ── */
+.contact-editor{padding:18px;display:flex;flex-direction:column;gap:12px}
+.contact-editor h3{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--accent)}
+.contact-editor-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:#fff;overflow:hidden;margin:0 auto 4px;cursor:pointer;position:relative;border:2px solid var(--border2)}
+.contact-editor-av .av-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;font-size:16px;opacity:0;transition:.15s;border-radius:50%}
+.contact-editor-av:hover .av-overlay{opacity:1}
+.ce-field label{font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:4px}
+.ce-field input{width:100%;padding:8px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;outline:none}
+.ce-field input:focus{border-color:var(--accent)}
+.ce-save-btn{padding:9px;border-radius:var(--radius-btn);border:none;background:var(--accent);color:#fff;font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;cursor:pointer;width:100%}
+.ce-save-btn:hover{filter:brightness(1.1)}
+/* ── Anonymous toggle in call overlay ── */
+.anon-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;border-top:1px solid rgba(52,211,153,.1);font-size:11px;color:var(--muted)}
+.anon-toggle-btn{padding:4px 12px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:.15s;font-family:'Barlow',sans-serif}
+.anon-toggle-btn.active{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.08)}
+/* ── Incoming call banner ── */
+#incoming-call-banner{position:fixed;top:68px;left:50%;transform:translateX(-50%);z-index:7500;background:var(--card2);border:1px solid rgba(52,211,153,.3);border-radius:var(--radius);padding:14px 20px;display:none;align-items:center;gap:14px;box-shadow:0 8px 40px rgba(0,0,0,.5);min-width:300px;animation:fuDown .3s ease}
+#incoming-call-banner.show{display:flex}
+.inc-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.inc-info{flex:1;min-width:0}
+.inc-name{font-size:14px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inc-sub{font-size:10px;color:var(--muted);letter-spacing:.5px;margin-top:1px}
+.inc-answer{padding:7px 16px;border-radius:var(--radius-btn);border:none;background:rgba(52,211,153,.2);color:var(--green);font-weight:700;font-size:12px;cursor:pointer;font-family:'Barlow',sans-serif}
+.inc-answer:hover{background:rgba(52,211,153,.35)}
+.inc-decline{padding:7px 16px;border-radius:var(--radius-btn);border:none;background:rgba(248,113,113,.15);color:var(--red);font-weight:700;font-size:12px;cursor:pointer;font-family:'Barlow',sans-serif}
+.inc-decline:hover{background:rgba(248,113,113,.3)}
+/* ── Phone num in call overlay ── */
+.call-phone-num{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1.5px;margin-top:2px}
+
 /* ── Reply quote strip ── */
 .reply-quote{background:rgba(255,255,255,.05);border-left:3px solid var(--green);border-radius:6px;padding:5px 9px;margin-bottom:5px;font-size:11px;color:var(--muted);line-height:1.4;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
 .phone-msg-row.mine .reply-quote{border-left-color:rgba(52,211,153,.6)}
@@ -1082,12 +1114,28 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   </div>
 
   <!-- Active call overlay -->
+  <!-- Incoming call banner -->
+  <div id="incoming-call-banner">
+    <div class="inc-av" id="inc-av"></div>
+    <div class="inc-info">
+      <div class="inc-name" id="inc-name">Incoming Call</div>
+      <div class="inc-sub" id="inc-sub">📞 Calling...</div>
+    </div>
+    <button class="inc-answer" onclick="answerIncomingCall()">Answer</button>
+    <button class="inc-decline" onclick="declineIncomingCall()">Decline</button>
+  </div>
+
   <div id="phone-call-overlay">
     <div class="call-phone-ui">
       <div class="call-phone-status">
         <div class="call-phone-av" id="call-ov-av"></div>
         <div class="call-phone-name" id="call-ov-name">—</div>
+        <div class="call-phone-num" id="call-ov-num"></div>
         <div class="call-phone-timer" id="call-ov-timer">00:00</div>
+      </div>
+      <div class="anon-toggle-row">
+        <span>Anonymous call</span>
+        <button class="anon-toggle-btn" id="anon-toggle-btn" onclick="toggleAnonCall()">🕶 OFF</button>
       </div>
       <div class="call-transcript" id="call-transcript"></div>
       <div class="call-inp-area">
@@ -2872,7 +2920,8 @@ async function doRegister(){
       errEl.textContent="REGISTRATION FAILED — DISABLE EMAIL CONFIRMATION IN SUPABASE AUTH SETTINGS";
       return;
     }
-    const{error:perr}=await sb.from("profiles").insert({id:data.user.id,handle:rhandle,hero_name:rhero,real_name:rname,faction:rfaction,bio:rbio,color,is_admin:false});
+    const phoneNum = generatePhoneNumber();
+    const{error:perr}=await sb.from("profiles").insert({id:data.user.id,handle:rhandle,hero_name:rhero,real_name:rname,faction:rfaction,bio:rbio,color,is_admin:false,phone_number:phoneNum});
     if(perr){btn.disabled=false;btn.textContent="CREATE OC";errEl.textContent=perr.message.toUpperCase();return;}
     btn.disabled=false;btn.textContent="CREATE OC";
     await loadProfile(data.user.id);showApp();
@@ -2897,7 +2946,7 @@ function showApp(){
   updateNavAvatar();
   renderMyCard();renderFactionFilter();
   loadNotifications();loadUserBookmarks();loadUserFollowing();loadUserBlocks();initCharCounter();updateLastSeen();setInterval(updateLastSeen,2*60*1000);setInterval(loadNotifications,30*1000);setInterval(checkScheduledPosts,60*1000);if(currentProfile.is_admin){const sr=document.getElementById('schedule-row');if(sr)sr.style.display='flex';}if(currentProfile.banner_url){const _ba=document.getElementById('banner-upload-area');if(_ba){let _bi=_ba.querySelector('img');if(!_bi){_bi=document.createElement('img');_ba.appendChild(_bi);}  _bi.src=currentProfile.banner_url;_bi.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';const _bp=document.getElementById('banner-placeholder');if(_bp)_bp.style.display='none';const _brb=document.getElementById('banner-remove-btn');if(_brb)_brb.style.display='block';}}
-  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();setupRealtimeDMs();renderStationList();loadTrending();updateMailBadge();
+  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();setupRealtimeDMs();setupIncomingCallListener();renderStationList();loadTrending();updateMailBadge();
 }
 
 function renderMyCard(){
@@ -2909,6 +2958,7 @@ function renderMyCard(){
     <div class="oc-handle">@${u.handle}</div>
     ${u.location?`<div class="oc-location">📍 ${escH(u.location)}</div>`:""}
     <div style="font-size:11px;color:var(--accent);margin-top:5px;opacity:.8;cursor:pointer" onclick="showPage('mail')" title="Go to Mail">✉ ${u.handle}@marvel-essence.net</div>
+    ${u.phone_number?`<div style="font-size:10px;color:var(--muted);margin-top:3px;font-family:'Orbitron',sans-serif;letter-spacing:1px">📞 ${u.phone_number}</div>`:""}
     <div class="fc-badge" style="background:${fc}22;color:${fc};border:1px solid ${fc}44">${u.faction}</div>
     <div class="oc-bio">${escH(u.bio||"")}</div>`;
 }
@@ -4306,6 +4356,36 @@ let callStartTime = null;
 let incomingCallId = null;
 
 // ── Fetch contacts (people you follow OR follow you) ──
+function generatePhoneNumber() {
+  // NYC area codes: 212, 347, 646, 718, 917
+  const areaCodes = ["212","347","646","718","917"];
+  const area = areaCodes[Math.floor(Math.random() * areaCodes.length)];
+  const mid = String(Math.floor(Math.random() * 900) + 100);
+  const end = String(Math.floor(Math.random() * 9000) + 1000);
+  return `(${area}) ${mid}-${end}`;
+}
+
+function getMyContacts() {
+  // Returns saved contacts object: { [userId]: { name, avatarUrl } }
+  try { return JSON.parse(localStorage.getItem("me_contacts_" + currentProfile.id) || "{}"); } catch(e) { return {}; }
+}
+
+function saveContact(userId, name, avatarDataUrl) {
+  const contacts = getMyContacts();
+  contacts[userId] = { name: name || null, avatarDataUrl: avatarDataUrl || null };
+  localStorage.setItem("me_contacts_" + currentProfile.id, JSON.stringify(contacts));
+}
+
+function getContactDisplay(u) {
+  // Returns { displayName, displayAvatar } respecting saved contact overrides
+  const contacts = getMyContacts();
+  const saved = contacts[u.id] || {};
+  return {
+    displayName: saved.name || u.hero_name,
+    displayAvatar: saved.avatarDataUrl || u.avatar_url || null
+  };
+}
+
 async function getPhoneContacts() {
   const [{ data: following }, { data: followers }] = await Promise.all([
     sb.from("follows").select("following_id").eq("follower_id", currentProfile.id),
@@ -4317,7 +4397,7 @@ async function getPhoneContacts() {
   ]);
   if (!ids.size) return [];
   const { data: profiles } = await sb.from("profiles")
-    .select("id,hero_name,handle,color,avatar_url")
+    .select("id,hero_name,handle,color,avatar_url,phone_number")
     .in("id", [...ids]);
   return profiles || [];
 }
@@ -4394,16 +4474,20 @@ async function loadPhoneContacts() {
         const isCaller = c.caller_id === currentProfile.id;
         const transcript = JSON.parse(c.transcript || "[]");
         const missed = !isCaller && c.ended && transcript.length === 0;
+        const isAnonEntry = c.is_anon && !isCaller;
         const icon = missed ? "📵" : (isCaller ? "📤" : "📥");
         const dur = c.duration_seconds
           ? Math.floor(c.duration_seconds / 60) + "m " + (c.duration_seconds % 60) + "s"
           : "—";
         const metaLabel = missed ? "Missed call" : (isCaller ? "Outgoing" : "Incoming") + " · " + dur;
-        return `<div class="call-entry${missed ? " missed" : ""}" onclick="openCallDetail('${c.id}','${escAttr(u.hero_name)}','${u.color||"#555"}','${escAttr(u.avatar_url||"")}','${otherId}')">
+        const cd = getContactDisplay(u);
+        const entryName = isAnonEntry ? "Unknown Caller" : cd.displayName;
+        const entryNum = isAnonEntry ? "Private number" : (u.phone_number || "");
+        return `<div class="call-entry${missed ? " missed" : ""}" onclick="openCallDetail('${c.id}','${escAttr(isAnonEntry?"Unknown Caller":u.hero_name)}','${isAnonEntry?"#444":(u.color||"#555")}','${isAnonEntry?"":escAttr(u.avatar_url||"")}','${otherId}')">
           <div class="call-entry-icon">${icon}</div>
           <div class="call-entry-info">
-            <div class="call-entry-name">${escHtml(u.hero_name)}</div>
-            <div class="call-entry-meta">${metaLabel}</div>
+            <div class="call-entry-name">${escHtml(entryName)}</div>
+            <div class="call-entry-meta">${metaLabel}${entryNum?" · "+escHtml(entryNum):""}</div>
           </div>
           <div class="call-entry-time">${timeAgo(c.created_at)}</div>
         </div>`;
@@ -4418,26 +4502,39 @@ async function loadPhoneContacts() {
 }
 
 function phoneContactHTML(u, preview, time) {
-  const av = u.avatar_url
-    ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>`
-    : (u.hero_name?.[0] || "?");
+  const cd = getContactDisplay(u);
+  const av = cd.displayAvatar
+    ? `<img src="${escAttr(cd.displayAvatar)}" style="width:100%;height:100%;object-fit:cover"/>`
+    : (cd.displayName?.[0] || "?");
   const active = phoneSelectedUserId === u.id ? " active" : "";
   return `<div class="phone-contact${active}" id="pcontact-${u.id}" onclick="openTextThread('${u.id}','${escAttr(u.hero_name)}','${u.color||"#555"}','${escAttr(u.avatar_url||"")}')">
     <div class="phone-contact-av" style="background:${u.color||"#333"}">${av}</div>
     <div style="flex:1;min-width:0">
-      <div class="phone-contact-name">${escHtml(u.hero_name)}</div>
+      <div class="phone-contact-name">${escHtml(cd.displayName)}</div>
+      <div class="phone-num-chip">${escHtml(u.phone_number||"")}</div>
       <div class="phone-contact-preview">${escHtml((preview||"").substring(0,42))}</div>
     </div>
-    ${time ? `<div class="phone-contact-time">${time}</div>` : ""}
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+      ${time ? `<div class="phone-contact-time">${time}</div>` : ""}
+      <button onclick="event.stopPropagation();openContactEditor('${u.id}','${escAttr(cd.displayName)}','${escAttr(u.phone_number||"")}','${escAttr(u.color||"#555")}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0;line-height:1" title="Edit contact">✏</button>
+    </div>
   </div>`;
 }
 
 // ── Open text thread ──
+let phoneContactDisplayName = "";
+let phoneContactNumber = "";
+
 async function openTextThread(uid, name, color, avatarUrl) {
   phoneSelectedUserId = uid;
   phoneSelectedUserName = name;
   phoneSelectedUserColor = color;
   phoneSelectedUserAvatar = avatarUrl;
+  // Resolve contact display name and phone number
+  const { data: otherProfile } = await sb.from("profiles").select("phone_number,hero_name").eq("id", uid).single();
+  phoneContactNumber = otherProfile?.phone_number || "";
+  const cd = getContactDisplay({ id: uid, hero_name: otherProfile?.hero_name || name });
+  phoneContactDisplayName = cd.displayName;
 
   document.querySelectorAll(".phone-contact").forEach(e => e.classList.remove("active"));
   const ct = document.getElementById("pcontact-" + uid);
@@ -4479,8 +4576,8 @@ async function openTextThread(uid, name, color, avatarUrl) {
     <div class="phone-chat-hd">
       <div style="width:34px;height:34px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
       <div>
-        <div class="phone-chat-name">${escHtml(name)}</div>
-        <div style="font-size:10px;color:var(--muted);letter-spacing:.5px">Text Message</div>
+        <div class="phone-chat-name" id="thread-display-name">${escHtml(phoneContactDisplayName||name)}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.5px" id="thread-phone-num">${phoneContactNumber||""}</div>
       </div>
       <div class="phone-chat-actions">
         <button class="phone-action-btn call" onclick="startCall('${uid}','${escAttr(name)}','${color}','${escAttr(avatarUrl||"")}')">📞 Call</button>
@@ -4577,40 +4674,72 @@ async function showNewCallPicker() {
 }
 
 // ── Start a call (fullscreen overlay) ──
+let callIsAnon = false;
+let callAnonCodeBuffer = "";
+
 async function startCall(toId, name, color, avatarUrl) {
+  // Resolve the contact's phone number for display
+  const { data: toProfile } = await sb.from("profiles").select("phone_number").eq("id", toId).single();
+  const toNum = toProfile?.phone_number || "";
+  const cd = getContactDisplay({ id: toId, hero_name: name });
+
   // Create call record
   const { data, error } = await sb.from("phone_calls").insert({
     caller_id: currentProfile.id,
     receiver_id: toId,
     transcript: JSON.stringify([]),
     duration_seconds: 0,
-    ended: false
+    ended: false,
+    is_anon: false
   }).select().single();
   if (error) { showToast("Could not start call: " + error.message, true); return; }
 
   activeCallId = data.id;
   activeCallTranscript = [];
   callActiveSpeaker = "mine";
-  callOtherName = name;
+  callOtherName = cd.displayName;
+  callIsAnon = false;
+  callAnonCodeBuffer = "";
   callStartTime = Date.now();
 
   // Build overlay
   const ov = document.getElementById("phone-call-overlay");
   const avEl = document.getElementById("call-ov-av");
+  const displayAv = cd.displayAvatar || avatarUrl;
   avEl.style.background = color;
-  avEl.innerHTML = avatarUrl
-    ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>`
-    : name[0];
-  document.getElementById("call-ov-name").textContent = name;
+  avEl.innerHTML = displayAv
+    ? `<img src="${escAttr(displayAv)}" style="width:100%;height:100%;object-fit:cover"/>`
+    : (cd.displayName?.[0] || name[0]);
+  document.getElementById("call-ov-name").textContent = cd.displayName;
+  document.getElementById("call-ov-num").textContent = toNum;
   document.getElementById("call-ov-timer").textContent = "00:00";
   document.getElementById("call-transcript").innerHTML = "";
   document.getElementById("call-inp").value = "";
+  // Reset anon toggle
+  const anonBtn = document.getElementById("anon-toggle-btn");
+  if (anonBtn) { anonBtn.textContent = "🕶 OFF"; anonBtn.classList.remove("active"); }
   // Reset speaker toggle
   document.getElementById("spk-mine").classList.add("active");
   document.getElementById("spk-other").classList.remove("active");
-  document.getElementById("spk-other").textContent = "🔵 " + name;
+  document.getElementById("spk-other").textContent = "🔵 " + cd.displayName;
   document.getElementById("call-inp").placeholder = currentProfile.hero_name + ": say something...";
   ov.classList.add("active");
+
+  // Notify receiver via Supabase realtime broadcast
+  const myNum = currentProfile.phone_number || currentProfile.hero_name;
+  await sb.channel("incoming-calls").send({
+    type: "broadcast", event: "incoming",
+    payload: {
+      call_id: data.id,
+      caller_id: currentProfile.id,
+      caller_name: currentProfile.hero_name,
+      caller_num: currentProfile.phone_number || "",
+      caller_color: currentProfile.color,
+      caller_avatar: currentProfile.avatar_url || "",
+      receiver_id: toId,
+      is_anon: false
+    }
+  });
 
   // Timer tick
   clearInterval(callTimerInterval);
@@ -4622,6 +4751,28 @@ async function startCall(toId, name, color, avatarUrl) {
   }, 1000);
 
   setTimeout(() => document.getElementById("call-inp")?.focus(), 150);
+}
+
+// ── Anonymous toggle (requires typing 314) ──
+function toggleAnonCall() {
+  const btn = document.getElementById("anon-toggle-btn");
+  if (callIsAnon) {
+    // Turn off — no code required
+    callIsAnon = false;
+    btn.textContent = "🕶 OFF"; btn.classList.remove("active");
+    showToast("Anonymous mode off");
+  } else {
+    // Prompt for code
+    callAnonCodeBuffer = "";
+    const code = prompt("Enter code to enable anonymous mode:");
+    if (code === "314") {
+      callIsAnon = true;
+      btn.textContent = "🕶 ON"; btn.classList.add("active");
+      showToast("🕶 Anonymous mode on — caller ID hidden");
+    } else {
+      showToast("Incorrect code", true);
+    }
+  }
 }
 
 // ── Say a line during a call ──
@@ -4674,7 +4825,8 @@ async function endCall() {
   await sb.from("phone_calls").update({
     ended: true,
     duration_seconds: elapsed,
-    transcript: JSON.stringify(activeCallTranscript)
+    transcript: JSON.stringify(activeCallTranscript),
+    is_anon: callIsAnon
   }).eq("id", activeCallId);
 
   document.getElementById("phone-call-overlay").classList.remove("active");
@@ -4997,6 +5149,174 @@ window.addEventListener("scroll", () => {
 }, { passive: true });
 
 // Hashtag list rendered via showPage hook below
+
+
+// =====================================================
+// INCOMING CALL LISTENER
+// =====================================================
+let incomingCallChannel = null;
+let pendingIncomingCall = null;
+
+function setupIncomingCallListener() {
+  if (incomingCallChannel) sb.removeChannel(incomingCallChannel);
+  incomingCallChannel = sb.channel("incoming-calls")
+    .on("broadcast", { event: "incoming" }, ({ payload }) => {
+      if (payload.receiver_id !== currentProfile.id) return;
+      pendingIncomingCall = payload;
+      showIncomingCallBanner(payload);
+    }).subscribe();
+}
+
+function showIncomingCallBanner(payload) {
+  const banner = document.getElementById("incoming-call-banner");
+  const avEl = document.getElementById("inc-av");
+  const nameEl = document.getElementById("inc-name");
+  const subEl = document.getElementById("inc-sub");
+
+  if (payload.is_anon) {
+    // Anonymous — show number only or "Unknown"
+    avEl.style.background = "#444";
+    avEl.innerHTML = "?";
+    nameEl.textContent = "Unknown Caller";
+    subEl.textContent = "📞 Private number";
+  } else {
+    // Check if we have a saved contact for this caller
+    const savedContacts = getMyContacts();
+    const saved = savedContacts[payload.caller_id];
+    const displayName = saved?.name || payload.caller_name;
+    const displayNum = payload.caller_num || "Unknown number";
+    avEl.style.background = payload.caller_color || "#555";
+    avEl.innerHTML = payload.caller_avatar
+      ? `<img src="${escAttr(payload.caller_avatar)}" style="width:100%;height:100%;object-fit:cover"/>`
+      : displayName[0];
+    nameEl.textContent = displayName;
+    subEl.textContent = "📞 " + displayNum;
+  }
+
+  banner.classList.add("show");
+  playNotifSound();
+
+  // Auto-dismiss after 30s
+  setTimeout(() => declineIncomingCall(), 30000);
+}
+
+function answerIncomingCall() {
+  const banner = document.getElementById("incoming-call-banner");
+  banner.classList.remove("show");
+  if (!pendingIncomingCall) return;
+  const p = pendingIncomingCall;
+  pendingIncomingCall = null;
+  // Open the call overlay on receiver's side
+  openReceivedCall(p);
+}
+
+function declineIncomingCall() {
+  document.getElementById("incoming-call-banner").classList.remove("show");
+  pendingIncomingCall = null;
+}
+
+async function openReceivedCall(payload) {
+  // Receiver answers — open overlay so they can write their lines too
+  const savedContacts = getMyContacts();
+  const saved = savedContacts[payload.caller_id];
+  const displayName = payload.is_anon ? "Unknown Caller" : (saved?.name || payload.caller_name);
+  const color = payload.is_anon ? "#444" : (payload.caller_color || "#555");
+  const avatarUrl = payload.is_anon ? "" : (payload.caller_avatar || "");
+
+  // Fetch call record
+  const { data: call } = await sb.from("phone_calls").select("id").eq("id", payload.call_id).single();
+  if (!call) return;
+
+  activeCallId = call.id;
+  activeCallTranscript = [];
+  callActiveSpeaker = "mine";
+  callOtherName = displayName;
+  callIsAnon = false;
+  callStartTime = Date.now();
+
+  const ov = document.getElementById("phone-call-overlay");
+  const avEl = document.getElementById("call-ov-av");
+  avEl.style.background = color;
+  avEl.innerHTML = avatarUrl
+    ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>`
+    : displayName[0];
+  document.getElementById("call-ov-name").textContent = displayName;
+  document.getElementById("call-ov-num").textContent = payload.is_anon ? "Private number" : (payload.caller_num || "");
+  document.getElementById("call-ov-timer").textContent = "00:00";
+  document.getElementById("call-transcript").innerHTML = "";
+  document.getElementById("call-inp").value = "";
+  const anonBtn = document.getElementById("anon-toggle-btn");
+  if (anonBtn) { anonBtn.textContent = "🕶 OFF"; anonBtn.classList.remove("active"); }
+  document.getElementById("spk-mine").classList.add("active");
+  document.getElementById("spk-other").classList.remove("active");
+  document.getElementById("spk-other").textContent = "🔵 " + displayName;
+  document.getElementById("call-inp").placeholder = currentProfile.hero_name + ": say something...";
+  ov.classList.add("active");
+
+  clearInterval(callTimerInterval);
+  callTimerInterval = setInterval(() => {
+    const sec = Math.floor((Date.now() - callStartTime) / 1000);
+    document.getElementById("call-ov-timer").textContent =
+      String(Math.floor(sec/60)).padStart(2,"0") + ":" + String(sec%60).padStart(2,"0");
+  }, 1000);
+
+  setTimeout(() => document.getElementById("call-inp")?.focus(), 150);
+}
+
+// =====================================================
+// CONTACT EDITOR
+// =====================================================
+function openContactEditor(userId, currentDisplayName, phoneNum, color) {
+  const panel = document.getElementById("phone-right-panel");
+  panel.innerHTML = `
+    <div class="contact-editor">
+      <h3>✏ EDIT CONTACT</h3>
+      <div class="contact-editor-av" id="ce-av" style="background:${color}" onclick="document.getElementById('ce-img-in').click()">
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:20px;font-weight:700;color:#fff" id="ce-av-inner">${currentDisplayName[0]}</div>
+        <div class="av-overlay">📷</div>
+      </div>
+      <input type="file" id="ce-img-in" accept="image/*" style="display:none" onchange="handleContactImgSelect(event,'${userId}')"/>
+      <div class="ce-field">
+        <label>Contact Name</label>
+        <input id="ce-name" value="${escAttr(currentDisplayName)}" placeholder="Enter a nickname..."/>
+      </div>
+      <div class="ce-field">
+        <label>Phone Number</label>
+        <input value="${escAttr(phoneNum)}" readonly style="color:var(--muted);cursor:default"/>
+      </div>
+      <button class="ce-save-btn" onclick="saveContactEdit('${userId}')">SAVE CONTACT</button>
+      <button onclick="clearContactEdit('${userId}')" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-align:center;width:100%;margin-top:-4px">Reset to default name</button>
+    </div>`;
+}
+
+let ceImgDataUrl = null;
+
+function handleContactImgSelect(e, userId) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    ceImgDataUrl = ev.target.result;
+    const inner = document.getElementById("ce-av-inner");
+    if (inner) inner.innerHTML = `<img src="${escAttr(ceImgDataUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveContactEdit(userId) {
+  const name = document.getElementById("ce-name")?.value.trim();
+  saveContact(userId, name || null, ceImgDataUrl);
+  ceImgDataUrl = null;
+  showToast("✅ Contact saved");
+  loadPhoneContacts();
+}
+
+function clearContactEdit(userId) {
+  saveContact(userId, null, null);
+  ceImgDataUrl = null;
+  showToast("Contact reset");
+  loadPhoneContacts();
+}
 
 applyTheme(currentTheme);
 startDisclaimerTimer();
