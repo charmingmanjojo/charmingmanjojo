@@ -3208,24 +3208,24 @@ function renderPost(p){
   const pinBtn=isOwner?`<button class="pact" onclick="togglePinPost('${p.id}',${!!p.is_pinned})" title="${p.is_pinned?'Unpin':'Pin to profile'}">${p.is_pinned?"📌":"📍"}</button>`:"";
   const delBtn=(isAdmin||isOwner)?`<button class="pact" onclick="deletePost('${p.id}')" title="Delete">✕</button>`:"";
 
-  // Parse quote-repost embed
+  // Parse quote-repost embed (base64-encoded payload, format: [[QR:<base64>]])
   let postContent = p.content || "";
   let quoteEmbedHtml = "";
-  const qMatch = postContent.match(/^\[\[Q:(.*?)\]\]/s);
+  const qMatch = postContent.match(/^\[\[QR:([A-Za-z0-9+/=]+)\]\]/);
   if (qMatch) {
-    postContent = postContent.replace(/^\[\[Q:(.*?)\]\]\n?/s, "");
+    postContent = postContent.replace(/^\[\[QR:[A-Za-z0-9+/=]+\]\]\n?/, "");
     try {
-      const qd = JSON.parse(qMatch[1]);
-      quoteEmbedHtml = `<div class="quote-embed" onclick="event.stopPropagation();openProfileDrawer('${qd.uid||""}')">
+      const qd = JSON.parse(decodeURIComponent(escape(atob(qMatch[1]))));
+      quoteEmbedHtml = `<div class="quote-embed" onclick="event.stopPropagation();showProfilePage('${qd.uid||""}')">
         <div class="quote-embed-hd">
-          <div style="width:18px;height:18px;border-radius:50%;background:${qd.color||"#555"};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;font-family:Orbitron,sans-serif;flex-shrink:0">${(qd.au||"?")[0]}</div>
+          <div style="width:18px;height:18px;border-radius:50%;background:${qd.color||"#555"};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;font-family:Orbitron,sans-serif;flex-shrink:0">${escHtml((qd.au||"?")[0])}</div>
           <span class="quote-embed-name">${escHtml(qd.au||"")}</span>
           <span class="quote-embed-handle">@${escHtml(qd.h||"")}</span>
         </div>
         <div class="quote-embed-text">${escHtml((qd.c||"").substring(0,140))}</div>
         ${qd.img?`<img class="quote-embed-img" src="${escAttr(qd.img)}"/>`:""}
       </div>`;
-    } catch(e){}
+    } catch(e){ console.warn("Quote embed parse error:", e); }
   }
 
   // Online status dot on avatar
@@ -3253,7 +3253,7 @@ function renderPost(p){
         <button class="pact ${liked?"liked":""}" onclick="toggleLike('${p.id}',${p.likes_count||0},${liked})">${liked?"❤️":"🤍"} ${p.likes_count||0}</button>
         ${p.likes_count>0?`<button class="pact" onclick="showWhoLiked('${p.id}',event)" style="font-size:10px;letter-spacing:.3px;padding:4px 7px">👥</button>`:""}
         <button class="pact" onclick="toggleComments('${p.id}')">💬 ${(p.comments||[]).length}</button>
-        <button class="pact" onclick="openQuoteCompose('${p.id}','${escAttr(u.hero_name)}','${escAttr(u.handle)}','${p.user_id}','${u.color||"#555"}','${escAttr((p.content||"").substring(0,120))}','${escAttr(p.image_url||"")}')">🔁 Quote</button>
+        <button class="pact" onclick="openQuoteCompose(event,'${p.id}')">🔁 Quote</button>
         <button class="pact" id="react-add-${p.id}" onclick="toggleReactionPicker('${p.id}')">＋😀</button>
         <button class="pact ${userBookmarks.includes(p.id)?'bookmarked':''}" onclick="toggleBookmark('${p.id}')">${userBookmarks.includes(p.id)?"🔖":"🏷"}</button>
         <button class="pact" onclick="openDMUser('${p.user_id}')">📨</button>
@@ -5650,8 +5650,21 @@ function toggleTheme() {
 // =====================================================
 // QUOTE-REPOST
 // =====================================================
-function openQuoteCompose(postId, authorName, authorHandle, authorUid, authorColor, postContent, imageUrl) {
-  document.querySelectorAll(".quote-compose-modal").forEach(e => e.remove());
+// pendingQuotePost holds the raw post object so we never pass content through onclick attrs
+let pendingQuotePost = null;
+
+function openQuoteCompose(e, postId) {
+  e?.stopPropagation();
+  // Look up the post from the already-loaded feed data — no encoding issues
+  const p = postsData.find(x => x.id === postId);
+  if (!p) { showToast("Could not find post to quote.", true); return; }
+  pendingQuotePost = p;
+  const u = p.profiles || {};
+  const authorColor = u.color || "#555";
+  const postContent = (p.content || "").substring(0, 140);
+  const imageUrl = p.image_url || "";
+
+  document.querySelectorAll(".quote-compose-modal").forEach(el => el.remove());
   const modal = document.createElement("div");
   modal.className = "quote-compose-modal";
   modal.id = "quote-compose-modal";
@@ -5660,33 +5673,56 @@ function openQuoteCompose(postId, authorName, authorHandle, authorUid, authorCol
       <h3>🔁 QUOTE REPOST</h3>
       <div class="quote-embed" style="pointer-events:none">
         <div class="quote-embed-hd">
-          <div style="width:18px;height:18px;border-radius:50%;background:${escAttr(authorColor)};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;font-family:Orbitron,sans-serif;flex-shrink:0">${authorName[0]}</div>
-          <span class="quote-embed-name">${escHtml(authorName)}</span>
-          <span class="quote-embed-handle">@${escHtml(authorHandle)}</span>
+          <div style="width:18px;height:18px;border-radius:50%;background:${escAttr(authorColor)};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;font-family:Orbitron,sans-serif;flex-shrink:0">${escHtml(u.hero_name?.[0]||"?")}</div>
+          <span class="quote-embed-name">${escHtml(u.hero_name||"")}</span>
+          <span class="quote-embed-handle">@${escHtml(u.handle||"")}</span>
         </div>
-        <div class="quote-embed-text">${escHtml(postContent.substring(0,140))}</div>
+        <div class="quote-embed-text">${escHtml(postContent)}</div>
         ${imageUrl ? `<img class="quote-embed-img" src="${escAttr(imageUrl)}"/>` : ""}
       </div>
       <textarea class="quote-compose-ta" id="quote-ta" placeholder="Add your comment..." maxlength="500"></textarea>
       <div class="quote-compose-btns">
         <button class="qc-cancel" onclick="document.getElementById('quote-compose-modal').remove()">Cancel</button>
-        <button class="qc-post" onclick="submitQuoteRepost('${postId}','${escAttr(authorName)}','${escAttr(authorHandle)}','${authorUid}','${escAttr(authorColor)}','${escAttr(postContent)}','${escAttr(imageUrl)}')">🔁 REPOST</button>
+        <button class="qc-post" onclick="submitQuoteRepost()">🔁 REPOST</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
-  modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
+  modal.addEventListener("click", ev => { if (ev.target === modal) { modal.remove(); pendingQuotePost = null; } });
   setTimeout(() => document.getElementById("quote-ta")?.focus(), 50);
 }
 
-async function submitQuoteRepost(postId, authorName, authorHandle, authorUid, authorColor, postContent, imageUrl) {
+async function submitQuoteRepost() {
+  if (!pendingQuotePost) return;
+  const p = pendingQuotePost;
+  const u = p.profiles || {};
   const ta = document.getElementById("quote-ta");
   const comment = ta?.value.trim() || "";
-  const quoteData = JSON.stringify({ id: postId, au: authorName, h: authorHandle, uid: authorUid, color: authorColor, c: postContent, img: imageUrl });
-  const fullContent = `[[Q:${quoteData}]]\n${comment}`;
   const btn = document.querySelector(".qc-post");
   if (btn) { btn.disabled = true; btn.textContent = "POSTING..."; }
-  const { error } = await sb.from("posts").insert({ user_id: currentProfile.id, content: fullContent, image_url: null, is_ai: false, likes_count: 0 });
+
+  // Build quote payload safely — no onclick encoding, no double-escaping
+  const quotePayload = {
+    id: p.id,
+    au: u.hero_name || "",
+    h: u.handle || "",
+    uid: p.user_id || "",
+    color: u.color || "#555",
+    c: (p.content || "").substring(0, 200),
+    img: p.image_url || ""
+  };
+  // Use base64 to store the JSON so no delimiter collisions ever break it
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(quotePayload))));
+  const fullContent = `[[QR:${encoded}]]${comment ? "\n" + comment : ""}`;
+
+  const { error } = await sb.from("posts").insert({
+    user_id: currentProfile.id,
+    content: fullContent,
+    image_url: null,
+    is_ai: false,
+    likes_count: 0
+  });
   document.getElementById("quote-compose-modal")?.remove();
+  pendingQuotePost = null;
   if (error) { showToast("Repost failed: " + error.message, true); return; }
   showToast("🔁 Reposted!");
   loadFeed();
