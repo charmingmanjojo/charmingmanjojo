@@ -1102,6 +1102,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           <button class="phone-tab active" id="ptab-texts" onclick="switchPhoneTab('texts')">TEXTS</button>
           <button class="phone-tab" id="ptab-calls" onclick="switchPhoneTab('calls')">CALLS</button>
         </div>
+        <div style="padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
+          <input id="phone-search" placeholder="🔍  Search name, @handle, or number..." oninput="phoneSearchDebounce(this.value)"
+            style="width:100%;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.35);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none;box-sizing:border-box"/>
+        </div>
         <div class="phone-contacts" id="phone-contacts-list"></div>
       </div>
       <div id="phone-right-panel" class="phone-chat">
@@ -4397,19 +4401,15 @@ function getContactDisplay(u) {
   };
 }
 
-async function getPhoneContacts() {
-  const [{ data: following }, { data: followers }] = await Promise.all([
-    sb.from("follows").select("following_id").eq("follower_id", currentProfile.id),
-    sb.from("follows").select("follower_id").eq("following_id", currentProfile.id)
-  ]);
-  const ids = new Set([
-    ...(following || []).map(r => r.following_id),
-    ...(followers  || []).map(r => r.follower_id)
-  ]);
-  if (!ids.size) return [];
-  const { data: profiles } = await sb.from("profiles")
+async function getPhoneContacts(searchQuery) {
+  // Show ALL users as contacts (filtered by search if provided)
+  let query = sb.from("profiles")
     .select("id,hero_name,handle,color,avatar_url,phone_number")
-    .in("id", [...ids]);
+    .neq("id", currentProfile.id);
+  if (searchQuery) {
+    query = query.or(`hero_name.ilike.%${searchQuery}%,handle.ilike.%${searchQuery}%,phone_number.ilike.%${searchQuery}%`);
+  }
+  const { data: profiles } = await query.order("hero_name", { ascending: true }).limit(60);
   return profiles || [];
 }
 
@@ -4425,15 +4425,21 @@ function switchPhoneTab(tab) {
 }
 
 // ── Load contact/call list ──
-async function loadPhoneContacts() {
+let _phoneSearchTimer = null;
+function phoneSearchDebounce(val) {
+  clearTimeout(_phoneSearchTimer);
+  _phoneSearchTimer = setTimeout(() => loadPhoneContacts(val), 280);
+}
+
+async function loadPhoneContacts(searchQuery) {
   const list = document.getElementById("phone-contacts-list");
   if (!list) return;
   list.innerHTML = `<div style="padding:14px;color:var(--muted);font-size:11px;text-align:center;letter-spacing:1px">Loading...</div>`;
 
   if (phoneTab === "texts") {
-    const contacts = await getPhoneContacts();
+    const contacts = await getPhoneContacts(searchQuery);
     if (!contacts.length) {
-      list.innerHTML = `<div style="padding:18px 14px;color:var(--muted);font-size:11px;text-align:center;line-height:1.7;letter-spacing:.5px">Follow someone to start texting them.</div>`;
+      list.innerHTML = `<div style="padding:18px 14px;color:var(--muted);font-size:11px;text-align:center;line-height:1.7;letter-spacing:.5px">No contacts found.</div>`;
       return;
     }
     // Get last message per contact
@@ -4455,10 +4461,10 @@ async function loadPhoneContacts() {
     }).join("");
 
   } else {
-    // Call log — only calls involving contacts
-    const contacts = await getPhoneContacts();
+    // Call log
+    const contacts = await getPhoneContacts(searchQuery);
     if (!contacts.length) {
-      list.innerHTML = `<div style="padding:18px 14px;color:var(--muted);font-size:11px;text-align:center;line-height:1.7;letter-spacing:.5px">Follow someone to call them.</div>`;
+      list.innerHTML = `<div style="padding:18px 14px;color:var(--muted);font-size:11px;text-align:center;line-height:1.7;letter-spacing:.5px">No contacts found.</div>`;
       return;
     }
     const contactIds = contacts.map(c => c.id);
