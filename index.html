@@ -488,6 +488,30 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .pdr-post-meta{font-size:10px;color:var(--muted);display:flex;gap:10px}
 .pdr-empty{padding:30px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px}
 
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width:768px){
+  .layout-3col{grid-template-columns:1fr!important}
+  .sidebar-left,.sidebar-right{display:none!important}
+  .nav-tab{font-size:8px!important;padding:8px 5px!important;letter-spacing:.3px!important}
+  .nav-logo{font-size:10px!important;letter-spacing:1px!important}
+  #profile-drawer,#notif-panel{width:100vw!important}
+  .gif-panel{width:90vw!important;left:-60px!important}
+  .compose{padding:10px!important}
+  .post{padding:12px 10px!important}
+  .feed-tabs .ftab{font-size:8px!important;padding:9px 4px!important;letter-spacing:.5px!important}
+  .pdr-stats{flex-wrap:wrap}
+  .pdr-stat{min-width:30%}
+}
+@media (max-width:480px){
+  .nav-tab{padding:8px 3px!important;font-size:7px!important;letter-spacing:0!important}
+  .post-name{font-size:12px!important}
+  .pact{padding:3px 5px!important;font-size:10px!important}
+  .nav-logo-text{display:none}
+  .compose-foot{flex-wrap:wrap;gap:6px}
+  .char-counter{order:3;width:100%;text-align:right}
+}
+
 </style>
 </head>
 <body>
@@ -595,6 +619,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <button class="nav-tab" id="tab-settings" onclick="showPage('settings')">⚙ SETTINGS</button>
     </div>
     <div class="nav-av" id="nav-av" title="Your profile" onclick="showPage('settings')" style="cursor:pointer"></div>
+    <button class="notif-bell" id="notif-bell" onclick="toggleNotifPanel()" title="Notifications" style="background:none;border:none;color:var(--muted);font-size:17px;cursor:pointer;padding:4px 8px;position:relative;line-height:1">🔔<span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
     <button onclick="doLogout()" title="Log out" style="padding:5px 11px;border-radius:3px;border:1px solid var(--border);background:none;color:var(--muted);font-family:Rajdhani,sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;cursor:pointer;text-transform:uppercase;transition:.15s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">LOG OUT</button>
   </nav>
 
@@ -1177,12 +1202,24 @@ async function openProfileDrawer(userId) {
   const isOwnProfile = userId === currentProfile.id;
 
   // Banner + avatar
-  document.getElementById("pdr-banner-color").style.background = u.color;
+  const bannerEl = document.getElementById("pdr-banner");
+  if (u.banner_url) {
+    bannerEl.style.backgroundImage = "url('" + escAttr(u.banner_url) + "')";
+    bannerEl.style.backgroundSize = "cover";
+    bannerEl.style.backgroundPosition = "center";
+    document.getElementById("pdr-banner-color").style.opacity = "0";
+  } else {
+    bannerEl.style.backgroundImage = "";
+    document.getElementById("pdr-banner-color").style.opacity = "0.35";
+    document.getElementById("pdr-banner-color").style.background = u.color;
+  }
   const avEl = document.getElementById("pdr-av");
   avEl.style.background = u.avatar_url ? "transparent" : u.color;
-  avEl.innerHTML = u.avatar_url
+  const online = isOnline(u.last_seen);
+  avEl.innerHTML = (u.avatar_url
     ? '<img src="' + escAttr(u.avatar_url) + '" style="width:100%;height:100%;object-fit:cover"/>'
-    : u.hero_name[0];
+    : u.hero_name[0]) +
+    '<div class="online-dot ' + (online?"on":"off") + '" title="' + (online?"Online now":("Last seen "+timeAgo(u.last_seen))) + '"></div>';
 
   // Info section
   document.getElementById("pdr-info").innerHTML =
@@ -1289,6 +1326,460 @@ async function scrollToPost(postId) {
 document.addEventListener("keydown", function(e) {
   if (e.key === "Escape") { closeProfileDrawer(); closeTrendDrawer(); }
 });
+
+
+// =====================================================
+// NOTIFICATIONS
+// =====================================================
+let notifPanelOpen = false;
+let userBlocks = [];
+let userMutes = [];
+let userBookmarks = [];
+let userFollowing = [];
+let currentFeedTab = 'all';
+let draftContent = '';
+let draftTimer = null;
+
+async function loadNotifications() {
+  const { data } = await sb.from("notifications")
+    .select("*,from_user:profiles!notifications_from_user_id_fkey(id,hero_name,color,avatar_url)")
+    .eq("user_id", currentProfile.id)
+    .order("created_at", {ascending:false})
+    .limit(30);
+  const unread = (data||[]).filter(n=>!n.read).length;
+  const badge = document.getElementById("notif-badge");
+  if (badge) { badge.style.display = unread > 0 ? "flex" : "none"; badge.textContent = unread > 9 ? "9+" : unread; }
+  const list = document.getElementById("notif-list");
+  if (!list) return;
+  if (!data?.length) { list.innerHTML = '<div class="notif-empty">All clear, operative</div>'; return; }
+  const icons = {like:"❤️",comment:"💬",dm:"📨",mention:"@",follow:"👤",reaction:"✨"};
+  list.innerHTML = data.map(n => {
+    const u = n.from_user;
+    const av = u?.avatar_url ? '<img src="'+escAttr(u.avatar_url)+'" style="width:100%;height:100%;object-fit:cover"/>' : (u?.hero_name?.[0]||"?");
+    return '<div class="notif-item'+(n.read?'':' unread')+'" onclick="handleNotifClick(\''+n.id+'\',\''+n.type+'\',\''+( n.post_id||'')+'\',\''+( n.from_user_id||'')+'\')">'+
+      '<div class="notif-av" style="background:'+(u?.color||'#555')+'">'+av+'</div>'+
+      '<div style="flex:1"><div class="notif-text"><span class="notif-type-icon">'+( icons[n.type]||"🔔")+'</span>'+
+        '<strong>'+(u?.hero_name||"Someone")+'</strong> '+describeNotif(n)+'</div>'+
+        '<div class="notif-time">'+timeAgo(n.created_at)+'</div></div>'+
+    '</div>';
+  }).join("");
+}
+
+function describeNotif(n) {
+  if (n.type==="like") return "liked your post";
+  if (n.type==="comment") return "commented: "+escH(n.message||"");
+  if (n.type==="dm") return "sent you a message";
+  if (n.type==="mention") return "mentioned you";
+  if (n.type==="follow") return "started following you";
+  if (n.type==="reaction") return "reacted "+( n.message||"")+" to your post";
+  return n.message||"";
+}
+
+async function handleNotifClick(id, type, postId, fromUserId) {
+  await sb.from("notifications").update({read:true}).eq("id",id);
+  toggleNotifPanel();
+  if (type==="dm" && fromUserId) { openDMUser(fromUserId); }
+  else if (postId) { showPage("feed"); setTimeout(()=>scrollToPost(postId),200); }
+  else if (fromUserId) { openProfileDrawer(fromUserId); }
+  loadNotifications();
+}
+
+async function markAllNotifsRead() {
+  await sb.from("notifications").update({read:true}).eq("user_id",currentProfile.id).eq("read",false);
+  loadNotifications();
+  showToast("All notifications marked read");
+}
+
+function toggleNotifPanel() {
+  const p = document.getElementById("notif-panel");
+  notifPanelOpen = !notifPanelOpen;
+  p.classList.toggle("open", notifPanelOpen);
+  document.getElementById("profile-drawer").classList.remove("open");
+  document.getElementById("trend-drawer").classList.remove("open");
+  if (notifPanelOpen) loadNotifications();
+}
+
+// =====================================================
+// REACTIONS
+// =====================================================
+const REACTION_EMOJIS = ["🔥","😂","😮","😢","👏","💀"];
+
+function toggleReactionPicker(postId) {
+  const existing = document.getElementById("rp-"+postId);
+  if (existing) { existing.remove(); return; }
+  // close others
+  document.querySelectorAll(".emoji-picker-pop").forEach(e=>e.remove());
+  const btn = document.getElementById("react-add-"+postId);
+  const picker = document.createElement("div");
+  picker.className = "emoji-picker-pop";
+  picker.id = "rp-"+postId;
+  REACTION_EMOJIS.forEach(emoji => {
+    const b = document.createElement("button");
+    b.className = "ep-emoji"; b.textContent = emoji;
+    b.onclick = function(e) { e.stopPropagation(); toggleReaction(postId, emoji); picker.remove(); };
+    picker.appendChild(b);
+  });
+  btn.parentElement.style.position = "relative";
+  btn.parentElement.appendChild(picker);
+  setTimeout(()=>document.addEventListener("click",()=>picker.remove(),{once:true}),10);
+}
+
+async function toggleReaction(postId, emoji) {
+  const existing = await sb.from("reactions").select("id").eq("post_id",postId).eq("user_id",currentProfile.id).eq("emoji",emoji).single();
+  if (existing.data) {
+    await sb.from("reactions").delete().eq("id",existing.data.id);
+  } else {
+    await sb.from("reactions").insert({post_id:postId,user_id:currentProfile.id,emoji:emoji});
+    // notify post owner
+    const {data:post} = await sb.from("posts").select("user_id").eq("id",postId).single();
+    if (post && post.user_id !== currentProfile.id) {
+      await sb.from("notifications").insert({user_id:post.user_id,type:"reaction",from_user_id:currentProfile.id,post_id:postId,message:emoji});
+    }
+  }
+  loadFeed();
+}
+
+// =====================================================
+// BOOKMARKS
+// =====================================================
+async function loadUserBookmarks() {
+  const {data} = await sb.from("bookmarks").select("post_id").eq("user_id",currentProfile.id);
+  userBookmarks = (data||[]).map(b=>b.post_id);
+}
+
+async function toggleBookmark(postId) {
+  if (userBookmarks.includes(postId)) {
+    await sb.from("bookmarks").delete().eq("user_id",currentProfile.id).eq("post_id",postId);
+    userBookmarks = userBookmarks.filter(id=>id!==postId);
+    showToast("Bookmark removed");
+  } else {
+    await sb.from("bookmarks").insert({user_id:currentProfile.id,post_id:postId});
+    userBookmarks.push(postId);
+    showToast("Post bookmarked ✦");
+  }
+  loadFeed();
+}
+
+// =====================================================
+// FOLLOW / UNFOLLOW
+// =====================================================
+async function loadUserFollowing() {
+  const {data} = await sb.from("follows").select("following_id").eq("follower_id",currentProfile.id);
+  userFollowing = (data||[]).map(f=>f.following_id);
+}
+
+async function toggleFollow(userId) {
+  if (!userId || userId===currentProfile.id) return;
+  if (userFollowing.includes(userId)) {
+    await sb.from("follows").delete().eq("follower_id",currentProfile.id).eq("following_id",userId);
+    userFollowing = userFollowing.filter(id=>id!==userId);
+    showToast("Unfollowed");
+  } else {
+    await sb.from("follows").insert({follower_id:currentProfile.id,following_id:userId});
+    userFollowing.push(userId);
+    await sb.from("notifications").insert({user_id:userId,type:"follow",from_user_id:currentProfile.id});
+    showToast("Now following!");
+  }
+  refreshFollowBtn(userId);
+  if (currentFeedTab==="following") loadFeed();
+}
+
+function refreshFollowBtn(userId) {
+  const btn = document.getElementById("follow-btn-"+userId);
+  if (!btn) return;
+  const following = userFollowing.includes(userId);
+  btn.textContent = following ? "UNFOLLOW" : "FOLLOW";
+  btn.className = "pdr-btn " + (following ? "pdr-btn-secondary" : "pdr-btn-primary");
+}
+
+// =====================================================
+// FEED TABS
+// =====================================================
+async function switchFeedTab(tab) {
+  currentFeedTab = tab;
+  ["all","following","bookmarks"].forEach(t => {
+    const el = document.getElementById("ftab-"+t);
+    if(el) el.classList.toggle("active", t===tab);
+  });
+  loadFeed();
+}
+
+// =====================================================
+// MUTE / BLOCK
+// =====================================================
+async function loadUserBlocks() {
+  const {data:bl} = await sb.from("blocks").select("blocked_id").eq("blocker_id",currentProfile.id);
+  const {data:mu} = await sb.from("mutes").select("muted_id").eq("muter_id",currentProfile.id);
+  userBlocks = (bl||[]).map(b=>b.blocked_id);
+  userMutes = (mu||[]).map(m=>m.muted_id);
+}
+
+function confirmAction(title, msg, confirmText, onConfirm) {
+  const modal = document.createElement("div");
+  modal.className = "confirm-modal";
+  modal.innerHTML =
+    '<div class="confirm-box">'+
+      '<h3>'+escH(title)+'</h3>'+
+      '<p>'+escH(msg)+'</p>'+
+      '<div class="confirm-btns">'+
+        '<button class="confirm-btn confirm-btn-cancel" onclick="this.closest(\'.confirm-modal\').remove()">CANCEL</button>'+
+        '<button class="confirm-btn confirm-btn-danger" id="confirm-action-btn">'+escH(confirmText)+'</button>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(modal);
+  document.getElementById("confirm-action-btn").onclick = function() { modal.remove(); onConfirm(); };
+}
+
+async function blockUser(userId, heroName) {
+  confirmAction("Block @"+heroName, "They won't be able to see your posts and you won't see theirs.", "BLOCK", async function() {
+    await sb.from("blocks").insert({blocker_id:currentProfile.id,blocked_id:userId});
+    userBlocks.push(userId);
+    closeProfileDrawer();
+    loadFeed();
+    showToast(heroName+" blocked");
+  });
+}
+
+async function unblockUser(userId, heroName) {
+  await sb.from("blocks").delete().eq("blocker_id",currentProfile.id).eq("blocked_id",userId);
+  userBlocks = userBlocks.filter(id=>id!==userId);
+  showToast(heroName+" unblocked");
+  loadFeed();
+}
+
+async function muteUser(userId, heroName) {
+  confirmAction("Mute @"+heroName, "Their posts won't appear in your feed. They won't know.", "MUTE", async function() {
+    await sb.from("mutes").insert({muter_id:currentProfile.id,muted_id:userId});
+    userMutes.push(userId);
+    closeProfileDrawer();
+    loadFeed();
+    showToast(heroName+" muted");
+  });
+}
+
+async function unmuteUser(userId, heroName) {
+  await sb.from("mutes").delete().eq("muter_id",currentProfile.id).eq("muted_id",userId);
+  userMutes = userMutes.filter(id=>id!==userId);
+  showToast(heroName+" unmuted");
+  loadFeed();
+}
+
+// =====================================================
+// ONLINE STATUS
+// =====================================================
+async function updateLastSeen() {
+  await sb.from("profiles").update({last_seen:new Date().toISOString()}).eq("id",currentProfile.id);
+}
+
+function isOnline(lastSeen) {
+  if (!lastSeen) return false;
+  return (Date.now() - new Date(lastSeen).getTime()) < 5 * 60 * 1000; // 5 min
+}
+
+// =====================================================
+// CHARACTER COUNTER
+// =====================================================
+const POST_LIMIT = 280;
+
+function initCharCounter() {
+  const ta = document.getElementById("compose-ta");
+  if (!ta) return;
+  ta.addEventListener("input", function() {
+    const remaining = POST_LIMIT - ta.value.length;
+    const el = document.getElementById("char-counter");
+    if (!el) return;
+    el.textContent = remaining;
+    el.className = "char-counter" + (remaining < 0 ? " over" : remaining < 40 ? " warn" : "");
+    // auto-save draft
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(() => {
+      if (ta.value.trim()) {
+        localStorage.setItem("me_draft", ta.value);
+        draftContent = ta.value;
+      }
+    }, 1000);
+  });
+  // restore draft
+  const saved = localStorage.getItem("me_draft");
+  if (saved) {
+    ta.value = saved;
+    ta.dispatchEvent(new Event("input"));
+  }
+}
+
+function clearSchedule() {
+  document.getElementById("schedule-input").value = "";
+  document.getElementById("schedule-row").style.display = "none";
+}
+
+// =====================================================
+// GIF PICKER
+// =====================================================
+let gifPanelOpen = false;
+const TENOR_KEY = "AIzaSyAyimkuYQYF_FXVALexPj9X2R4egNdNrjQ"; // Free Tenor API key
+
+async function searchGifs(query) {
+  const grid = document.getElementById("gif-grid");
+  if (!grid) return;
+  if (!query) { grid.innerHTML = ""; return; }
+  try {
+    const url = "https://tenor.googleapis.com/v2/search?q="+encodeURIComponent(query)+"&key="+TENOR_KEY+"&limit=9&media_filter=gif";
+    const r = await fetch(url);
+    const d = await r.json();
+    grid.innerHTML = (d.results||[]).map(g => {
+      const url = g.media_formats?.tinygif?.url || g.media_formats?.gif?.url || "";
+      return url ? '<img class="gif-item" src="'+escAttr(url)+'" onclick="selectGif(\''+escAttr(url)+'\')" loading="lazy"/>' : "";
+    }).join("");
+  } catch(e) { grid.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px;text-align:center">Search failed</div>'; }
+}
+
+function selectGif(url) {
+  // Set as pending image URL for submission
+  pendingGifUrl = url;
+  const preview = document.getElementById("img-preview");
+  if (preview) { preview.src = url; preview.style.display = "block"; }
+  document.getElementById("img-preview-wrap") && (document.getElementById("img-preview-wrap").style.display = "flex");
+  toggleGifPanel();
+  showToast("GIF selected");
+}
+
+function toggleGifPanel() {
+  const p = document.getElementById("gif-panel");
+  if (!p) return;
+  gifPanelOpen = !gifPanelOpen;
+  p.style.display = gifPanelOpen ? "block" : "none";
+  if (gifPanelOpen) {
+    setTimeout(()=>document.getElementById("gif-search-input")?.focus(),50);
+    searchGifs("nyc chaos");
+  }
+}
+
+// =====================================================
+// BANNER UPLOAD
+// =====================================================
+async function handleBannerUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5*1024*1024) { showToast("Max 5MB", true); return; }
+  const ext = file.name.split(".").pop().toLowerCase();
+  const path = currentProfile.id+"/banner."+ext;
+  showToast("Uploading banner...");
+  const {error} = await sb.storage.from("avatars").upload(path, file, {upsert:true, contentType:file.type});
+  if (error) { showToast("Upload failed", true); return; }
+  const {data:{publicUrl}} = sb.storage.from("avatars").getPublicUrl(path);
+  const banner_url = publicUrl + "?t=" + Date.now();
+  await sb.from("profiles").update({banner_url}).eq("id",currentProfile.id);
+  currentProfile.banner_url = banner_url;
+  // Update UI
+  const area = document.getElementById("banner-upload-area");
+  if (area) {
+    let img = area.querySelector("img");
+    if (!img) { img = document.createElement("img"); area.appendChild(img); }
+    img.src = banner_url; img.style.cssText = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover";
+    const ph = document.getElementById("banner-placeholder");
+    if (ph) ph.style.display = "none";
+    const rb = document.getElementById("banner-remove-btn");
+    if (rb) rb.style.display = "block";
+  }
+  showToast("Banner updated!");
+}
+
+async function removeBanner() {
+  await sb.from("profiles").update({banner_url:null}).eq("id",currentProfile.id);
+  currentProfile.banner_url = null;
+  const area = document.getElementById("banner-upload-area");
+  if (area) { area.querySelectorAll("img").forEach(i=>i.remove()); }
+  const ph = document.getElementById("banner-placeholder");
+  if (ph) ph.style.display = "";
+  const rb = document.getElementById("banner-remove-btn");
+  if (rb) rb.style.display = "none";
+  showToast("Banner removed");
+}
+
+// =====================================================
+// SEARCH POSTS (expanded)
+// =====================================================
+let searchTab = "users";
+
+function initSearchTabs() {
+  const searchRes = document.getElementById("search-results");
+  if (!searchRes) return;
+  const bar = document.createElement("div");
+  bar.className = "search-tab-bar";
+  bar.innerHTML =
+    '<button class="stab active" id="stab-users" onclick="setSearchTab(\'users\')">USERS</button>'+
+    '<button class="stab" id="stab-posts" onclick="setSearchTab(\'posts\')">POSTS</button>'+
+    '<button class="stab" id="stab-tags" onclick="setSearchTab(\'tags\')">#TAGS</button>';
+  searchRes.parentElement.insertBefore(bar, searchRes);
+}
+
+function setSearchTab(tab) {
+  searchTab = tab;
+  ["users","posts","tags"].forEach(t => {
+    const el = document.getElementById("stab-"+t);
+    if(el) el.classList.toggle("active", t===tab);
+  });
+  const q = document.getElementById("search-input")?.value?.trim();
+  if (q) doSearch(q);
+}
+
+async function searchPosts(q) {
+  const {data} = await sb.from("posts")
+    .select("id,content,created_at,user_id,profiles(hero_name,handle,color,avatar_url)")
+    .ilike("content", "%"+q+"%")
+    .order("created_at",{ascending:false})
+    .limit(20);
+  const res = document.getElementById("search-results");
+  if (!res) return;
+  if (!data?.length) { res.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px">No posts found for "'+escH(q)+'"</div>'; return; }
+  res.innerHTML = data.map(p => {
+    const u = p.profiles;
+    const av = u?.avatar_url ? '<img src="'+escAttr(u.avatar_url)+'" style="width:100%;height:100%;object-fit:cover"/>' : (u?.hero_name?.[0]||"?");
+    return '<div class="follow-item" onclick="scrollToPost(\''+p.id+'\');showPage(\'feed\')" style="flex-direction:column;align-items:flex-start;gap:4px">'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<div class="fi-av" style="background:'+(u?.color||'#555')+'">'+av+'</div>'+
+        '<div><div class="fi-name">'+(u?.hero_name||"?")+'</div><div class="fi-handle">@'+(u?.handle||"?")+'</div></div>'+
+        '<div style="margin-left:auto;font-size:10px;color:var(--muted)">'+timeAgo(p.created_at)+'</div>'+
+      '</div>'+
+      '<div style="font-size:12px;color:var(--text);line-height:1.5;padding-left:4px">'+escH((p.content||"").substring(0,120))+'</div>'+
+    '</div>';
+  }).join("");
+}
+
+async function searchHashtags(q) {
+  const tag = q.startsWith("#") ? q.slice(1) : q;
+  const {data} = await sb.from("posts")
+    .select("id,content,created_at,user_id,profiles(hero_name,handle,color)")
+    .ilike("content", "%#"+tag+"%")
+    .order("created_at",{ascending:false})
+    .limit(20);
+  const res = document.getElementById("search-results");
+  if (!res) return;
+  if (!data?.length) { res.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px">No posts tagged #'+escH(tag)+'</div>'; return; }
+  res.innerHTML = '<div style="padding:8px 12px;font-size:10px;color:var(--accent);letter-spacing:1px">#'+escH(tag)+' — '+data.length+' posts</div>' +
+    data.map(p => {
+      const u = p.profiles;
+      return '<div class="follow-item" onclick="scrollToPost(\''+p.id+'\');showPage(\'feed\')">'+
+        '<div class="fi-av" style="background:'+(u?.color||'#555')+'">'+(u?.hero_name?.[0]||"?")+'</div>'+
+        '<div style="flex:1"><div class="fi-name">'+(u?.hero_name||"?")+'</div>'+
+          '<div style="font-size:11px;color:var(--text);margin-top:2px">'+renderHashtags(escH((p.content||"").substring(0,100)))+'</div></div>'+
+        '<div style="font-size:10px;color:var(--muted)">'+timeAgo(p.created_at)+'</div>'+
+      '</div>';
+    }).join("");
+}
+
+// =====================================================
+// SCHEDULED POSTS CHECK
+// =====================================================
+async function checkScheduledPosts() {
+  if (!currentProfile?.is_admin) return;
+  const now = new Date().toISOString();
+  const {data} = await sb.from("posts").select("id").lte("scheduled_at", now).eq("is_draft", true).not("scheduled_at","is",null);
+  for (const p of (data||[])) {
+    await sb.from("posts").update({is_draft:false}).eq("id",p.id);
+  }
+  if (data?.length) loadFeed();
+}
 
 // =====================================================
 // TRENDING
@@ -1821,6 +2312,7 @@ function showApp(){
   if(currentProfile.is_admin)document.getElementById("tab-admin").style.display="";
   updateNavAvatar();
   renderMyCard();renderFactionFilter();
+  loadNotifications();loadUserBookmarks();loadUserFollowing();loadUserBlocks();initCharCounter();updateLastSeen();setInterval(updateLastSeen,2*60*1000);setInterval(loadNotifications,30*1000);setInterval(checkScheduledPosts,60*1000);if(currentProfile.is_admin){const sr=document.getElementById('schedule-row');if(sr)sr.style.display='flex';}if(currentProfile.banner_url){const _ba=document.getElementById('banner-upload-area');if(_ba){let _bi=_ba.querySelector('img');if(!_bi){_bi=document.createElement('img');_ba.appendChild(_bi);}  _bi.src=currentProfile.banner_url;_bi.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';const _bp=document.getElementById('banner-placeholder');if(_bp)_bp.style.display='none';const _brb=document.getElementById('banner-remove-btn');if(_brb)_brb.style.display='block';}}
   loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();setupRealtimeDMs();renderStationList();loadTrending();
 }
 
@@ -1925,7 +2417,21 @@ function b64ToBlob(b64,type){
 // FEED
 // =====================================================
 async function loadFeed(){
+  if (currentFeedTab === "bookmarks") {
+    const {data:bkData} = await sb.from("bookmarks").select("post_id").eq("user_id",currentProfile.id).order("created_at",{ascending:false}).limit(30);
+    const ids = (bkData||[]).map(b=>b.post_id);
+    if (!ids.length) { document.getElementById("posts-list").innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px">No bookmarks yet — tap 🏷 on any post.</div>'; return; }
+    const {data} = await sb.from("posts").select("*,profiles(*),likes(user_id),comments(*,profiles(hero_name,color,handle))").in("id",ids);
+    renderFeed(data||[]);
+    return;
+  }
   let q=sb.from("posts").select("*,profiles(*),likes(user_id),comments(*,profiles(hero_name,color,handle))").order("created_at",{ascending:false}).limit(50);
+  if (currentFeedTab === "following" && userFollowing.length) {
+    q = q.in("user_id", userFollowing);
+  } else if (currentFeedTab === "following") {
+    document.getElementById("posts-list").innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px">Follow some operatives to see their posts here.</div>';
+    return;
+  }
   if(factionFilter!=="All"){
     const ids=Object.values(profilesCache).filter(p=>p.faction===factionFilter).map(p=>p.id);
     if(ids.length)q=q.in("user_id",ids);else{renderFeed([]);return;}
@@ -1982,7 +2488,9 @@ function renderPost(p){
       <div class="post-actions">
         <button class="pact ${liked?"liked":""}" onclick="toggleLike('${p.id}',${p.likes_count||0},${liked})">${liked?"❤️":"🤍"} ${p.likes_count||0}</button>
         <button class="pact" onclick="toggleComments('${p.id}')">💬 ${(p.comments||[]).length}</button>
-        <button class="pact" onclick="openDMUser('${p.user_id}')">📨 DM</button>
+        <button class="pact" id="react-add-${p.id}" onclick="toggleReactionPicker('${p.id}')">＋😀</button>
+        <button class="pact ${userBookmarks.includes(p.id)?'bookmarked':''}" onclick="toggleBookmark('${p.id}')">${userBookmarks.includes(p.id)?"🔖":"🏷"}</button>
+        <button class="pact" onclick="openDMUser('${p.user_id}')">📨</button>
         ${isAdmin&&p.is_ai?`<span class="ai-tag">AI</span>`:""}
         ${editBtn}
       </div>
@@ -2268,21 +2776,30 @@ async function handleSearch(q){
   if(sq_lower==="highnexus"){if(currentProfile.is_admin){showPage("admin");return;}openGate();return;}
   showPage("search");
   document.getElementById("sq-display").textContent=sq;
+  initSearchTabs();
+  if(searchTab==="posts"){searchPosts(sq);return;}
+  if(searchTab==="tags"){searchHashtags(sq);return;}
   const{data}=await sb.from("profiles").select("*").or(`handle.ilike.%${sq_lower}%,hero_name.ilike.%${sq_lower}%,real_name.ilike.%${sq_lower}%`).eq("is_admin",false);
   if(!data?.length){document.getElementById("search-results").innerHTML=`<div class="empty"><div class="empty-ico">🔍</div><p>No operatives found</p></div>`;return;}
   document.getElementById("search-results").innerHTML=data.map(u=>{
     const fc=FC_COLORS[u.faction]||"#555";
-    return`<div class="prof-card">
-      <div class="prof-banner" style="background:linear-gradient(135deg,${u.color}88,${u.color}22)">
-        <div style="position:absolute;bottom:-18px;left:18px;width:52px;height:52px;border-radius:4px;background:${u.color};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:19px;color:#fff;border:3px solid var(--bg)">${u.hero_name[0]}</div>
+    const av=u.avatar_url?`<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>`:`${u.hero_name[0]}`;
+    const isF=userFollowing.includes(u.id);
+    return`<div class="prof-card" onclick="openProfileDrawer('${u.id}')" style="cursor:pointer">
+      <div class="prof-banner" style="background:${u.banner_url?'url('+escAttr(u.banner_url)+') center/cover':'linear-gradient(135deg,'+u.color+'88,'+u.color+'22)'}">
+        <div style="position:absolute;bottom:-18px;left:18px;width:52px;height:52px;border-radius:4px;background:${u.avatar_url?'transparent':u.color};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:19px;color:#fff;border:3px solid var(--bg);overflow:hidden">${av}</div>
       </div>
       <div class="prof-info">
-        <div class="prof-name">${escH(u.hero_name)}</div>
-        <div class="prof-real">${escH(u.real_name)} · @${u.handle}</div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div>
+            <div class="prof-name">${escH(u.hero_name)}</div>
+            <div class="prof-real">${escH(u.real_name)} · @${u.handle}</div>
+          </div>
+          ${u.id!==currentProfile.id?`<button class="btn" style="font-size:8px;padding:5px 12px;margin-top:4px;background:${isF?'transparent':'var(--accent)'};border:1px solid ${isF?'var(--border2)':'transparent'};color:${isF?'var(--muted)':'var(--bg)'}" id="follow-btn-${u.id}" onclick="event.stopPropagation();toggleFollow('${u.id}')">${isF?'UNFOLLOW':'+ FOLLOW'}</button>`:`<span style="font-size:10px;color:var(--muted)">YOU</span>`}
+        </div>
         <div class="prof-bio">${escH(u.bio||"")}</div>
         <div class="prof-foot">
           <span class="fc-badge" style="background:${fc}22;color:${fc};border:1px solid ${fc}44">${u.faction}</span>
-          ${u.id!==currentProfile.id?`<button class="dm-btn" onclick="openDMUser('${u.id}')">💬 DM</button>`:`<span style="font-size:10px;color:var(--muted)">YOU</span>`}
         </div>
       </div>
     </div>`;
