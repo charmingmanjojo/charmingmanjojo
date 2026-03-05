@@ -736,7 +736,7 @@ async function renderSettingsPage() {
             </div>
             <input type="file" id="av-file-in" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="handleAvatarSelect(event)"/>
             <div class="av-hint">JPG PNG GIF WEBP<br>Max 8 MB</div>
-            ${u.avatar_url ? `<button class="av-remove" onclick="removeAvatar()">Remove photo</button>` : ""}
+            ${u.avatar_url ? '<button class="av-remove" onclick="removeAvatar()">Remove photo</button>' : ""}
           </div>
           <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:11px">
             <div class="afield" style="margin-bottom:0">
@@ -772,7 +772,7 @@ async function renderSettingsPage() {
         <div class="afield" style="margin-top:11px;margin-bottom:0">
           <label>Faction</label>
           <select id="s-faction" style="width:100%;padding:9px 11px;border-radius:3px;border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Rajdhani,sans-serif;font-size:14px;outline:none">
-            ${["Independent","Military","Science Division","Vigilante","Government"].map(f=>`<option value="${f}" ${u.faction===f?"selected":""}>${f}</option>`).join("")}
+            ${["Independent","Military","Science Division","Vigilante","Government"].map(f=>'<option value="'+f+'" '+(u.faction===f?"selected":"")+'>'+f+'</option>').join("")}
           </select>
         </div>
       </div>
@@ -784,9 +784,7 @@ async function renderSettingsPage() {
       <div class="sett-body">
         <div style="font-size:11px;color:var(--muted);margin-bottom:10px;letter-spacing:.5px">Your accent color appears on your avatar, post stripe, and profile.</div>
         <div class="color-swatches" id="color-swatches">
-          ${SWATCH_COLORS.map(c=>`
-            <div class="color-swatch ${u.color===c?"selected":""}" style="background:${c}" onclick="selectColor('${c}')" title="${c}"></div>
-          `).join("")}
+          ${SWATCH_COLORS.map(c=>'<div class="color-swatch '+(u.color===c?"selected":"")+'" style="background:'+c+'" onclick="selectColor(\'"+c+\'\')" title="'+c+'"></div>').join("")}
           <div class="color-swatch custom" title="Custom color" onclick="document.getElementById('custom-color-in').click()">
             <input type="color" id="custom-color-in" style="opacity:0;position:absolute;width:0;height:0" onchange="selectColor(this.value)"/>
           </div>
@@ -1150,8 +1148,7 @@ async function aiGenerateTrends() {
   const btn = document.getElementById("trend-ai-btn");
   btn.disabled = true; btn.innerHTML = "<div class='spinner'></div> SCANNING";
   const { data: recentPosts } = await sb.from("posts").select("content").order("created_at",{ascending:false}).limit(30);
-  const feedText = (recentPosts||[]).map(p=>p.content).filter(Boolean).join("
-");
+  const feedText = (recentPosts||[]).map(p=>p.content).filter(Boolean).join("\n");
   const prompt = `You are analyzing a Marvel universe social network feed where heroes have just appeared for the first time. Scan these posts and generate 5 trending topics. For each, pick the most fitting category from EXACTLY these options: "🔥 Viral", "⚡ Breaking", "👁 Watching", "🦸 Hero Sighting", "🏙 NYC". Topics should be hashtag-style (#GammaCreature, #WhoIsHe, etc.) or short phrases. Base them on what people are actually discussing in the posts, and invent plausible ones if needed.
 
 Posts:
@@ -1417,9 +1414,7 @@ async function refreshStation(sid, silent=false) {
       method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         model:"claude-sonnet-4-20250514", max_tokens:800,
-        messages:[{role:"user",content:s.persona+"
-
-Return ONLY the JSON array, no markdown, no explanation."}]
+        messages:[{role:"user",content:s.persona+"\n\nReturn ONLY the JSON array, no markdown, no explanation."}]
       })
     });
     const data = await resp.json();
@@ -1470,8 +1465,10 @@ function showScreen(id){
 
 function dismissDisclaimer(){
   document.getElementById("disclaimer-screen").style.display="none";
-  const url=localStorage.getItem("sb_url");
-  if(!url)showScreen("config-screen");else async function doLogout(){
+  init();
+}
+
+async function doLogout(){
   await sb.auth.signOut();
   currentUser=null;currentProfile=null;
   document.getElementById("app").style.display="none";
@@ -1486,7 +1483,6 @@ function togglePass(id,btn){
 }
 
 init();
-}
 
 async function saveConfig(){
   const url=document.getElementById("cfg-url").value.trim();
@@ -2245,8 +2241,6 @@ async function renderAdminPanel(){
           </div>`).join(""):`<p style="font-size:11px;color:var(--muted)">No posts.</p>`}
       </div>
     </div>`;
-}
-
   setTimeout(injectAdminTrending, 100);
 }
 
