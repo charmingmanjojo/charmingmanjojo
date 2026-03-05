@@ -16,6 +16,94 @@
   --radius:16px;--radius-sm:10px;--radius-btn:999px;
 }
 
+
+/* ── Reply quote strip ── */
+.reply-quote{background:rgba(255,255,255,.05);border-left:3px solid var(--green);border-radius:6px;padding:5px 9px;margin-bottom:5px;font-size:11px;color:var(--muted);line-height:1.4;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.phone-msg-row.mine .reply-quote{border-left-color:rgba(52,211,153,.6)}
+.phone-inp-reply{background:rgba(52,211,153,.07);border-top:1px solid rgba(52,211,153,.2);padding:6px 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);flex-shrink:0}
+.phone-inp-reply-text{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phone-inp-reply-cancel{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0}
+.phone-inp-reply-cancel:hover{color:var(--red)}
+/* ── Read receipt ── */
+.msg-read{font-size:9px;color:rgba(52,211,153,.7);letter-spacing:.5px;margin-top:1px;text-align:right}
+/* ── Missed call in call log ── */
+.call-entry.missed .call-entry-icon{filter:hue-rotate(180deg)}
+.call-entry.missed .call-entry-name{color:var(--red)}
+.call-entry.missed .call-entry-meta{color:rgba(248,113,113,.7)}
+/* ── Other-side speaker selector ── */
+.call-speaker-toggle{display:flex;gap:0;border-radius:var(--radius-btn);overflow:hidden;border:1px solid rgba(52,211,153,.2);flex-shrink:0;margin-bottom:8px}
+.call-spk-btn{flex:1;padding:6px 10px;background:none;border:none;font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:.15s;color:var(--muted)}
+.call-spk-btn.active{background:rgba(52,211,153,.18);color:var(--green)}
+.call-spk-btn.other.active{background:rgba(100,150,255,.18);color:#8ab4ff}
+.call-line.theirs .call-line-speaker{color:#8ab4ff}
+
+
+/* ── Mail reply-quote strip ── */
+.mail-reply-strip{background:rgba(59,130,246,.07);border-left:3px solid var(--accent);border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--muted);line-height:1.5}
+.mail-reply-strip strong{color:var(--text);display:block;margin-bottom:2px;font-size:11px;letter-spacing:.5px}
+
+/* ── DM reactions ── */
+.msg-reactions{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.msg-reaction-chip{padding:2px 7px;border-radius:var(--radius-btn);background:rgba(255,255,255,.06);border:1px solid var(--border);font-size:12px;cursor:pointer;transition:.15s;user-select:none}
+.msg-reaction-chip:hover{background:rgba(59,130,246,.12);border-color:var(--accent)}
+.msg-reaction-chip.mine{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4)}
+.dm-reaction-picker{position:absolute;background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:6px 8px;display:flex;gap:4px;z-index:500;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.dm-reaction-opt{font-size:18px;cursor:pointer;padding:3px;border-radius:4px;transition:.1s;line-height:1}
+.dm-reaction-opt:hover{background:rgba(255,255,255,.08);transform:scale(1.2)}
+
+/* ── Mail draft indicator ── */
+.mail-draft-pill{display:inline-block;padding:1px 7px;border-radius:var(--radius-btn);background:rgba(245,158,11,.15);color:var(--gold);font-size:9px;font-weight:700;letter-spacing:1.5px;margin-left:6px;vertical-align:middle}
+
+/* ── Pinned post ── */
+.post.pinned{border-color:rgba(245,158,11,.35);position:relative}
+.post-pin-badge{position:absolute;top:8px;right:10px;font-size:10px;color:var(--gold);letter-spacing:1px;font-family:'Orbitron',sans-serif;opacity:.8}
+
+/* ── Post schedule ── */
+.schedule-row{display:flex;align-items:center;gap:8px;padding:6px 0 2px;border-top:1px solid var(--border);margin-top:6px}
+.schedule-lbl{font-size:10px;color:var(--muted);letter-spacing:.5px;flex-shrink:0}
+.schedule-inp{padding:5px 9px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none;flex:1}
+.schedule-inp:focus{border-color:var(--accent)}
+
+/* ── Hashtag follow pill in sidebar ── */
+.htag-follow-row{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid var(--border)}
+.htag-follow-pill{padding:3px 10px;border-radius:var(--radius-btn);background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.2);color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;transition:.15s}
+.htag-follow-pill:hover{background:rgba(59,130,246,.22)}
+.htag-unfollow{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.25);color:var(--red)}
+.htag-unfollow:hover{background:rgba(248,113,113,.2)}
+.htag-inp-row{padding:8px 12px;display:flex;gap:6px;border-bottom:1px solid var(--border)}
+.htag-inp{flex:1;padding:5px 9px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none}
+.htag-inp:focus{border-color:var(--accent)}
+.htag-add-btn{padding:5px 10px;border-radius:var(--radius-btn);border:none;background:var(--accent);color:#fff;font-size:11px;font-weight:700;cursor:pointer}
+
+/* ── Profile card theme / custom fields ── */
+.pdr-custom-field{font-size:11px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:5px}
+.pdr-custom-field strong{color:var(--text)}
+.profile-card-themed{border-color:var(--profile-accent,var(--border)) !important}
+.profile-card-themed .pdr-hero{color:var(--profile-accent,var(--white))}
+
+/* ── Who liked popup ── */
+.liked-by-popup{position:fixed;z-index:3000;background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;min-width:220px;max-width:280px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.liked-by-popup h4{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:10px}
+.liked-by-row{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer}
+.liked-by-row:hover .liked-by-name{color:var(--accent)}
+.liked-by-name{font-size:13px;font-weight:700;color:var(--white)}
+.liked-by-handle{font-size:10px;color:var(--muted)}
+
+/* ── Back to top button ── */
+#back-to-top{position:fixed;bottom:28px;right:24px;width:38px;height:38px;border-radius:50%;border:1px solid var(--border2);background:var(--card2);color:var(--accent);font-size:16px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:180;transition:.2s;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#back-to-top.show{display:flex}
+#back-to-top:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ── Keyboard shortcut hint ── */
+.kbd-hint{display:inline-block;padding:1px 5px;border:1px solid var(--border);border-radius:3px;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);margin-left:4px;vertical-align:middle}
+
+/* ── Notif sound toggle ── */
+.sound-toggle{display:flex;align-items:center;gap:10px;padding:8px 0}
+.sound-toggle-knob{width:34px;height:18px;border-radius:9px;background:var(--border);position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.sound-toggle-knob.on{background:var(--accent)}
+.sound-toggle-knob::after{content:'';position:absolute;top:3px;left:3px;width:12px;height:12px;border-radius:50%;background:#fff;transition:.2s}
+.sound-toggle-knob.on::after{left:19px}
+
 /* ===== PHONE PAGE ===== */
 .phone-wrap{display:grid;grid-template-columns:240px 1fr;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;height:calc(100vh - 98px);max-height:670px}
 .phone-list{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
@@ -814,6 +902,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="panel-head"><span class="dot"></span>FILTER FEED</div>
         <div class="sidebar-menu" id="faction-filter"></div>
       </div>
+      <div class="panel">
+        <div class="panel-head"><span class="dot"></span>FOLLOWED TAGS</div>
+        <div class="htag-inp-row">
+          <input class="htag-inp" id="htag-inp" placeholder="#hashtag" onkeydown="if(event.key==='Enter')followHashtag()"/>
+          <button class="htag-add-btn" onclick="followHashtag()">＋</button>
+        </div>
+        <div id="htag-list" style="max-height:120px;overflow-y:auto"></div>
+      </div>
       <button class="ai-feed-btn" id="ai-feed-btn" onclick="loadAIFeed()">
         <span>⚡</span> CITIZEN FEED
       </button>
@@ -833,6 +929,15 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
           </div>
           <button class="post-btn" id="post-btn" onclick="submitPost()">TRANSMIT</button>
         </div>
+        <div class="schedule-row" id="schedule-row" style="display:none">
+          <span class="schedule-lbl">📅 Schedule:</span>
+          <input class="schedule-inp" type="datetime-local" id="schedule-dt" title="Pick a Marvel-universe date/time"/>
+          <button style="padding:5px 10px;border-radius:var(--radius-btn);border:none;background:rgba(245,158,11,.2);color:var(--gold);font-size:11px;font-weight:700;cursor:pointer" onclick="submitPost(true)">QUEUE</button>
+          <button style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px" onclick="document.getElementById('schedule-row').style.display='none'">✕</button>
+        </div>
+      </div>
+      <div style="padding:4px 14px 8px;display:flex;gap:6px">
+        <button style="font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:.5px;padding:0" onclick="document.getElementById('schedule-row').style.display=document.getElementById('schedule-row').style.display==='none'?'flex':'none'">📅 Schedule post</button>
       </div>
       <div id="posts-list"><div class="loading-state"><div class="spinner"></div>LOADING FEED</div></div>
     </div>
@@ -929,7 +1034,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </div>
     </div>
     <div class="mcp-body">
-      <textarea class="mcp-ta" id="mcp-body" placeholder="Write your message..."></textarea>
+      <div id="mcp-quote-strip" class="mail-reply-strip" style="display:none;margin:8px 12px 0"><strong>↩ Replying to:</strong><span id="mcp-quote-text"></span></div>
+      <textarea class="mcp-ta" id="mcp-body" placeholder="Write your message..." oninput="autoSaveMailDraft()"></textarea>
     </div>
     <div class="mcp-attach-bar" id="mcp-attach-bar">
       <label for="mcp-file-in" class="mcp-attach-btn" style="cursor:pointer">📎 Attach file</label>
@@ -985,7 +1091,11 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </div>
       <div class="call-transcript" id="call-transcript"></div>
       <div class="call-inp-area">
-        <input class="call-inp" id="call-inp" placeholder='Say something... (auto-quoted)' onkeydown="if(event.key==='Enter')callSay()"/>
+        <div class="call-speaker-toggle" id="call-speaker-toggle">
+          <button class="call-spk-btn active" id="spk-mine" onclick="setCallSpeaker('mine')">🟢 You</button>
+          <button class="call-spk-btn other" id="spk-other" onclick="setCallSpeaker('other')" id="spk-other-btn">🔵 Them</button>
+        </div>
+        <input class="call-inp" id="call-inp" placeholder='Type dialogue... (auto-quoted)' onkeydown="if(event.key==='Enter')callSay()"/>
       </div>
       <div class="call-btns">
         <button class="call-say-btn" onclick="callSay()">🎙 Say</button>
@@ -1157,6 +1267,33 @@ async function renderSettingsPage() {
             ${["Independent","Military","Science Division","Vigilante","Government"].map(f=>'<option value="'+f+'" '+(u.faction===f?"selected":"")+'>'+f+'</option>').join("")}
           </select>
         </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px">
+          <div class="afield" style="margin-bottom:0">
+            <label>Affiliation</label>
+            <input id="s-affiliation" value="${escAttr(u.affiliation||'')}" placeholder="e.g. S.H.I.E.L.D., Stark Industries"/>
+          </div>
+          <div class="afield" style="margin-bottom:0">
+            <label>Clearance Level</label>
+            <input id="s-clearance" value="${escAttr(u.clearance_level||'')}" placeholder="e.g. Level 7, Classified"/>
+          </div>
+        </div>
+        <div class="afield" style="margin-top:11px;margin-bottom:0">
+          <label>Profile Card Accent Color <span style="font-size:10px;color:var(--muted)">(visible to others on your card)</span></label>
+          <input type="color" id="s-profile-accent" value="${u.profile_accent||u.color||'#3b82f6'}" style="width:60px;height:32px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;cursor:pointer;padding:2px"/>
+        </div>
+      </div>
+    </div>
+    <!-- NOTIFICATION SOUNDS -->
+    <div class="sett-sec">
+      <div class="sett-hd">🔔 NOTIFICATIONS</div>
+      <div class="sett-body">
+        <div class="sound-toggle">
+          <div class="sound-toggle-knob${localStorage.getItem('me_notif_sound')==='off'?'':' on'}" id="sound-knob" onclick="toggleNotifSound()"></div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--white)">Notification Sounds</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:1px">Play a soft chime for new DMs and notifications</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1267,6 +1404,8 @@ async function removeAvatar() {
   renderSettingsPage();
   updateNavAvatar();
   renderMyCard();
+  // Check for unsaved mail draft
+  setTimeout(() => { if(localStorage.getItem('me_mail_draft')) updateMailDraftPill(true); }, 500);
 }
 
 let handleSettingsTimer = null;
@@ -1361,7 +1500,10 @@ async function saveSettings() {
     settingsAvatarB64 = null; settingsPendingAvatarType = null;
   }
 
-  const updates = { hero_name:hero, real_name:real, handle, bio, location, faction, color:settingsCurrentColor, avatar_url:avatarUrl };
+  const affiliation = document.getElementById("s-affiliation")?.value.trim() || "";
+  const clearanceLevel = document.getElementById("s-clearance")?.value.trim() || "";
+  const profileAccent = document.getElementById("s-profile-accent")?.value || "";
+  const updates = { hero_name:hero, real_name:real, handle, bio, location, faction, color:settingsCurrentColor, avatar_url:avatarUrl, affiliation, clearance_level:clearanceLevel, profile_accent:profileAccent };
   const { error } = await sb.from("profiles").update(updates).eq("id", currentProfile.id);
   if (error) { btn.disabled=false; btn.textContent="SAVE CHANGES"; errEl.textContent=error.message.toUpperCase(); return; }
 
@@ -1522,10 +1664,14 @@ async function openProfileDrawer(userId) {
     '<div class="online-dot ' + (online?"on":"off") + '" title="' + (online?"Online now":("Last seen "+timeAgo(u.last_seen))) + '"></div>';
 
   // Info section
+  const onlineLbl = online ? '<span style="color:var(--green);font-size:10px;letter-spacing:.5px">● Online now</span>' : (u.last_seen ? '<span style="font-size:10px;color:var(--muted)">Last seen ' + fmtDateTime(u.last_seen) + '</span>' : '');
   document.getElementById("pdr-info").innerHTML =
-    '<div class="pdr-hero">' + escH(u.hero_name) + '</div>' +
+    '<div class="pdr-hero" style="color:' + (u.profile_accent||'var(--white)') + '">' + escH(u.hero_name) + '</div>' +
     '<div class="pdr-handle">@' + escH(u.handle) + '</div>' +
+    (onlineLbl ? '<div style="margin-top:3px">' + onlineLbl + '</div>' : '') +
     (u.location ? '<div class="pdr-location">📍 ' + escH(u.location) + '</div>' : '') +
+    (u.affiliation ? '<div class="pdr-custom-field">🏛 <strong>Affiliation:</strong> ' + escH(u.affiliation) + '</div>' : '') +
+    (u.clearance_level ? '<div class="pdr-custom-field">🔐 <strong>Clearance:</strong> ' + escH(u.clearance_level) + '</div>' : '') +
     (u.bio ? '<div class="pdr-bio">' + escH(u.bio) + '</div>' : '') +
     '<div class="pdr-badges">' +
       '<span class="fc-badge" style="background:' + fc + '22;color:' + fc + ';border:1px solid ' + fc + '44;font-size:9px;padding:2px 8px">' + escH(u.faction||"Independent") + '</span>' +
@@ -2878,7 +3024,11 @@ async function loadFeed(){
   const{data,error}=await q;
   if(error){document.getElementById("posts-list").innerHTML=`<div class="empty"><div class="empty-ico">⚠</div><p>${error.message}</p></div>`;return;}
   data?.forEach(p=>{if(p.profiles)profilesCache[p.user_id]=p.profiles;});
-  postsData=data||[];renderFeed(postsData);
+  let filtered=data||[];
+  // Filter by followed hashtags if any are active
+  const activeTag=localStorage.getItem("me_active_htag");
+  if(activeTag){filtered=filtered.filter(p=>p.content&&p.content.toLowerCase().includes(activeTag.toLowerCase()));}
+  postsData=filtered;renderFeed(postsData);
 }
 
 function renderFeed(posts){
@@ -2907,9 +3057,12 @@ function renderPost(p){
   const imgHtml=p.image_url?`<div class="post-img-wrap" onclick="openLightbox('${escAttr(p.image_url)}')"><img src="${escAttr(p.image_url)}" loading="lazy" alt="Post image"/></div>`:"";
 
   const editBtn=(isAdmin||isOwner)?`<button class="pact" onclick="toggleEdit('${p.id}')" title="Edit">✏</button>`:"";
+  const pinBtn=isOwner?`<button class="pact" onclick="togglePinPost('${p.id}',${!!p.is_pinned})" title="${p.is_pinned?'Unpin':'Pin to profile'}">${p.is_pinned?"📌":"📍"}</button>`:"";
+
   const delBtn=(isAdmin||isOwner)?`<button class="pact" onclick="deletePost('${p.id}')" title="Delete">✕</button>`:"";
 
-  return`<div class="post" id="post-${p.id}">
+  return`<div class="post${p.is_pinned?" pinned":""}" id="post-${p.id}">
+    ${p.is_pinned?'<div class="post-pin-badge">📌 PINNED</div>':""}
     <div class="post-stripe" style="background:${u.color}"></div>
     <div class="post-body">
       <div class="post-hd">
@@ -2926,12 +3079,13 @@ function renderPost(p){
     <div class="post-body" style="padding-top:0">
       <div class="post-actions">
         <button class="pact ${liked?"liked":""}" onclick="toggleLike('${p.id}',${p.likes_count||0},${liked})">${liked?"❤️":"🤍"} ${p.likes_count||0}</button>
+        ${p.likes_count>0?`<button class="pact" onclick="showWhoLiked('${p.id}',event)" style="font-size:10px;letter-spacing:.3px;padding:4px 7px">👥</button>`:""}
         <button class="pact" onclick="toggleComments('${p.id}')">💬 ${(p.comments||[]).length}</button>
         <button class="pact" id="react-add-${p.id}" onclick="toggleReactionPicker('${p.id}')">＋😀</button>
         <button class="pact ${userBookmarks.includes(p.id)?'bookmarked':''}" onclick="toggleBookmark('${p.id}')">${userBookmarks.includes(p.id)?"🔖":"🏷"}</button>
         <button class="pact" onclick="openDMUser('${p.user_id}')">📨</button>
         ${isAdmin&&p.is_ai?`<span class="ai-tag">AI</span>`:""}
-        ${editBtn}
+        ${editBtn}${pinBtn}
       </div>
     </div>
     <div id="edit-${p.id}" style="display:none">
@@ -2968,9 +3122,19 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeLightbox();});
 // =====================================================
 // POST SUBMIT WITH IMAGE
 // =====================================================
-async function submitPost(){
+async function submitPost(asScheduled=false){
   const content=document.getElementById("compose-ta").value.trim();
   if(!content&&!pendingImageB64){showToast("Write something or attach an image.",true);return;}
+  // Scheduling
+  if(asScheduled){
+    const dtVal=document.getElementById("schedule-dt").value;
+    if(!dtVal){showToast("Pick a date/time to schedule.",true);return;}
+    const schedAt=new Date(dtVal).toISOString();
+    const{error}=await sb.from("posts").insert({user_id:currentProfile.id,content,image_url:null,is_ai:false,likes_count:0,scheduled_at:schedAt,is_draft:true});
+    if(error)showToast("Schedule failed: "+error.message,true);
+    else{showToast("📅 Post scheduled for "+fmtDateTime(schedAt));document.getElementById("compose-ta").value="";document.getElementById("schedule-row").style.display="none";}
+    return;
+  }
   const btn=document.getElementById("post-btn");
   btn.disabled=true;btn.textContent="TRANSMITTING...";
 
@@ -3171,10 +3335,18 @@ async function openDM(uid,name,color){
   document.querySelectorAll(".dm-thread").forEach(e=>e.classList.remove("active"));
   const t=document.getElementById("thread-"+uid);if(t)t.classList.add("active");
   const{data:msgs}=await sb.from("messages").select("*").or(`and(sender_id.eq.${currentProfile.id},receiver_id.eq.${uid}),and(sender_id.eq.${uid},receiver_id.eq.${currentProfile.id})`).order("created_at",{ascending:true});
-  const msgsHtml=(msgs||[]).map(m=>`
-    <div class="msg-row ${m.sender_id===currentProfile.id?"mine":""}">
-      <div><div class="msg-bub">${escH(m.content)}</div><div class="msg-time">${timeAgo(m.created_at)}</div></div>
-    </div>`).join("");
+  const msgsHtml=(msgs||[]).map(m=>{
+    const mine=m.sender_id===currentProfile.id;
+    const rxs=Array.isArray(m.reactions)?m.reactions:[];
+    const rxHtml=rxs.length?`<div class="msg-reactions">${rxs.map(r=>`<span class="msg-reaction-chip${r.user_id===currentProfile.id?" mine":""}" onclick="toggleDMReaction('${m.id}','${r.emoji}',${uid})" title="${escAttr(r.hero_name||"")}">${r.emoji}</span>`).join("")}</div>`:"";
+    return`<div class="msg-row ${mine?"mine":""}" id="dmsg-${m.id}" oncontextmenu="openDMReactionPicker(event,'${m.id}',${uid});return false">
+      <div>
+        <div class="msg-bub" ondblclick="openDMReactionPicker(event,'${m.id}',${uid})">${escH(m.content)}</div>
+        ${rxHtml}
+        <div class="msg-time">${timeAgo(m.created_at)}</div>
+      </div>
+    </div>`;
+  }).join("");
   document.getElementById("dm-chat-area").innerHTML=`
     <div class="dm-chat-hd">
       <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:${color};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:14px;font-weight:700;color:#fff">${name[0]}</div>
@@ -3211,6 +3383,7 @@ function setupRealtimeDMs(){
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:`receiver_id=eq.${currentProfile.id}`},
       payload=>{
         document.getElementById("dm-badge").style.display="";
+        playNotifSound();
         if(selectedDMId===payload.new.sender_id){
           sb.from("profiles").select("hero_name,color").eq("id",payload.new.sender_id).single().then(({data})=>{if(data)openDM(payload.new.sender_id,data.hero_name,data.color);});
         }
@@ -3806,6 +3979,7 @@ async function openMail(id) {
           <span class="md-time">${fmtDate(m.created_at)}</span>
         </div>
       </div>
+      ${m.reply_quote?`<div class="mail-reply-strip"><strong>↩ In reply to:</strong>${escHtml(m.reply_quote.substring(0,300))}</div>`:""}
       <div class="mail-detail-body">${escHtml(m.body)}</div>
       ${(() => {
         let atts = [];
@@ -3822,7 +3996,7 @@ async function openMail(id) {
         </div>`;
       })()}
       <div class="mail-detail-actions">
-        ${!isSender ? `<button class="mail-act-btn primary" onclick="replyMail('${m.from_id}','${escAttr(fromName)}','${escAttr(m.subject||"")}')">↩ Reply</button>` : ""}
+        ${!isSender ? `<button class="mail-act-btn primary" onclick="replyMail('${m.from_id}','${escAttr(fromName)}','${escAttr(m.subject||"")}','${escAttr(m.body.substring(0,200).replace(/'/g,"&#39;"))}')">↩ Reply</button>` : ""}
         <button class="mail-act-btn" onclick="forwardMail('${escAttr(m.subject||"")}','${escAttr(m.body.replace(/'/g,"&#39;"))}')">⤷ Forward</button>
         <button class="mail-act-btn danger" onclick="deleteMail('${id}')">🗑 Delete</button>
       </div>`;
@@ -3855,7 +4029,7 @@ function switchMailView(view) {
   loadMailView(view);
 }
 
-function openCompose(toId, toName, replySubject, forwardBody) {
+function openCompose(toId, toName, replySubject, forwardBody, quoteBody) {
   mailToUserId = toId || null;
   mailToUserName = toName || null;
   const panel = document.getElementById("mail-compose-panel");
@@ -3865,6 +4039,18 @@ function openCompose(toId, toName, replySubject, forwardBody) {
   toInput.value = toName || "";
   subjectInput.value = replySubject || "";
   bodyInput.value = forwardBody || "";
+  // Show reply quote strip if quoting
+  const qs = document.getElementById("mcp-quote-strip");
+  if (qs) {
+    if (quoteBody) {
+      qs.style.display = "";
+      document.getElementById("mcp-quote-text").textContent = quoteBody.substring(0,200);
+      qs._quoteBody = quoteBody;
+    } else {
+      qs.style.display = "none";
+      qs._quoteBody = null;
+    }
+  }
   panel.classList.add("open");
   if(!toId) toInput.focus();
   else subjectInput.focus();
@@ -3877,13 +4063,18 @@ function closeCompose() {
   document.getElementById("mcp-body").value = "";
   document.getElementById("mcp-to-results").style.display = "none";
   document.getElementById("mcp-file-chips").innerHTML = "";
+  const qs = document.getElementById("mcp-quote-strip");
+  if (qs) { qs.style.display = "none"; qs._quoteBody = null; }
   mailAttachments = [];
   mailToUserId = null; mailToUserName = null;
+  // Save draft clearing
+  localStorage.removeItem("me_mail_draft");
+  updateMailDraftPill(false);
 }
 
-function replyMail(fromId, fromName, subject) {
+function replyMail(fromId, fromName, subject, quoteBody) {
   const prefix = subject.toLowerCase().startsWith("re:") ? subject : "Re: "+subject;
-  openCompose(fromId, fromName, prefix);
+  openCompose(fromId, fromName, prefix, null, quoteBody);
 }
 
 function forwardMail(subject, body) {
@@ -4022,11 +4213,14 @@ async function sendMail() {
       const result = await uploadAttachment(att);
       uploaded.push(result);
     }
+    const qs = document.getElementById("mcp-quote-strip");
+    const quoteBody = qs?._quoteBody || null;
     const {error} = await sb.from("mail").insert({
       from_id: currentProfile.id,
       to_id: mailToUserId,
       subject: subject || "(no subject)",
       body,
+      reply_quote: quoteBody,
       attachments: uploaded.length ? JSON.stringify(uploaded) : null,
       is_read: false,
       deleted_by_sender: false,
@@ -4095,6 +4289,8 @@ setInterval(() => { if(currentProfile) updateMailBadge(); }, 60000);
 
 // =====================================================
 // PHONE — TEXTS & CALLS
+// Contacts = mutual follows or one-way follows only
+// Calls = fullscreen overlay, type freely, save on end
 // =====================================================
 let phoneTab = "texts";
 let phoneSelectedUserId = null;
@@ -4103,11 +4299,27 @@ let phoneSelectedUserColor = "#555";
 let phoneSelectedUserAvatar = null;
 let phoneChannel = null;
 let activeCallId = null;
+let activeCallTranscript = [];   // local buffer during a call
 let callTimerInterval = null;
 let callStartTime = null;
-let callOtherUserId = null;
-let callChannel = null;
 let incomingCallId = null;
+
+// ── Fetch contacts (people you follow OR follow you) ──
+async function getPhoneContacts() {
+  const [{ data: following }, { data: followers }] = await Promise.all([
+    sb.from("follows").select("following_id").eq("follower_id", currentProfile.id),
+    sb.from("follows").select("follower_id").eq("following_id", currentProfile.id)
+  ]);
+  const ids = new Set([
+    ...(following || []).map(r => r.following_id),
+    ...(followers  || []).map(r => r.follower_id)
+  ]);
+  if (!ids.size) return [];
+  const { data: profiles } = await sb.from("profiles")
+    .select("id,hero_name,handle,color,avatar_url")
+    .in("id", [...ids]);
+  return profiles || [];
+}
 
 // ── Tab switch ──
 function switchPhoneTab(tab) {
@@ -4115,7 +4327,8 @@ function switchPhoneTab(tab) {
   phoneSelectedUserId = null;
   document.getElementById("ptab-texts").classList.toggle("active", tab === "texts");
   document.getElementById("ptab-calls").classList.toggle("active", tab === "calls");
-  document.getElementById("phone-right-panel").innerHTML = `<div class="phone-empty"><div style="font-size:40px">📱</div><p>${tab === "texts" ? "Select a contact to text" : "Select a call log"}</p></div>`;
+  document.getElementById("phone-right-panel").innerHTML =
+    `<div class="phone-empty"><div style="font-size:40px">📱</div><p>${tab === "texts" ? "Select a contact to text" : "Select a call to view"}</p></div>`;
   loadPhoneContacts();
 }
 
@@ -4126,83 +4339,80 @@ async function loadPhoneContacts() {
   list.innerHTML = `<div style="padding:14px;color:var(--muted);font-size:11px;text-align:center;letter-spacing:1px">Loading...</div>`;
 
   if (phoneTab === "texts") {
-    // Get all text threads involving current user
+    const contacts = await getPhoneContacts();
+    if (!contacts.length) {
+      list.innerHTML = `<div style="padding:18px 14px;color:var(--muted);font-size:11px;text-align:center;line-height:1.7;letter-spacing:.5px">Follow someone to start texting them.</div>`;
+      return;
+    }
+    // Get last message per contact
     const { data: msgs } = await sb.from("phone_texts")
       .select("*")
       .or(`sender_id.eq.${currentProfile.id},receiver_id.eq.${currentProfile.id}`)
       .order("created_at", { ascending: false });
 
-    if (!msgs || msgs.length === 0) {
-      // Show all users to start a new convo
-      const { data: users } = await sb.from("profiles").select("id,hero_name,handle,color,avatar_url").neq("id", currentProfile.id).order("hero_name").limit(40);
-      list.innerHTML = (users || []).map(u => phoneContactHTML(u, "", "")).join("") ||
-        `<div style="padding:14px;color:var(--muted);font-size:11px;text-align:center">No users found</div>`;
-      return;
-    }
-
-    // Build unique thread list
-    const seen = new Map();
-    for (const m of msgs) {
+    const lastMsg = {};
+    (msgs || []).forEach(m => {
       const otherId = m.sender_id === currentProfile.id ? m.receiver_id : m.sender_id;
-      if (!seen.has(otherId)) seen.set(otherId, m);
-    }
-    const otherIds = [...seen.keys()];
-    const { data: users } = await sb.from("profiles").select("id,hero_name,handle,color,avatar_url").in("id", otherIds);
-    const userMap = {};
-    (users || []).forEach(u => userMap[u.id] = u);
+      if (!lastMsg[otherId]) lastMsg[otherId] = m;
+    });
 
-    list.innerHTML = otherIds.map(uid => {
-      const u = userMap[uid];
-      const last = seen.get(uid);
-      if (!u) return "";
-      const preview = last ? (last.sender_id === currentProfile.id ? "You: " : "") + last.content : "";
-      return phoneContactHTML(u, preview, timeAgo(last?.created_at));
-    }).join("") || `<div style="padding:14px;color:var(--muted);font-size:11px;text-align:center">No texts yet</div>`;
-
-    // Also show a "New Text" option at top
-    list.innerHTML = `<div style="padding:8px 13px;border-bottom:1px solid var(--border)">
-      <button onclick="showNewTextPicker()" style="width:100%;padding:8px;border-radius:var(--radius-btn);border:1px dashed var(--border);background:none;color:var(--muted);font-size:11px;letter-spacing:1px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">＋ NEW TEXT</button>
-    </div>` + list.innerHTML;
+    list.innerHTML = contacts.map(u => {
+      const last = lastMsg[u.id];
+      const preview = last ? (last.sender_id === currentProfile.id ? "You: " : "") + last.content : "Tap to text";
+      return phoneContactHTML(u, preview, last ? timeAgo(last.created_at) : "");
+    }).join("");
 
   } else {
-    // Call log
+    // Call log — only calls involving contacts
+    const contacts = await getPhoneContacts();
+    if (!contacts.length) {
+      list.innerHTML = `<div style="padding:18px 14px;color:var(--muted);font-size:11px;text-align:center;line-height:1.7;letter-spacing:.5px">Follow someone to call them.</div>`;
+      return;
+    }
+    const contactIds = contacts.map(c => c.id);
     const { data: calls } = await sb.from("phone_calls")
       .select("*")
       .or(`caller_id.eq.${currentProfile.id},receiver_id.eq.${currentProfile.id}`)
       .order("created_at", { ascending: false })
-      .limit(40);
+      .limit(60);
 
-    if (!calls || calls.length === 0) {
-      list.innerHTML = `<div style="padding:14px;color:var(--muted);font-size:11px;text-align:center;letter-spacing:1px">No call history</div>`;
-      // New call button
-      list.innerHTML = `<div style="padding:8px 13px;border-bottom:1px solid var(--border)">
-        <button onclick="showNewCallPicker()" style="width:100%;padding:8px;border-radius:var(--radius-btn);border:1px dashed rgba(52,211,153,.3);background:none;color:var(--green);font-size:11px;letter-spacing:1px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700">📞 NEW CALL</button>
-      </div>` + list.innerHTML;
-      return;
+    const userMap = {};
+    contacts.forEach(u => userMap[u.id] = u);
+
+    const filtered = (calls || []).filter(c => {
+      const otherId = c.caller_id === currentProfile.id ? c.receiver_id : c.caller_id;
+      return contactIds.includes(otherId);
+    });
+
+    if (!filtered.length) {
+      list.innerHTML = `<div style="padding:14px;color:var(--muted);font-size:11px;text-align:center;letter-spacing:1px">No call history yet.</div>`;
+    } else {
+      list.innerHTML = filtered.map(c => {
+        const otherId = c.caller_id === currentProfile.id ? c.receiver_id : c.caller_id;
+        const u = userMap[otherId] || { hero_name: "?", color: "#555" };
+        const isCaller = c.caller_id === currentProfile.id;
+        const transcript = JSON.parse(c.transcript || "[]");
+        const missed = !isCaller && c.ended && transcript.length === 0;
+        const icon = missed ? "📵" : (isCaller ? "📤" : "📥");
+        const dur = c.duration_seconds
+          ? Math.floor(c.duration_seconds / 60) + "m " + (c.duration_seconds % 60) + "s"
+          : "—";
+        const metaLabel = missed ? "Missed call" : (isCaller ? "Outgoing" : "Incoming") + " · " + dur;
+        return `<div class="call-entry${missed ? " missed" : ""}" onclick="openCallDetail('${c.id}','${escAttr(u.hero_name)}','${u.color||"#555"}','${escAttr(u.avatar_url||"")}','${otherId}')">
+          <div class="call-entry-icon">${icon}</div>
+          <div class="call-entry-info">
+            <div class="call-entry-name">${escHtml(u.hero_name)}</div>
+            <div class="call-entry-meta">${metaLabel}</div>
+          </div>
+          <div class="call-entry-time">${timeAgo(c.created_at)}</div>
+        </div>`;
+      }).join("");
     }
 
-    const otherIds = [...new Set(calls.map(c => c.caller_id === currentProfile.id ? c.receiver_id : c.caller_id))];
-    const { data: users } = await sb.from("profiles").select("id,hero_name,color,avatar_url").in("id", otherIds);
-    const userMap = {};
-    (users || []).forEach(u => userMap[u.id] = u);
-
+    // Always show "New Call" at top
     list.innerHTML = `<div style="padding:8px 13px;border-bottom:1px solid var(--border)">
       <button onclick="showNewCallPicker()" style="width:100%;padding:8px;border-radius:var(--radius-btn);border:1px dashed rgba(52,211,153,.3);background:none;color:var(--green);font-size:11px;letter-spacing:1px;cursor:pointer;font-family:Barlow,sans-serif;font-weight:700">📞 NEW CALL</button>
-    </div>` + calls.map(c => {
-      const otherId = c.caller_id === currentProfile.id ? c.receiver_id : c.caller_id;
-      const u = userMap[otherId] || {};
-      const isMine = c.caller_id === currentProfile.id;
-      const icon = isMine ? "📤" : "📥";
-      const dur = c.duration_seconds ? Math.floor(c.duration_seconds/60)+"m "+( c.duration_seconds%60)+"s" : "—";
-      return `<div class="call-entry" onclick="openCallDetail('${c.id}','${escAttr(u.hero_name||"?")}','${u.color||"#555"}','${escAttr(u.avatar_url||"")}')">
-        <div class="call-entry-icon">${icon}</div>
-        <div class="call-entry-info">
-          <div class="call-entry-name">${escHtml(u.hero_name||"?")}</div>
-          <div class="call-entry-meta">${isMine?"Outgoing":"Incoming"} · ${dur}</div>
-        </div>
-        <div class="call-entry-time">${timeAgo(c.created_at)}</div>
-      </div>`;
-    }).join("");
+    </div>` + list.innerHTML;
   }
 }
 
@@ -4210,33 +4420,14 @@ function phoneContactHTML(u, preview, time) {
   const av = u.avatar_url
     ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>`
     : (u.hero_name?.[0] || "?");
-  return `<div class="phone-contact${phoneSelectedUserId===u.id?" active":""}" id="pcontact-${u.id}" onclick="openTextThread('${u.id}','${escAttr(u.hero_name)}','${u.color||"#555"}','${escAttr(u.avatar_url||"")}')">
+  const active = phoneSelectedUserId === u.id ? " active" : "";
+  return `<div class="phone-contact${active}" id="pcontact-${u.id}" onclick="openTextThread('${u.id}','${escAttr(u.hero_name)}','${u.color||"#555"}','${escAttr(u.avatar_url||"")}')">
     <div class="phone-contact-av" style="background:${u.color||"#333"}">${av}</div>
     <div style="flex:1;min-width:0">
       <div class="phone-contact-name">${escHtml(u.hero_name)}</div>
-      ${preview ? `<div class="phone-contact-preview">${escHtml(preview.substring(0,40))}</div>` : ""}
+      <div class="phone-contact-preview">${escHtml((preview||"").substring(0,42))}</div>
     </div>
     ${time ? `<div class="phone-contact-time">${time}</div>` : ""}
-  </div>`;
-}
-
-// ── New text picker ──
-async function showNewTextPicker() {
-  const { data: users } = await sb.from("profiles").select("id,hero_name,handle,color,avatar_url").neq("id", currentProfile.id).order("hero_name").limit(60);
-  const panel = document.getElementById("phone-right-panel");
-  panel.innerHTML = `<div style="padding:20px">
-    <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;color:var(--accent);margin-bottom:14px">NEW TEXT MESSAGE</div>
-    <div style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto">
-      ${(users||[]).map(u => {
-        const av = u.avatar_url ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>` : (u.hero_name?.[0]||"?");
-        return `<div onclick="openTextThread('${u.id}','${escAttr(u.hero_name)}','${u.color||"#555"}','${escAttr(u.avatar_url||"")}')"
-          style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;transition:.15s"
-          onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
-          <div style="width:32px;height:32px;border-radius:50%;background:${u.color||"#333"};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
-          <div><div style="font-size:13px;font-weight:700;color:var(--white)">${escHtml(u.hero_name)}</div><div style="font-size:11px;color:var(--muted)">@${escHtml(u.handle)}</div></div>
-        </div>`;
-      }).join("")}
-    </div>
   </div>`;
 }
 
@@ -4247,33 +4438,45 @@ async function openTextThread(uid, name, color, avatarUrl) {
   phoneSelectedUserColor = color;
   phoneSelectedUserAvatar = avatarUrl;
 
-  // Highlight contact
   document.querySelectorAll(".phone-contact").forEach(e => e.classList.remove("active"));
   const ct = document.getElementById("pcontact-" + uid);
   if (ct) ct.classList.add("active");
 
   const panel = document.getElementById("phone-right-panel");
-  const av = avatarUrl ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>` : name[0];
+  const av = avatarUrl
+    ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>`
+    : name[0];
 
-  // Load messages
+  // Mark incoming messages as read
+  await sb.from("phone_texts").update({ is_read: true })
+    .eq("sender_id", uid).eq("receiver_id", currentProfile.id).eq("is_read", false);
+
   const { data: msgs } = await sb.from("phone_texts")
     .select("*")
     .or(`and(sender_id.eq.${currentProfile.id},receiver_id.eq.${uid}),and(sender_id.eq.${uid},receiver_id.eq.${currentProfile.id})`)
     .order("created_at", { ascending: true });
 
-  const msgsHtml = (msgs || []).map(m => {
+  // Find last sent message to show "Seen" if read
+  let lastSentIdx = -1;
+  (msgs || []).forEach((m, i) => { if (m.sender_id === currentProfile.id) lastSentIdx = i; });
+
+  const msgsHtml = (msgs || []).map((m, i) => {
     const mine = m.sender_id === currentProfile.id;
-    return `<div class="phone-msg-row${mine?" mine":""}">
+    const showSeen = mine && i === lastSentIdx && m.is_read;
+    const replyQuote = m.reply_to_content
+      ? `<div class="reply-quote">↩ ${escHtml(m.reply_to_content.substring(0,60))}</div>` : "";
+    return `<div class="phone-msg-row${mine ? " mine" : ""}" id="pmsg-${m.id}">
       <div>
-        <div class="phone-bubble">${escHtml(m.content)}</div>
-        <div class="phone-msg-time">${fmtDateTime(m.created_at)}</div>
+        ${replyQuote}
+        <div class="phone-bubble" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>
+        <div class="phone-msg-time">${fmtDateTime(m.created_at)}${showSeen ? ' <span class="msg-read">✓ Seen</span>' : ''}</div>
       </div>
     </div>`;
-  }).join("") || `<div style="text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px;padding:20px;text-transform:uppercase">No messages yet — say hello!</div>`;
+  }).join("") || `<div style="text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px;padding:24px;text-transform:uppercase">No messages yet</div>`;
 
   panel.innerHTML = `
     <div class="phone-chat-hd">
-      <div class="phone-contact-av" style="background:${color};width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
+      <div style="width:34px;height:34px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
       <div>
         <div class="phone-chat-name">${escHtml(name)}</div>
         <div style="font-size:10px;color:var(--muted);letter-spacing:.5px">Text Message</div>
@@ -4283,22 +4486,47 @@ async function openTextThread(uid, name, color, avatarUrl) {
       </div>
     </div>
     <div class="phone-msgs" id="phone-msgs-area">${msgsHtml}</div>
+    <div id="phone-reply-bar" class="phone-inp-reply" style="display:none">
+      <span style="color:var(--green);font-size:11px;flex-shrink:0">↩ Replying to:</span>
+      <span class="phone-inp-reply-text" id="phone-reply-preview"></span>
+      <button class="phone-inp-reply-cancel" onclick="clearReply()">✕</button>
+    </div>
     <div class="phone-inp-row">
-      <textarea class="phone-in" id="phone-in" rows="1" placeholder="Message..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText('${uid}')}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+      <textarea class="phone-in" id="phone-in" rows="1" placeholder="Message..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText('${uid}')}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
       <button class="phone-send-btn" onclick="sendText('${uid}')">Send</button>
     </div>`;
 
   const ma = document.getElementById("phone-msgs-area");
-  if (ma) ma.scrollTop = ma.scrollHeight;
+  if (ma) { ma.scrollTop = ma.scrollHeight; }
 
-  // Realtime subscription
+  // Realtime for incoming texts
   if (phoneChannel) sb.removeChannel(phoneChannel);
-  phoneChannel = sb.channel("phone-texts-" + uid + "-" + currentProfile.id)
+  phoneChannel = sb.channel("phone-" + currentProfile.id + "-" + uid)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "phone_texts",
       filter: `receiver_id=eq.${currentProfile.id}` },
       payload => {
         if (payload.new.sender_id === uid) openTextThread(uid, name, color, avatarUrl);
       }).subscribe();
+}
+
+// ── Reply state ──
+let phoneReplyContent = null;
+
+function setReply(msgId, content) {
+  phoneReplyContent = content;
+  const bar = document.getElementById("phone-reply-bar");
+  const prev = document.getElementById("phone-reply-preview");
+  if (bar) bar.style.display = "";
+  if (prev) prev.textContent = content;
+  document.getElementById("phone-in")?.focus();
+}
+
+function clearReply() {
+  phoneReplyContent = null;
+  const bar = document.getElementById("phone-reply-bar");
+  if (bar) bar.style.display = "none";
 }
 
 // ── Send text ──
@@ -4307,39 +4535,49 @@ async function sendText(toId) {
   const content = inp?.value.trim();
   if (!content) return;
   inp.value = ""; inp.style.height = "auto";
-  await sb.from("phone_texts").insert({
-    sender_id: currentProfile.id,
-    receiver_id: toId,
-    content,
-    is_read: false
-  });
+  const row = { sender_id: currentProfile.id, receiver_id: toId, content, is_read: false };
+  if (phoneReplyContent) row.reply_to_content = phoneReplyContent;
+  clearReply();
+  const { error } = await sb.from("phone_texts").insert(row);
+  if (error) { showToast("Failed to send: " + error.message, true); return; }
   openTextThread(toId, phoneSelectedUserName, phoneSelectedUserColor, phoneSelectedUserAvatar);
+  loadPhoneContacts();
 }
 
-// ── New call picker ──
+// ── New call picker (contacts only) ──
 async function showNewCallPicker() {
-  const { data: users } = await sb.from("profiles").select("id,hero_name,handle,color,avatar_url").neq("id", currentProfile.id).order("hero_name").limit(60);
+  const contacts = await getPhoneContacts();
   const panel = document.getElementById("phone-right-panel");
+  if (!contacts.length) {
+    panel.innerHTML = `<div class="phone-empty"><div style="font-size:32px">📵</div><p>Follow someone to call them</p></div>`;
+    return;
+  }
   panel.innerHTML = `<div style="padding:20px">
-    <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;color:var(--green);margin-bottom:14px">📞 CALL SOMEONE</div>
-    <div style="display:flex;flex-direction:column;gap:6px;max-height:440px;overflow-y:auto">
-      ${(users||[]).map(u => {
-        const av = u.avatar_url ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>` : (u.hero_name?.[0]||"?");
+    <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:2px;color:var(--green);margin-bottom:14px">📞 CALL A CONTACT</div>
+    <div style="display:flex;flex-direction:column;gap:6px;max-height:480px;overflow-y:auto">
+      ${contacts.map(u => {
+        const av = u.avatar_url
+          ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>`
+          : (u.hero_name?.[0] || "?");
         return `<div onclick="startCall('${u.id}','${escAttr(u.hero_name)}','${u.color||"#555"}','${escAttr(u.avatar_url||"")}')"
-          style="display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--radius-sm);border:1px solid rgba(52,211,153,.15);cursor:pointer;transition:.15s"
-          onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='rgba(52,211,153,.15)'">
-          <div style="width:32px;height:32px;border-radius:50%;background:${u.color||"#333"};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
-          <div style="font-size:13px;font-weight:700;color:var(--white)">${escHtml(u.hero_name)}</div>
-          <div style="margin-left:auto;font-size:18px">📞</div>
+          style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid rgba(52,211,153,.15);cursor:pointer;transition:.15s"
+          onmouseover="this.style.borderColor='var(--green)';this.style.background='rgba(52,211,153,.06)'"
+          onmouseout="this.style.borderColor='rgba(52,211,153,.15)';this.style.background='none'">
+          <div style="width:34px;height:34px;border-radius:50%;background:${u.color||"#333"};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--white)">${escHtml(u.hero_name)}</div>
+            <div style="font-size:11px;color:var(--muted)">@${escHtml(u.handle||"")}</div>
+          </div>
+          <div style="font-size:20px">📞</div>
         </div>`;
       }).join("")}
     </div>
   </div>`;
 }
 
-// ── Start a call ──
+// ── Start a call (fullscreen overlay) ──
 async function startCall(toId, name, color, avatarUrl) {
-  // Insert call record
+  // Create call record
   const { data, error } = await sb.from("phone_calls").insert({
     caller_id: currentProfile.id,
     receiver_id: toId,
@@ -4350,124 +4588,150 @@ async function startCall(toId, name, color, avatarUrl) {
   if (error) { showToast("Could not start call: " + error.message, true); return; }
 
   activeCallId = data.id;
-  callOtherUserId = toId;
+  activeCallTranscript = [];
+  callActiveSpeaker = "mine";
+  callOtherName = name;
   callStartTime = Date.now();
 
-  // Show overlay
+  // Build overlay
   const ov = document.getElementById("phone-call-overlay");
   const avEl = document.getElementById("call-ov-av");
   avEl.style.background = color;
-  avEl.innerHTML = avatarUrl ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>` : name[0];
+  avEl.innerHTML = avatarUrl
+    ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>`
+    : name[0];
   document.getElementById("call-ov-name").textContent = name;
+  document.getElementById("call-ov-timer").textContent = "00:00";
   document.getElementById("call-transcript").innerHTML = "";
   document.getElementById("call-inp").value = "";
+  // Reset speaker toggle
+  document.getElementById("spk-mine").classList.add("active");
+  document.getElementById("spk-other").classList.remove("active");
+  document.getElementById("spk-other").textContent = "🔵 " + name;
+  document.getElementById("call-inp").placeholder = currentProfile.hero_name + ": say something...";
   ov.classList.add("active");
 
-  // Timer
+  // Timer tick
+  clearInterval(callTimerInterval);
   callTimerInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-    const m = String(Math.floor(elapsed/60)).padStart(2,"0");
-    const s = String(elapsed % 60).padStart(2,"0");
+    const sec = Math.floor((Date.now() - callStartTime) / 1000);
+    const m = String(Math.floor(sec / 60)).padStart(2, "0");
+    const s = String(sec % 60).padStart(2, "0");
     document.getElementById("call-ov-timer").textContent = m + ":" + s;
   }, 1000);
 
-  // Realtime — receive other side's lines
-  if (callChannel) sb.removeChannel(callChannel);
-  callChannel = sb.channel("call-" + data.id)
-    .on("broadcast", { event: "line" }, ({ payload }) => {
-      if (payload.sender_id !== currentProfile.id) {
-        appendCallLine(payload.speaker, payload.line, false);
-      }
-    }).subscribe();
-
-  setTimeout(() => document.getElementById("call-inp")?.focus(), 200);
+  setTimeout(() => document.getElementById("call-inp")?.focus(), 150);
 }
 
 // ── Say a line during a call ──
-async function callSay() {
+// Lines are auto-wrapped in quotes and attributed to the speaker
+let callActiveSpeaker = "mine";   // "mine" | "other"
+let callOtherName = "";
+
+function setCallSpeaker(side) {
+  callActiveSpeaker = side;
+  document.getElementById("spk-mine").classList.toggle("active", side === "mine");
+  document.getElementById("spk-other").classList.toggle("active", side === "other");
+  const inp = document.getElementById("call-inp");
+  if (inp) inp.placeholder = side === "mine"
+    ? `${currentProfile.hero_name}: say something...`
+    : `${callOtherName}: say something...`;
+  inp?.focus();
+}
+
+function callSay() {
   const inp = document.getElementById("call-inp");
   const raw = inp?.value.trim();
   if (!raw || !activeCallId) return;
   inp.value = "";
-  const line = `"${raw}"`;
-  appendCallLine(currentProfile.hero_name, line, true);
 
-  // Broadcast to other user
-  await sb.channel("call-" + activeCallId).send({
-    type: "broadcast", event: "line",
-    payload: { sender_id: currentProfile.id, speaker: currentProfile.hero_name, line }
-  });
+  const isMine = callActiveSpeaker === "mine";
+  const speaker = isMine ? currentProfile.hero_name : callOtherName;
+  const quoted = `"${raw}"`;
+  const entry = { speaker, line: quoted, mine: isMine, ts: marvelNowISO() };
+  activeCallTranscript.push(entry);
 
-  // Append to transcript in DB
-  const { data: call } = await sb.from("phone_calls").select("transcript").eq("id", activeCallId).single();
-  const transcript = JSON.parse(call?.transcript || "[]");
-  transcript.push({ speaker: currentProfile.hero_name, line, mine: true, ts: marvelNowISO() });
-  await sb.from("phone_calls").update({ transcript: JSON.stringify(transcript) }).eq("id", activeCallId);
-}
-
-function appendCallLine(speaker, line, mine) {
   const area = document.getElementById("call-transcript");
-  if (!area) return;
   const div = document.createElement("div");
-  div.className = "call-line " + (mine ? "mine" : "theirs");
-  div.innerHTML = `<div class="call-line-speaker">${escHtml(speaker)}</div>${escHtml(line)}`;
+  div.className = "call-line " + (isMine ? "mine" : "theirs");
+  div.innerHTML = `<div class="call-line-speaker">${escHtml(speaker)}</div>${escHtml(quoted)}`;
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
+
+  inp.focus();
 }
 
-// ── End call ──
+// ── End call — saves full transcript to DB ──
 async function endCall() {
-  if (!activeCallId) { document.getElementById("phone-call-overlay").classList.remove("active"); return; }
+  if (!activeCallId) {
+    document.getElementById("phone-call-overlay").classList.remove("active");
+    return;
+  }
   clearInterval(callTimerInterval);
   const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-  await sb.from("phone_calls").update({ ended: true, duration_seconds: elapsed }).eq("id", activeCallId);
-  if (callChannel) sb.removeChannel(callChannel);
+
+  await sb.from("phone_calls").update({
+    ended: true,
+    duration_seconds: elapsed,
+    transcript: JSON.stringify(activeCallTranscript)
+  }).eq("id", activeCallId);
+
   document.getElementById("phone-call-overlay").classList.remove("active");
-  activeCallId = null; callOtherUserId = null;
-  loadPhoneContacts();
-  showToast("📵 Call ended · " + Math.floor(elapsed/60) + "m " + (elapsed%60) + "s");
+  activeCallId = null;
+  activeCallTranscript = [];
+
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  showToast(`📵 Call ended · ${m}m ${s}s`);
+  if (phoneTab === "calls") loadPhoneContacts();
 }
 
-// ── Open call detail (right panel) ──
-async function openCallDetail(callId, name, color, avatarUrl) {
+// ── View a saved call transcript ──
+async function openCallDetail(callId, name, color, avatarUrl, otherUserId) {
   const { data: call } = await sb.from("phone_calls").select("*").eq("id", callId).single();
   if (!call) return;
+
   const transcript = JSON.parse(call.transcript || "[]");
-  const panel = document.getElementById("phone-right-panel");
-  const dur = call.duration_seconds ? Math.floor(call.duration_seconds/60)+"m "+(call.duration_seconds%60)+"s" : "No duration";
-  const av = avatarUrl ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>` : name[0];
   const isCaller = call.caller_id === currentProfile.id;
+  const dur = call.duration_seconds
+    ? Math.floor(call.duration_seconds / 60) + "m " + (call.duration_seconds % 60) + "s"
+    : "—";
+  const av = avatarUrl
+    ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>`
+    : name[0];
 
   const linesHtml = transcript.length
     ? transcript.map(l => {
-        const mine = l.speaker === currentProfile.hero_name;
-        return `<div class="call-detail-line ${mine?"mine":"theirs"}">
+        const mine = l.mine !== undefined ? l.mine : (l.speaker === currentProfile.hero_name);
+        return `<div class="call-detail-line ${mine ? "mine" : "theirs"}">
           <div class="call-detail-speaker">${escHtml(l.speaker)}</div>
           ${escHtml(l.line)}
         </div>`;
       }).join("")
-    : `<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px;letter-spacing:1px">No transcript recorded</div>`;
+    : `<div style="color:var(--muted);font-size:12px;text-align:center;padding:24px;letter-spacing:1px">No transcript — call had no dialogue.</div>`;
 
+  const panel = document.getElementById("phone-right-panel");
   panel.innerHTML = `
     <div class="call-detail-hd">
-      <div style="width:32px;height:32px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:12px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
+      <div style="width:34px;height:34px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
       <div>
         <div style="font-size:14px;font-weight:700;color:var(--white)">${escHtml(name)}</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:1px">${isCaller?"Outgoing":"Incoming"} · ${dur} · ${fmtDateTime(call.created_at)}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px">${isCaller ? "Outgoing" : "Incoming"} · ${dur} · ${fmtDateTime(call.created_at)}</div>
       </div>
     </div>
     <div class="call-detail-body">${linesHtml}</div>
     <div class="call-detail-footer">
-      <button class="call-again-btn" onclick="startCall('${isCaller?call.receiver_id:call.caller_id}','${escAttr(name)}','${color}','${escAttr(avatarUrl)}')">📞 Call Again</button>
+      <button class="call-again-btn" onclick="startCall('${escAttr(otherUserId||"")}','${escAttr(name)}','${color}','${escAttr(avatarUrl||"")}')">📞 Call Again</button>
       <span style="font-size:11px;color:var(--muted);margin-left:auto">Duration: ${dur}</span>
     </div>`;
 }
 
-// Poll for phone badge
+// ── Unread badge ──
 async function updatePhoneBadge() {
   if (!currentProfile) return;
   try {
-    const { count } = await sb.from("phone_texts").select("id", { count: "exact", head: true })
+    const { count } = await sb.from("phone_texts")
+      .select("id", { count: "exact", head: true })
       .eq("receiver_id", currentProfile.id).eq("is_read", false);
     const badge = document.getElementById("phone-badge");
     if (badge) badge.style.display = (count > 0) ? "" : "none";
@@ -4475,10 +4739,274 @@ async function updatePhoneBadge() {
 }
 setInterval(() => { if(currentProfile) updatePhoneBadge(); }, 45000);
 
+
+// =====================================================
+// DM REACTIONS
+// =====================================================
+let dmReactionPickerMsgId = null;
+const DM_REACTION_EMOJIS = ["❤️","😂","😮","😢","👍","🔥","💯","⚡"];
+
+function openDMReactionPicker(e, msgId, toId) {
+  e.preventDefault();
+  closeDMReactionPicker();
+  dmReactionPickerMsgId = msgId;
+  const picker = document.createElement("div");
+  picker.className = "dm-reaction-picker";
+  picker.id = "dm-rx-picker";
+  picker.style.top = (e.clientY - 50) + "px";
+  picker.style.left = Math.min(e.clientX, window.innerWidth - 240) + "px";
+  picker.innerHTML = DM_REACTION_EMOJIS.map(em =>
+    `<span class="dm-reaction-opt" onclick="addDMReaction('${msgId}','${em}',${toId})">${em}</span>`
+  ).join("");
+  document.body.appendChild(picker);
+  setTimeout(() => document.addEventListener("click", closeDMReactionPicker, {once:true}), 10);
+}
+
+function closeDMReactionPicker() {
+  document.getElementById("dm-rx-picker")?.remove();
+}
+
+async function addDMReaction(msgId, emoji, toId) {
+  closeDMReactionPicker();
+  // Get current reactions
+  const { data: msg } = await sb.from("messages").select("reactions").eq("id", msgId).single();
+  let rxs = [];
+  try { rxs = JSON.parse(msg?.reactions || "[]"); } catch(e) {}
+  // Toggle: remove if already reacted with same emoji
+  const idx = rxs.findIndex(r => r.user_id === currentProfile.id && r.emoji === emoji);
+  if (idx >= 0) rxs.splice(idx, 1);
+  else rxs.push({ user_id: currentProfile.id, emoji, hero_name: currentProfile.hero_name });
+  await sb.from("messages").update({ reactions: JSON.stringify(rxs) }).eq("id", msgId);
+  // Refresh DM thread
+  if (selectedDMId) {
+    const { data: p } = await sb.from("profiles").select("hero_name,color").eq("id", selectedDMId).single();
+    if (p) openDM(selectedDMId, p.hero_name, p.color);
+  }
+}
+
+async function toggleDMReaction(msgId, emoji, toId) {
+  await addDMReaction(msgId, emoji, toId);
+}
+
+// =====================================================
+// MAIL DRAFT AUTOSAVE
+// =====================================================
+let mailDraftTimer = null;
+
+function autoSaveMailDraft() {
+  clearTimeout(mailDraftTimer);
+  mailDraftTimer = setTimeout(() => {
+    const subject = document.getElementById("mcp-subject")?.value || "";
+    const body = document.getElementById("mcp-body")?.value || "";
+    if (!subject && !body) return;
+    localStorage.setItem("me_mail_draft", JSON.stringify({ subject, body, ts: Date.now() }));
+    updateMailDraftPill(true);
+  }, 1200);
+}
+
+function updateMailDraftPill(hasDraft) {
+  const btn = document.querySelector(".mail-compose-btn");
+  if (!btn) return;
+  const pill = btn.querySelector(".mail-draft-pill");
+  if (hasDraft && !pill) {
+    btn.insertAdjacentHTML("beforeend", '<span class="mail-draft-pill">DRAFT</span>');
+  } else if (!hasDraft && pill) {
+    pill.remove();
+  }
+}
+
+function restoreMailDraft() {
+  try {
+    const raw = localStorage.getItem("me_mail_draft");
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    if (!draft.subject && !draft.body) return;
+    openCompose();
+    document.getElementById("mcp-subject").value = draft.subject || "";
+    document.getElementById("mcp-body").value = draft.body || "";
+    updateMailDraftPill(true);
+    showToast("📝 Draft restored");
+  } catch(e) {}
+}
+
+// Check for draft on mail page load
+const _origLoadMailView = typeof loadMailView === "function" ? loadMailView : null;
+
+// =====================================================
+// HASHTAG FOLLOWING
+// =====================================================
+function renderHashtagList() {
+  const tags = getFollowedTags();
+  const activeTag = localStorage.getItem("me_active_htag");
+  const list = document.getElementById("htag-list");
+  if (!list) return;
+  if (!tags.length) {
+    list.innerHTML = '<div style="padding:8px 12px;font-size:10px;color:var(--muted);letter-spacing:.5px">No followed tags yet</div>';
+    return;
+  }
+  list.innerHTML = tags.map(t => {
+    const isActive = activeTag === t;
+    return `<div class="htag-follow-row">
+      <span class="htag-follow-pill${isActive?" active":""}" style="${isActive?"background:rgba(59,130,246,.3);border-color:var(--accent)":""}"
+        onclick="toggleActiveHashtag('${escAttr(t)}')">${escHtml(t)}</span>
+      <span class="htag-follow-pill htag-unfollow" style="margin-left:auto;font-size:9px;padding:2px 7px" onclick="unfollowHashtag('${escAttr(t)}')">✕</span>
+    </div>`;
+  }).join("");
+}
+
+function getFollowedTags() {
+  try { return JSON.parse(localStorage.getItem("me_followed_tags") || "[]"); } catch(e) { return []; }
+}
+
+function followHashtag() {
+  const inp = document.getElementById("htag-inp");
+  let tag = (inp?.value || "").trim().replace(/^#+/, "");
+  if (!tag) return;
+  tag = "#" + tag.toLowerCase();
+  inp.value = "";
+  const tags = getFollowedTags();
+  if (!tags.includes(tag)) { tags.push(tag); localStorage.setItem("me_followed_tags", JSON.stringify(tags)); }
+  renderHashtagList();
+}
+
+function unfollowHashtag(tag) {
+  const tags = getFollowedTags().filter(t => t !== tag);
+  localStorage.setItem("me_followed_tags", JSON.stringify(tags));
+  if (localStorage.getItem("me_active_htag") === tag) {
+    localStorage.removeItem("me_active_htag");
+    loadFeed();
+  }
+  renderHashtagList();
+}
+
+function toggleActiveHashtag(tag) {
+  const current = localStorage.getItem("me_active_htag");
+  if (current === tag) { localStorage.removeItem("me_active_htag"); }
+  else { localStorage.setItem("me_active_htag", tag); }
+  renderHashtagList();
+  loadFeed();
+}
+
+// =====================================================
+// WHO LIKED
+// =====================================================
+async function showWhoLiked(postId, e) {
+  e.stopPropagation();
+  document.querySelector(".liked-by-popup")?.remove();
+  const { data: likes } = await sb.from("likes").select("user_id,profiles(hero_name,handle,color,avatar_url)").eq("post_id", postId).limit(20);
+  if (!likes?.length) { showToast("No likes yet"); return; }
+  const popup = document.createElement("div");
+  popup.className = "liked-by-popup";
+  popup.style.top = Math.min(e.clientY + 8, window.innerHeight - 300) + "px";
+  popup.style.left = Math.min(e.clientX - 110, window.innerWidth - 290) + "px";
+  popup.innerHTML = `<h4>❤️ LIKED BY</h4>` + likes.map(l => {
+    const u = l.profiles || {};
+    const av = u.avatar_url
+      ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>`
+      : (u.hero_name?.[0] || "?");
+    return `<div class="liked-by-row" onclick="openProfileDrawer('${l.user_id}');this.closest('.liked-by-popup').remove()">
+      <div style="width:28px;height:28px;border-radius:50%;background:${u.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">${av}</div>
+      <div><div class="liked-by-name">${escHtml(u.hero_name||"?")}</div><div class="liked-by-handle">@${escHtml(u.handle||"")}</div></div>
+    </div>`;
+  }).join("");
+  document.body.appendChild(popup);
+  setTimeout(() => document.addEventListener("click", () => popup.remove(), {once:true}), 10);
+}
+
+// =====================================================
+// PIN POST
+// =====================================================
+async function togglePinPost(postId, isPinned) {
+  // Unpin any existing pinned post first
+  if (!isPinned) {
+    await sb.from("posts").update({ is_pinned: false }).eq("user_id", currentProfile.id).eq("is_pinned", true);
+  }
+  await sb.from("posts").update({ is_pinned: !isPinned }).eq("id", postId);
+  showToast(isPinned ? "📍 Post unpinned" : "📌 Post pinned to profile");
+  loadFeed();
+}
+
+// =====================================================
+// NOTIFICATION SOUND
+// =====================================================
+let notifAudioCtx = null;
+
+function playNotifSound() {
+  if (localStorage.getItem("me_notif_sound") === "off") return;
+  try {
+    if (!notifAudioCtx) notifAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = notifAudioCtx.createOscillator();
+    const gain = notifAudioCtx.createGain();
+    osc.connect(gain); gain.connect(notifAudioCtx.destination);
+    osc.frequency.setValueAtTime(880, notifAudioCtx.currentTime);
+    osc.frequency.setValueAtTime(1100, notifAudioCtx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.12, notifAudioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, notifAudioCtx.currentTime + 0.35);
+    osc.start(); osc.stop(notifAudioCtx.currentTime + 0.35);
+  } catch(e) {}
+}
+
+function toggleNotifSound() {
+  const knob = document.getElementById("sound-knob");
+  const isOn = knob?.classList.contains("on");
+  if (isOn) {
+    localStorage.setItem("me_notif_sound", "off");
+    knob?.classList.remove("on");
+  } else {
+    localStorage.removeItem("me_notif_sound");
+    knob?.classList.add("on");
+    playNotifSound();
+  }
+}
+
+// =====================================================
+// KEYBOARD SHORTCUTS
+// =====================================================
+document.addEventListener("keydown", e => {
+  // Ignore if typing in an input / textarea
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.isContentEditable) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  switch(e.key) {
+    case "n": case "N":
+      showPage("feed");
+      setTimeout(() => document.getElementById("compose-ta")?.focus(), 100);
+      break;
+    case "m": case "M":
+      showPage("dms"); break;
+    case "p": case "P":
+      showPage("phone"); break;
+    case "f": case "F":
+      showPage("feed"); break;
+    case "l": case "L":
+      showPage("mail"); break;
+    case "Escape":
+      closeProfileDrawer?.();
+      document.querySelector(".liked-by-popup")?.remove();
+      document.getElementById("dm-rx-picker")?.remove();
+      break;
+  }
+});
+
+// =====================================================
+// BACK TO TOP — show/hide based on scroll
+// =====================================================
+window.addEventListener("scroll", () => {
+  const btn = document.getElementById("back-to-top");
+  if (btn) btn.classList.toggle("show", window.scrollY > 400);
+}, { passive: true });
+
+// Init hashtag list after login
+const _origShowProfile = showPage;
+function showPage(p) {
+  _origShowProfile(p);
+  if (p === "feed") setTimeout(renderHashtagList, 100);
+}
+
 applyTheme(currentTheme);
 startDisclaimerTimer();
 </script>
 <!-- Mail recipient dropdown rendered at body level to avoid clipping -->
 <div id="mcp-to-results" class="mcp-to-results" style="display:none"></div>
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
 </body>
 </html>
