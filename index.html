@@ -15,6 +15,72 @@
   --text:#c8d4e8;--muted:#7a8fa8;--white:#eef2fc;
   --radius:16px;--radius-sm:10px;--radius-btn:999px;
 }
+/* ── Light theme ── */
+body.light-theme{
+  --bg:#eef2f7;--surface:#dde4ee;--card:#ffffff;--card2:#f5f8fc;
+  --border:rgba(59,130,246,.18);--border2:rgba(59,130,246,.32);
+  --accent:#2563eb;--accent2:#1d4ed8;--gold:#d97706;
+  --red:#dc2626;--red2:#b91c1c;--green:#059669;
+  --text:#374151;--muted:#6b7280;--white:#111827;
+}
+body.light-theme .navbar{background:#fff;box-shadow:0 1px 0 var(--border2)}
+body.light-theme .post{background:var(--card)}
+body.light-theme .compose,.light-theme .panel{background:var(--card)}
+body.light-theme input,body.light-theme textarea{background:var(--surface)!important;color:var(--white)!important}
+body.light-theme .phone-bubble{background:#e2e8f0;color:#111827}
+body.light-theme .phone-bubble.sent-mine{background:var(--accent);color:#fff}
+body.light-theme .phone-chat-hd{background:#fff;border-color:var(--border2)}
+body.light-theme .profile-page-banner{filter:brightness(.9)}
+/* Typing indicator */
+.typing-indicator{font-size:11px;color:var(--muted);padding:4px 14px;letter-spacing:.5px;min-height:18px;flex-shrink:0;font-style:italic}
+/* Quote-repost embed */
+.quote-embed{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;margin:7px 0;cursor:pointer;transition:.15s}
+.quote-embed:hover{background:rgba(59,130,246,.08)}
+.quote-embed-hd{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.quote-embed-name{font-size:11px;font-weight:700;color:var(--white)}
+.quote-embed-handle{font-size:10px;color:var(--muted)}
+.quote-embed-text{font-size:12px;color:var(--text);line-height:1.45}
+.quote-embed-img{width:100%;max-height:80px;object-fit:cover;border-radius:6px;margin-top:5px}
+/* Quote compose modal */
+.quote-compose-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:8000;display:flex;align-items:center;justify-content:center}
+.quote-compose-box{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;width:520px;max-width:92vw;max-height:80vh;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.quote-compose-box h3{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--accent);margin:0}
+.quote-compose-ta{width:100%;min-height:80px;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.3);color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;resize:vertical;outline:none}
+.quote-compose-ta:focus{border-color:var(--accent)}
+.quote-compose-btns{display:flex;gap:8px;justify-content:flex-end}
+.qc-cancel{padding:8px 18px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-family:'Barlow',sans-serif;font-weight:600;font-size:13px}
+.qc-post{padding:8px 20px;border-radius:var(--radius-btn);border:none;background:var(--accent);color:#fff;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px}
+/* @ mention autocomplete */
+.mention-dropdown{position:absolute;background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-sm);z-index:3000;min-width:200px;max-height:180px;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.mention-item{display:flex;align-items:center;gap:8px;padding:7px 11px;cursor:pointer;transition:.12s}
+.mention-item:hover,.mention-item.active{background:rgba(59,130,246,.12)}
+.mention-item-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:9px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.mention-item-name{font-size:12px;font-weight:700;color:var(--white)}
+.mention-item-handle{font-size:10px;color:var(--muted)}
+/* Mute button */
+.mute-btn{padding:3px 10px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:.15s}
+.mute-btn.muted{border-color:var(--gold);color:var(--gold)}
+/* Profile full page */
+#page-profile{display:none;padding:0}
+.profile-page-wrap{max-width:680px;margin:0 auto;padding:70px 14px 40px}
+.profile-page-banner{width:100%;height:180px;border-radius:var(--radius);object-fit:cover;background:linear-gradient(135deg,var(--card),var(--card2));position:relative;overflow:hidden;margin-bottom:0}
+.profile-page-banner-img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius)}
+.profile-page-av-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:-36px;padding:0 16px 0}
+.profile-page-av{width:72px;height:72px;border-radius:50%;border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:22px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;position:relative}
+.profile-page-actions{display:flex;gap:7px;margin-bottom:8px}
+.profile-page-info{padding:10px 16px 0}
+.profile-page-name{font-family:'Barlow',sans-serif;font-size:20px;font-weight:700;color:var(--white)}
+.profile-page-handle{font-size:13px;color:var(--muted);margin-top:1px}
+.profile-page-bio{font-size:13px;color:var(--text);margin-top:8px;line-height:1.55}
+.profile-page-meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+.profile-page-meta-item{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.profile-page-stats{display:flex;gap:20px;padding:12px 16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:10px}
+.profile-page-stat{display:flex;flex-direction:column;align-items:center}
+.profile-page-stat-n{font-size:18px;font-weight:700;color:var(--white);font-family:'Orbitron',sans-serif}
+.profile-page-stat-l{font-size:10px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.profile-page-posts{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.profile-page-back{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:14px;font-family:'Barlow',sans-serif;transition:.15s}
+.profile-page-back:hover{color:var(--white);border-color:var(--border2)}
 
 
 
@@ -37,6 +103,7 @@
 .anon-toggle-btn.active{border-color:var(--red);color:var(--red);background:rgba(248,113,113,.08)}
 /* ── Incoming call banner ── */
 #incoming-call-banner{position:fixed;top:68px;left:50%;transform:translateX(-50%);z-index:7500;background:var(--card2);border:1px solid rgba(52,211,153,.3);border-radius:var(--radius);padding:14px 20px;display:none;align-items:center;gap:14px;box-shadow:0 8px 40px rgba(0,0,0,.5);min-width:300px;animation:fuDown .3s ease}
+/* missed call notification type */
 #incoming-call-banner.show{display:flex}
 .inc-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
 .inc-info{flex:1;min-width:0}
@@ -921,6 +988,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="marvel-clock-date" id="mclock-date">APR 05 2012</div>
       <div class="marvel-clock-time" id="mclock-time">00:00 AM</div>
     </div>
+    <button id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark/light mode" style="padding:7px 12px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);font-size:16px;cursor:pointer;transition:.15s;line-height:1">🌙</button>
     <button onclick="doLogout()" title="Log out" style="padding:7px 14px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);font-family:Barlow,sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:.15s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">LOG OUT</button>
   </nav>
 
@@ -950,7 +1018,10 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       <div class="compose">
         <div class="compose-row">
           <div class="c-av" id="compose-av"></div>
-          <textarea class="c-ta" id="compose-ta" placeholder="What's happening in New York?"></textarea>
+          <div style="position:relative;flex:1">
+            <textarea class="c-ta" id="compose-ta" placeholder="What's happening in New York?" oninput="handleMentionInput(this)"></textarea>
+            <div id="mention-dropdown" class="mention-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0"></div>
+          </div>
         </div>
         <div class="compose-foot">
           <div class="img-attach-area">
@@ -1150,6 +1221,13 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <button class="call-say-btn" onclick="callSay()">🎙 Say</button>
         <button class="call-end-btn" onclick="endCall()">📵 End Call</button>
       </div>
+    </div>
+  </div>
+
+  <!-- FULL PROFILE PAGE -->
+  <div id="page-profile" style="display:none">
+    <div class="profile-page-wrap" id="profile-page-wrap">
+      <div class="loading-state"><div class="spinner"></div>LOADING</div>
     </div>
   </div>
 
@@ -1771,9 +1849,15 @@ async function openProfileDrawer(userId) {
     _n.textContent = "@ MENTION";
     _n.onclick = function(){ copyHandle(u.handle); };
 
+    const _vp = document.createElement("button");
+    _vp.className = "pdr-btn pdr-btn-secondary";
+    _vp.textContent = "👤 FULL PROFILE";
+    _vp.onclick = function(){ closeProfileDrawer(); showProfilePage(userId); };
+
     _actEl.appendChild(_m);
     _actEl.appendChild(_f);
     _actEl.appendChild(_n);
+    _actEl.appendChild(_vp);
   }
 
   // Posts
@@ -1877,6 +1961,7 @@ function describeNotif(n) {
   if (n.type==="mention") return "mentioned you";
   if (n.type==="follow") return "started following you";
   if (n.type==="reaction") return "reacted "+( n.message||"")+" to your post";
+  if (n.type==="missed_call") return "📵 called — you missed it";
   return n.message||"";
 }
 
@@ -3121,22 +3206,46 @@ function renderPost(p){
 
   const editBtn=(isAdmin||isOwner)?`<button class="pact" onclick="toggleEdit('${p.id}')" title="Edit">✏</button>`:"";
   const pinBtn=isOwner?`<button class="pact" onclick="togglePinPost('${p.id}',${!!p.is_pinned})" title="${p.is_pinned?'Unpin':'Pin to profile'}">${p.is_pinned?"📌":"📍"}</button>`:"";
-
   const delBtn=(isAdmin||isOwner)?`<button class="pact" onclick="deletePost('${p.id}')" title="Delete">✕</button>`:"";
+
+  // Parse quote-repost embed
+  let postContent = p.content || "";
+  let quoteEmbedHtml = "";
+  const qMatch = postContent.match(/^\[\[Q:(.*?)\]\]/s);
+  if (qMatch) {
+    postContent = postContent.replace(/^\[\[Q:(.*?)\]\]\n?/s, "");
+    try {
+      const qd = JSON.parse(qMatch[1]);
+      quoteEmbedHtml = `<div class="quote-embed" onclick="event.stopPropagation();openProfileDrawer('${qd.uid||""}')">
+        <div class="quote-embed-hd">
+          <div style="width:18px;height:18px;border-radius:50%;background:${qd.color||"#555"};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;font-family:Orbitron,sans-serif;flex-shrink:0">${(qd.au||"?")[0]}</div>
+          <span class="quote-embed-name">${escHtml(qd.au||"")}</span>
+          <span class="quote-embed-handle">@${escHtml(qd.h||"")}</span>
+        </div>
+        <div class="quote-embed-text">${escHtml((qd.c||"").substring(0,140))}</div>
+        ${qd.img?`<img class="quote-embed-img" src="${escAttr(qd.img)}"/>`:""}
+      </div>`;
+    } catch(e){}
+  }
+
+  // Online status dot on avatar
+  const authorOnline = u.last_seen ? isOnline(u.last_seen) : false;
+  const onlineDotHtml = authorOnline ? `<div class="online-dot on" style="position:absolute;bottom:1px;right:1px;width:8px;height:8px" title="Online now"></div>` : "";
 
   return`<div class="post${p.is_pinned?" pinned":""}" id="post-${p.id}">
     ${p.is_pinned?'<div class="post-pin-badge">📌 PINNED</div>':""}
     <div class="post-stripe" style="background:${u.color}"></div>
     <div class="post-body">
       <div class="post-hd">
-        <div class="p-av" style="background:${u.avatar_url?'transparent':u.color};cursor:pointer" onclick="openProfileDrawer('${p.user_id}')">${avHtml||u.hero_name[0]}</div>
+        <div class="p-av" style="background:${u.avatar_url?'transparent':u.color};cursor:pointer;position:relative" onclick="showProfilePage('${p.user_id}')">${avHtml||u.hero_name[0]}${onlineDotHtml}</div>
         <div class="post-meta">
-          <div class="post-name" style="cursor:pointer" onclick="openProfileDrawer('${p.user_id}')">${u.hero_name}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
-          <div class="post-sub"><span style="cursor:pointer" onclick="openProfileDrawer('${p.user_id}')">@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
+          <div class="post-name" style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">${u.hero_name}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
+          <div class="post-sub"><span style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
         </div>
         ${delBtn}
       </div>
-      ${p.content?`<div class="post-content" id="pcontent-${p.id}">${renderHashtags(escH(p.content))}</div>`:""}
+      ${postContent?`<div class="post-content" id="pcontent-${p.id}">${renderHashtags(escH(postContent))}</div>`:""}
+      ${quoteEmbedHtml}
     </div>
     ${imgHtml}
     <div class="post-body" style="padding-top:0">
@@ -3144,6 +3253,7 @@ function renderPost(p){
         <button class="pact ${liked?"liked":""}" onclick="toggleLike('${p.id}',${p.likes_count||0},${liked})">${liked?"❤️":"🤍"} ${p.likes_count||0}</button>
         ${p.likes_count>0?`<button class="pact" onclick="showWhoLiked('${p.id}',event)" style="font-size:10px;letter-spacing:.3px;padding:4px 7px">👥</button>`:""}
         <button class="pact" onclick="toggleComments('${p.id}')">💬 ${(p.comments||[]).length}</button>
+        <button class="pact" onclick="openQuoteCompose('${p.id}','${escAttr(u.hero_name)}','${escAttr(u.handle)}','${p.user_id}','${u.color||"#555"}','${escAttr((p.content||"").substring(0,120))}','${escAttr(p.image_url||"")}')">🔁 Quote</button>
         <button class="pact" id="react-add-${p.id}" onclick="toggleReactionPicker('${p.id}')">＋😀</button>
         <button class="pact ${userBookmarks.includes(p.id)?'bookmarked':''}" onclick="toggleBookmark('${p.id}')">${userBookmarks.includes(p.id)?"🔖":"🏷"}</button>
         <button class="pact" onclick="openDMUser('${p.user_id}')">📨</button>
@@ -3499,7 +3609,7 @@ async function handleSearch(q){
 // =====================================================
 function showPage(p){
   currentPage=p;
-  ["feed","intel","dms","admin","search","settings","mail","phone"].forEach(x=>{
+  ["feed","intel","dms","admin","search","settings","mail","phone","profile"].forEach(x=>{
     const el=document.getElementById("page-"+x);if(el)el.style.display=x===p?"":"none";
   });
   ["feed","intel","dms","admin","settings","mail","phone"].forEach(x=>{const t=document.getElementById("tab-"+x);if(t)t.classList.toggle("active",x===p);});
@@ -4577,10 +4687,12 @@ async function openTextThread(uid, name, color, avatarUrl) {
     const showSeen = mine && i === lastSentIdx && m.is_read;
     const replyQuote = m.reply_to_content
       ? `<div class="reply-quote">↩ ${escHtml(m.reply_to_content.substring(0,60))}</div>` : "";
+    const imgBubble = m.image_url ? `<div onclick="openLightbox('${escAttr(m.image_url)}')" style="cursor:pointer;margin-bottom:3px"><img src="${escAttr(m.image_url)}" style="max-width:200px;max-height:180px;border-radius:10px;object-fit:cover;display:block"/></div>` : "";
     return `<div class="phone-msg-row${mine ? " mine" : ""}" id="pmsg-${m.id}">
       <div>
         ${replyQuote}
-        <div class="phone-bubble" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>
+        ${imgBubble}
+        ${m.content ? `<div class="phone-bubble" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>` : ""}
         <div class="phone-msg-time">${fmtDateTime(m.created_at)}${showSeen ? ' <span class="msg-read">✓ Seen</span>' : ''}</div>
       </div>
     </div>`;
@@ -4595,6 +4707,7 @@ async function openTextThread(uid, name, color, avatarUrl) {
       </div>
       <div class="phone-chat-actions">
         <button class="phone-action-btn call" onclick="startCall('${uid}','${escAttr(name)}','${color}','${escAttr(avatarUrl||"")}')">📞 Call</button>
+        <button class="mute-btn ${isMutedConvo(uid)?'muted':''}" id="mute-btn-thread" onclick="toggleMuteConvo('${uid}',this)" title="${isMutedConvo(uid)?'Unmute':'Mute'}">${isMutedConvo(uid)?'🔇 MUTED':'🔔 MUTE'}</button>
       </div>
     </div>
     <div class="phone-msgs" id="phone-msgs-area">${msgsHtml}</div>
@@ -4603,24 +4716,45 @@ async function openTextThread(uid, name, color, avatarUrl) {
       <span class="phone-inp-reply-text" id="phone-reply-preview"></span>
       <button class="phone-inp-reply-cancel" onclick="clearReply()">✕</button>
     </div>
+    <div id="phone-typing-indicator" class="typing-indicator"></div>
+    <div id="phone-img-preview-bar" style="display:none;padding:6px 10px;background:rgba(52,211,153,.05);border-top:1px solid rgba(52,211,153,.15)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <img id="phone-img-preview" style="height:48px;border-radius:6px;object-fit:cover"/>
+        <button onclick="clearPhoneImg()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0;line-height:1">✕</button>
+      </div>
+    </div>
     <div class="phone-inp-row">
+      <label for="phone-img-in" style="cursor:pointer;padding:0 4px;font-size:18px;color:var(--muted);line-height:1;flex-shrink:0" title="Send image">📷</label>
+      <input type="file" id="phone-img-in" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="handlePhoneImgSelect(event)"/>
       <textarea class="phone-in" id="phone-in" rows="1" placeholder="Message..."
         onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText('${uid}')}"
-        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';sendTypingSignal('${uid}')"></textarea>
       <button class="phone-send-btn" onclick="sendText('${uid}')">Send</button>
     </div>`;
 
   const ma = document.getElementById("phone-msgs-area");
   if (ma) { ma.scrollTop = ma.scrollHeight; }
 
-  // Realtime for incoming texts
+  // Realtime: incoming texts + typing indicators
   if (phoneChannel) sb.removeChannel(phoneChannel);
+  let typingTimeout = null;
   phoneChannel = sb.channel("phone-" + currentProfile.id + "-" + uid)
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "phone_texts",
       filter: `receiver_id=eq.${currentProfile.id}` },
       payload => {
-        if (payload.new.sender_id === uid) openTextThread(uid, name, color, avatarUrl);
-      }).subscribe();
+        if (payload.new.sender_id === uid) {
+          if (!isMutedConvo(uid)) openTextThread(uid, name, color, avatarUrl);
+          else loadPhoneContacts(); // just refresh list silently
+        }
+      })
+    .on("broadcast", { event: "typing" }, ({ payload }) => {
+      if (!payload || payload.sender_id === currentProfile.id) return;
+      const ind = document.getElementById("phone-typing-indicator");
+      if (ind) ind.textContent = `${escHtml(name)} is typing...`;
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => { if (ind) ind.textContent = ""; }, 3000);
+    })
+    .subscribe();
 }
 
 // ── Reply state ──
@@ -4642,18 +4776,90 @@ function clearReply() {
 }
 
 // ── Send text ──
+let pendingPhoneImg = null;
+let pendingPhoneImgType = null;
+let pendingPhoneImgB64 = null;
+
+function handlePhoneImgSelect(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast("Image too large. Max 5MB.", true); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingPhoneImg = file;
+    pendingPhoneImgB64 = ev.target.result.split(",")[1];
+    pendingPhoneImgType = file.type;
+    const bar = document.getElementById("phone-img-preview-bar");
+    const prev = document.getElementById("phone-img-preview");
+    if (bar) bar.style.display = "";
+    if (prev) prev.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+}
+
+function clearPhoneImg() {
+  pendingPhoneImg = null; pendingPhoneImgB64 = null; pendingPhoneImgType = null;
+  const bar = document.getElementById("phone-img-preview-bar");
+  if (bar) bar.style.display = "none";
+}
+
 async function sendText(toId) {
   const inp = document.getElementById("phone-in");
   const content = inp?.value.trim();
-  if (!content) return;
+  if (!content && !pendingPhoneImgB64) return;
   inp.value = ""; inp.style.height = "auto";
-  const row = { sender_id: currentProfile.id, receiver_id: toId, content, is_read: false };
+  const row = { sender_id: currentProfile.id, receiver_id: toId, content: content || "", is_read: false };
   if (phoneReplyContent) row.reply_to_content = phoneReplyContent;
   clearReply();
+  // Upload image if pending
+  if (pendingPhoneImgB64) {
+    try {
+      const ext = pendingPhoneImgType.split("/")[1].replace("jpeg","jpg");
+      const path = `texts/${crypto.randomUUID()}.${ext}`;
+      const blob = b64ToBlob(pendingPhoneImgB64, pendingPhoneImgType);
+      const { error: upErr } = await sb.storage.from("post-images").upload(path, blob, { contentType: pendingPhoneImgType, upsert: true });
+      if (!upErr) {
+        const { data: { publicUrl } } = sb.storage.from("post-images").getPublicUrl(path);
+        row.image_url = publicUrl;
+      }
+    } catch(e) { console.warn("Phone img upload failed", e); }
+    clearPhoneImg();
+  }
   const { error } = await sb.from("phone_texts").insert(row);
   if (error) { showToast("Failed to send: " + error.message, true); return; }
   openTextThread(toId, phoneSelectedUserName, phoneSelectedUserColor, phoneSelectedUserAvatar);
   loadPhoneContacts();
+}
+
+// ── Typing signal ──
+let typingSignalTimer = null;
+function sendTypingSignal(toId) {
+  clearTimeout(typingSignalTimer);
+  typingSignalTimer = setTimeout(() => {}, 2000); // debounce
+  if (phoneChannel) {
+    phoneChannel.send({ type: "broadcast", event: "typing",
+      payload: { sender_id: currentProfile.id, to_id: toId }
+    });
+  }
+}
+
+// ── Mute conversation ──
+function getMutedConvos() { try { return JSON.parse(localStorage.getItem("me_muted_convos") || "[]"); } catch(e) { return []; } }
+function isMutedConvo(uid) { return getMutedConvos().includes(uid); }
+function toggleMuteConvo(uid, btn) {
+  const muted = getMutedConvos();
+  const idx = muted.indexOf(uid);
+  if (idx >= 0) {
+    muted.splice(idx, 1);
+    if (btn) { btn.textContent = "🔔 MUTE"; btn.classList.remove("muted"); }
+    showToast("🔔 Conversation unmuted");
+  } else {
+    muted.push(uid);
+    if (btn) { btn.textContent = "🔇 MUTED"; btn.classList.add("muted"); }
+    showToast("🔇 Conversation muted");
+  }
+  localStorage.setItem("me_muted_convos", JSON.stringify(muted));
 }
 
 // ── New call picker (contacts only) ──
@@ -4799,7 +5005,7 @@ function setCallSpeaker(side) {
   // No-op: speaker is now always locked to the current user
 }
 
-function callSay() {
+async function callSay() {
   const inp = document.getElementById("call-inp");
   const raw = inp?.value.trim();
   if (!raw || !activeCallId) return;
@@ -4808,7 +5014,7 @@ function callSay() {
   // Always speak as yourself — no more controlling the other side
   const speaker = currentProfile.hero_name;
   const quoted = `"${raw}"`;
-  const entry = { speaker, line: quoted, mine: true, ts: marvelNowISO() };
+  const entry = { speaker, line: quoted, ts: marvelNowISO() };
   activeCallTranscript.push(entry);
 
   // Display locally as "mine"
@@ -4819,7 +5025,7 @@ function callSay() {
   area.appendChild(div);
   area.scrollTop = area.scrollHeight;
 
-  // Broadcast to the other participant in real-time
+  // Broadcast (fast path) + persist to DB (reliable fallback)
   if (callLineChannel) {
     callLineChannel.send({
       type: "broadcast",
@@ -4827,6 +5033,14 @@ function callSay() {
       payload: { speaker, line: quoted, sender_id: currentProfile.id }
     });
   }
+  // Persist line to DB so receiver always gets it via postgres_changes
+  sb.from("phone_calls").select("transcript").eq("id", activeCallId).single().then(({ data }) => {
+    let existing = [];
+    try { existing = JSON.parse(data?.transcript || "[]"); } catch(e) {}
+    const key = entry.ts + entry.speaker;
+    if (!existing.some(l => l.ts + l.speaker === key)) existing.push(entry);
+    sb.from("phone_calls").update({ transcript: JSON.stringify(existing) }).eq("id", activeCallId);
+  });
 
   inp.focus();
 }
@@ -4834,18 +5048,41 @@ function callSay() {
 // Helper: subscribe to a live call channel and display incoming lines from the other side
 function subscribeCallLines(callId) {
   if (callLineChannel) sb.removeChannel(callLineChannel);
+
+  // Track lines already rendered so we never show a duplicate
+  const renderedKeys = new Set();
+  function renderTheirLine(speaker, line, ts) {
+    const key = ts + speaker + line;
+    if (renderedKeys.has(key)) return;
+    renderedKeys.add(key);
+    const area = document.getElementById("call-transcript");
+    if (!area) return;
+    const div = document.createElement("div");
+    div.className = "call-line theirs";
+    div.innerHTML = `<div class="call-line-speaker">${escHtml(speaker)}</div>${escHtml(line)}`;
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+    activeCallTranscript.push({ speaker, line, ts });
+  }
+
+  // Fast path: realtime broadcast
   callLineChannel = sb.channel("call-lines-" + callId)
     .on("broadcast", { event: "call-line" }, ({ payload }) => {
-      if (!payload || payload.sender_id === currentProfile.id) return; // skip own echoes
-      const area = document.getElementById("call-transcript");
-      if (!area) return;
-      const div = document.createElement("div");
-      div.className = "call-line theirs";
-      div.innerHTML = `<div class="call-line-speaker">${escHtml(payload.speaker)}</div>${escHtml(payload.line)}`;
-      area.appendChild(div);
-      area.scrollTop = area.scrollHeight;
-      // Track in transcript so it gets saved when the call ends
-      activeCallTranscript.push({ speaker: payload.speaker, line: payload.line, mine: false, ts: marvelNowISO() });
+      if (!payload || payload.sender_id === currentProfile.id) return;
+      renderTheirLine(payload.speaker, payload.line, payload.ts || marvelNowISO());
+    })
+    // Reliable fallback: postgres_changes on the phone_calls row
+    .on("postgres_changes", {
+      event: "UPDATE", schema: "public", table: "phone_calls",
+      filter: `id=eq.${callId}`
+    }, ({ new: row }) => {
+      if (!row?.transcript) return;
+      let lines = [];
+      try { lines = JSON.parse(row.transcript); } catch(e) {}
+      lines.forEach(l => {
+        if (l.speaker === currentProfile.hero_name) return; // skip own lines
+        renderTheirLine(l.speaker, l.line, l.ts || "");
+      });
     })
     .subscribe();
 }
@@ -4860,10 +5097,21 @@ async function endCall() {
   if (callLineChannel) { sb.removeChannel(callLineChannel); callLineChannel = null; }
   const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
 
+  // Merge local transcript with what's already in DB (both sides may have written lines)
+  const { data: existingCall } = await sb.from("phone_calls").select("transcript").eq("id", activeCallId).single();
+  let existingLines = [];
+  try { existingLines = JSON.parse(existingCall?.transcript || "[]"); } catch(e) {}
+  const seen = new Set();
+  const merged = [...existingLines, ...activeCallTranscript].filter(l => {
+    const key = (l.ts || "") + l.speaker + l.line;
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
+  }).sort((a, b) => (a.ts || "").localeCompare(b.ts || ""));
+
   await sb.from("phone_calls").update({
     ended: true,
     duration_seconds: elapsed,
-    transcript: JSON.stringify(activeCallTranscript),
+    transcript: JSON.stringify(merged),
     is_anon: callIsAnon
   }).eq("id", activeCallId);
 
@@ -4893,7 +5141,7 @@ async function openCallDetail(callId, name, color, avatarUrl, otherUserId) {
 
   const linesHtml = transcript.length
     ? transcript.map(l => {
-        const mine = l.mine !== undefined ? l.mine : (l.speaker === currentProfile.hero_name);
+        const mine = l.speaker === currentProfile.hero_name;
         return `<div class="call-detail-line ${mine ? "mine" : "theirs"}">
           <div class="call-detail-speaker">${escHtml(l.speaker)}</div>
           ${escHtml(l.line)}
@@ -5192,6 +5440,7 @@ window.addEventListener("scroll", () => {
 // =====================================================
 // INCOMING CALL LISTENER
 // =====================================================
+let incomingCallDismissTimer = null;
 let incomingCallChannel = null;
 let pendingIncomingCall = null;
 
@@ -5232,6 +5481,11 @@ function showIncomingCallBanner(payload) {
   }
 
   banner.classList.add("show");
+  // Auto-dismiss as missed after 30 seconds
+  clearTimeout(incomingCallDismissTimer);
+  incomingCallDismissTimer = setTimeout(() => {
+    if (pendingIncomingCall) declineIncomingCall();
+  }, 30000);
   playNotifSound();
 
   // Auto-dismiss after 30s
@@ -5250,7 +5504,22 @@ function answerIncomingCall() {
 
 function declineIncomingCall() {
   document.getElementById("incoming-call-banner").classList.remove("show");
-  pendingIncomingCall = null;
+  if (pendingIncomingCall) {
+    const p = pendingIncomingCall;
+    pendingIncomingCall = null;
+    // Insert missed-call notification for self
+    sb.from("notifications").insert({
+      user_id: currentProfile.id,
+      type: "missed_call",
+      from_user_id: p.caller_id,
+      message: "missed_call"
+    }).then(() => loadNotifications());
+    // Mark call as ended/missed in DB
+    sb.from("phone_calls").update({ ended: true, duration_seconds: 0 }).eq("id", p.call_id);
+    showToast(`📵 Missed call from ${p.is_anon ? "Unknown" : p.caller_name}`);
+  } else {
+    pendingIncomingCall = null;
+  }
 }
 
 async function openReceivedCall(payload) {
@@ -5358,6 +5627,216 @@ function clearContactEdit(userId) {
 
 applyTheme(currentTheme);
 startDisclaimerTimer();
+
+// =====================================================
+// THEME TOGGLE
+// =====================================================
+function toggleTheme() {
+  const isLight = document.body.classList.toggle("light-theme");
+  localStorage.setItem("me_theme_mode", isLight ? "light" : "dark");
+  const btn = document.getElementById("theme-toggle-btn");
+  if (btn) btn.textContent = isLight ? "☀️" : "🌙";
+}
+// Apply saved theme on load
+(function(){
+  const saved = localStorage.getItem("me_theme_mode");
+  if (saved === "light") {
+    document.body.classList.add("light-theme");
+    const btn = document.getElementById("theme-toggle-btn");
+    if (btn) btn.textContent = "☀️";
+  }
+})();
+
+// =====================================================
+// QUOTE-REPOST
+// =====================================================
+function openQuoteCompose(postId, authorName, authorHandle, authorUid, authorColor, postContent, imageUrl) {
+  document.querySelectorAll(".quote-compose-modal").forEach(e => e.remove());
+  const modal = document.createElement("div");
+  modal.className = "quote-compose-modal";
+  modal.id = "quote-compose-modal";
+  modal.innerHTML = `
+    <div class="quote-compose-box">
+      <h3>🔁 QUOTE REPOST</h3>
+      <div class="quote-embed" style="pointer-events:none">
+        <div class="quote-embed-hd">
+          <div style="width:18px;height:18px;border-radius:50%;background:${escAttr(authorColor)};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;font-family:Orbitron,sans-serif;flex-shrink:0">${authorName[0]}</div>
+          <span class="quote-embed-name">${escHtml(authorName)}</span>
+          <span class="quote-embed-handle">@${escHtml(authorHandle)}</span>
+        </div>
+        <div class="quote-embed-text">${escHtml(postContent.substring(0,140))}</div>
+        ${imageUrl ? `<img class="quote-embed-img" src="${escAttr(imageUrl)}"/>` : ""}
+      </div>
+      <textarea class="quote-compose-ta" id="quote-ta" placeholder="Add your comment..." maxlength="500"></textarea>
+      <div class="quote-compose-btns">
+        <button class="qc-cancel" onclick="document.getElementById('quote-compose-modal').remove()">Cancel</button>
+        <button class="qc-post" onclick="submitQuoteRepost('${postId}','${escAttr(authorName)}','${escAttr(authorHandle)}','${authorUid}','${escAttr(authorColor)}','${escAttr(postContent)}','${escAttr(imageUrl)}')">🔁 REPOST</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", e => { if (e.target === modal) modal.remove(); });
+  setTimeout(() => document.getElementById("quote-ta")?.focus(), 50);
+}
+
+async function submitQuoteRepost(postId, authorName, authorHandle, authorUid, authorColor, postContent, imageUrl) {
+  const ta = document.getElementById("quote-ta");
+  const comment = ta?.value.trim() || "";
+  const quoteData = JSON.stringify({ id: postId, au: authorName, h: authorHandle, uid: authorUid, color: authorColor, c: postContent, img: imageUrl });
+  const fullContent = `[[Q:${quoteData}]]\n${comment}`;
+  const btn = document.querySelector(".qc-post");
+  if (btn) { btn.disabled = true; btn.textContent = "POSTING..."; }
+  const { error } = await sb.from("posts").insert({ user_id: currentProfile.id, content: fullContent, image_url: null, is_ai: false, likes_count: 0 });
+  document.getElementById("quote-compose-modal")?.remove();
+  if (error) { showToast("Repost failed: " + error.message, true); return; }
+  showToast("🔁 Reposted!");
+  loadFeed();
+}
+
+// =====================================================
+// @ MENTION AUTOCOMPLETE
+// =====================================================
+let mentionDropdownActive = false;
+let mentionStartIdx = -1;
+
+function handleMentionInput(ta) {
+  const val = ta.value;
+  const pos = ta.selectionStart;
+  // Find the @ that triggered this
+  let atIdx = -1;
+  for (let i = pos - 1; i >= 0; i--) {
+    if (val[i] === "@") { atIdx = i; break; }
+    if (/\s/.test(val[i])) break;
+  }
+  const dropdown = document.getElementById("mention-dropdown");
+  if (!dropdown) return;
+  if (atIdx < 0) { dropdown.style.display = "none"; mentionDropdownActive = false; return; }
+  const query = val.substring(atIdx + 1, pos).toLowerCase();
+  if (query.length === 0 && atIdx < pos - 1) { dropdown.style.display = "none"; return; }
+  mentionStartIdx = atIdx;
+  // Search profiles
+  const results = Object.values(profilesCache).filter(p =>
+    p.hero_name?.toLowerCase().includes(query) || p.handle?.toLowerCase().includes(query)
+  ).slice(0, 6);
+  if (!results.length) { dropdown.style.display = "none"; mentionDropdownActive = false; return; }
+  dropdown.innerHTML = results.map((p, i) => {
+    const av = p.avatar_url ? `<img src="${escAttr(p.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>` : (p.hero_name?.[0]||"?");
+    return `<div class="mention-item" onclick="insertMention('${escAttr(p.handle)}',event)">
+      <div class="mention-item-av" style="background:${p.color||"#555"}">${av}</div>
+      <div>
+        <div class="mention-item-name">${escHtml(p.hero_name)}</div>
+        <div class="mention-item-handle">@${escHtml(p.handle)}</div>
+      </div>
+    </div>`;
+  }).join("");
+  dropdown.style.display = "";
+  mentionDropdownActive = true;
+}
+
+function insertMention(handle, e) {
+  e?.stopPropagation();
+  const ta = document.getElementById("compose-ta");
+  if (!ta) return;
+  const val = ta.value;
+  const pos = ta.selectionStart;
+  const before = val.substring(0, mentionStartIdx);
+  const after = val.substring(pos);
+  ta.value = before + "@" + handle + " " + after;
+  const newPos = mentionStartIdx + handle.length + 2;
+  ta.setSelectionRange(newPos, newPos);
+  ta.focus();
+  document.getElementById("mention-dropdown").style.display = "none";
+  mentionDropdownActive = false;
+}
+
+// Close mention dropdown on outside click
+document.addEventListener("click", e => {
+  if (mentionDropdownActive && !e.target.closest("#mention-dropdown") && e.target.id !== "compose-ta") {
+    const dd = document.getElementById("mention-dropdown");
+    if (dd) dd.style.display = "none";
+    mentionDropdownActive = false;
+  }
+});
+
+// =====================================================
+// FULL PROFILE PAGE
+// =====================================================
+let profilePageUserId = null;
+
+async function showProfilePage(userId) {
+  if (!userId) return;
+  profilePageUserId = userId;
+  showPage("profile");
+  const wrap = document.getElementById("profile-page-wrap");
+  if (!wrap) return;
+  wrap.innerHTML = '<div class="loading-state"><div class="spinner"></div>LOADING PROFILE</div>';
+
+  const [{ data: u }, { count: postCount }, { data: posts }, { data: followers }, { data: following }] = await Promise.all([
+    sb.from("profiles").select("*").eq("id", userId).single(),
+    sb.from("posts").select("*", { count: "exact", head: true }).eq("user_id", userId),
+    sb.from("posts").select("*,profiles(*),likes(user_id),comments(*,profiles(hero_name,color,handle))").eq("user_id", userId).order("created_at", { ascending: false }).limit(40),
+    sb.from("follows").select("follower_id", { count: "exact", head: true }).eq("following_id", userId),
+    sb.from("follows").select("following_id", { count: "exact", head: true }).eq("follower_id", userId),
+  ]);
+  if (!u) { wrap.innerHTML = '<div class="loading-state">Profile not found.</div>'; return; }
+
+  const isOwn = userId === currentProfile.id;
+  const isFollowing = userFollowing.includes(userId);
+  const fc = FC_COLORS[u.faction] || "#555";
+  const online = isOnline(u.last_seen);
+
+  const bannerHtml = u.banner_url
+    ? `<img class="profile-page-banner-img" src="${escAttr(u.banner_url)}"/>`
+    : `<div style="width:100%;height:100%;background:linear-gradient(135deg,${u.color||"#1d2d44"},${u.color||"#1d2d44"}44)"></div>`;
+
+  const avHtml = u.avatar_url
+    ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>`
+    : u.hero_name[0];
+
+  const postsHtml = (posts||[]).map(p => {
+    p.profiles = p.profiles || u;
+    return renderPost(p);
+  }).join("");
+
+  wrap.innerHTML = `
+    <button class="profile-page-back" onclick="history.back();showPage('feed')">← Back</button>
+    <div class="profile-page-banner">${bannerHtml}</div>
+    <div class="profile-page-av-row">
+      <div class="profile-page-av" style="background:${u.avatar_url?"transparent":u.color}">
+        ${avHtml}
+        <div class="online-dot ${online?"on":"off"}" style="position:absolute;bottom:3px;right:3px;width:12px;height:12px" title="${online?"Online now":("Last seen "+timeAgo(u.last_seen))}"></div>
+      </div>
+      <div class="profile-page-actions">
+        ${isOwn
+          ? `<button class="pdr-btn pdr-btn-primary" onclick="showPage('settings')">✏ EDIT PROFILE</button>`
+          : `<button class="pdr-btn pdr-btn-primary" onclick="openDMUser('${userId}');showPage('dms')">💬 MESSAGE</button>
+             <button class="pdr-btn pdr-btn-secondary" id="pp-follow-btn" style="${isFollowing?"border-color:var(--green);color:var(--green)":""}" onclick="toggleFollow('${userId}').then(()=>showProfilePage('${userId}'))">${isFollowing?"✓ FOLLOWING":"+ FOLLOW"}</button>`}
+      </div>
+    </div>
+    <div class="profile-page-info">
+      <div class="profile-page-name" style="color:${u.profile_accent||"var(--white)"}">
+        ${escHtml(u.hero_name)}
+        ${online ? '<span style="font-size:11px;color:var(--green);font-family:Barlow,sans-serif;font-weight:400;margin-left:6px">● online</span>' : ""}
+      </div>
+      <div class="profile-page-handle">@${escHtml(u.handle)}</div>
+      ${u.real_name ? `<div style="font-size:12px;color:var(--muted);margin-top:2px">${escHtml(u.real_name)}</div>` : ""}
+      ${u.bio ? `<div class="profile-page-bio">${escHtml(u.bio)}</div>` : ""}
+      <div class="profile-page-meta">
+        <span class="fc-badge" style="background:${fc}22;color:${fc};border:1px solid ${fc}44;font-size:10px;padding:3px 10px">${escHtml(u.faction||"Independent")}</span>
+        ${u.location ? `<span class="profile-page-meta-item">📍 ${escHtml(u.location)}</span>` : ""}
+        ${u.affiliation ? `<span class="profile-page-meta-item">🏛 ${escHtml(u.affiliation)}</span>` : ""}
+        ${u.clearance_level ? `<span class="profile-page-meta-item">🔐 ${escHtml(u.clearance_level)}</span>` : ""}
+      </div>
+    </div>
+    <div class="profile-page-stats">
+      <div class="profile-page-stat"><div class="profile-page-stat-n">${postCount||0}</div><div class="profile-page-stat-l">Posts</div></div>
+      <div class="profile-page-stat"><div class="profile-page-stat-n">${followers?.count||0}</div><div class="profile-page-stat-l">Followers</div></div>
+      <div class="profile-page-stat"><div class="profile-page-stat-n">${following?.count||0}</div><div class="profile-page-stat-l">Following</div></div>
+    </div>
+    <div class="profile-page-posts" id="profile-page-posts">
+      ${postsHtml || '<div class="empty"><div class="empty-ico">📡</div><p>No posts yet</p></div>'}
+    </div>`;
+}
+
 </script>
 <!-- Mail recipient dropdown rendered at body level to avoid clipping -->
 <div id="mcp-to-results" class="mcp-to-results" style="display:none"></div>
