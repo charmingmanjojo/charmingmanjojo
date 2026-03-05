@@ -3488,6 +3488,7 @@ function timeAgo(ts){
 function fmtDate(ts){if(!ts)return"";return new Date(ts).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});}
 function escH(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/\n/g,"<br>");}
 function escAttr(s){return String(s||"").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+function escHtml(s){return escH(s);}
 function showToast(msg,err=false){
   const t=document.getElementById("toast");t.textContent=msg;
   t.className="toast show"+(err?" error":"");
