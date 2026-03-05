@@ -2104,6 +2104,47 @@ async function renderTextStation(s) {
   await refreshStation(s.id, true);
 }
 
+function renderBroadcastItems(items, feedEl) {
+  const now = new Date();
+  feedEl.innerHTML = items.map((item, i) => {
+    const tagColor = TAG_COLORS[item.tag] || TAG_COLORS.default;
+    const isUrgent = ["BREAKING","EXPOSED","EXCLUSIVE"].includes(item.tag);
+    const isHL = ["THEORY","LIVE","SCORES"].includes(item.tag);
+    const t = item.created_at ? new Date(item.created_at) : new Date(now - (items.length-1-i)*180000);
+    const timeStr = t.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+    return `<div class="broadcast-msg ${isUrgent?"urgent":isHL?"highlight":""}">
+      <div class="bm-hd">
+        <span class="bm-tag" style="background:${tagColor}22;color:${tagColor};border:1px solid ${tagColor}44">${item.tag}</span>
+        <span class="bm-time">${timeStr}</span>
+      </div>
+      <div class="bm-text">${escH(item.text)}</div>
+    </div>`;
+  }).join("");
+}
+
+async function loadStationFromDB(sid) {
+  const feedEl = document.getElementById("st-feed-"+sid);
+  if (!feedEl) return false;
+  try {
+    const {data, error} = await sb.from("broadcasts")
+      .select("*")
+      .eq("station_id", sid)
+      .order("created_at", {ascending:true});
+    if (error || !data || data.length === 0) return false;
+    // Check if broadcast is less than 2 hours old
+    const newest = new Date(data[data.length-1].created_at);
+    const ageMs = Date.now() - newest.getTime();
+    if (ageMs > 2 * 60 * 60 * 1000) return false; // expired
+    renderBroadcastItems(data, feedEl);
+    // Show age info
+    const btn = document.getElementById("refresh-btn-"+sid);
+    const minsAgo = Math.floor(ageMs / 60000);
+    const expiresIn = 120 - minsAgo;
+    if (btn) btn.title = `Live for ~${expiresIn} more min`;
+    return true;
+  } catch(e) { return false; }
+}
+
 async function refreshStation(sid, silent=false) {
   if (!apiKey) { showToast("Set API key in Admin panel first.", true); return; }
   const s = STATIONS.find(x=>x.id===sid);
@@ -2111,10 +2152,16 @@ async function refreshStation(sid, silent=false) {
   const feedEl = document.getElementById("st-feed-"+sid);
   const btn = document.getElementById("refresh-btn-"+sid);
   if (!feedEl) return;
-  if (!silent) {
-    if (btn) { btn.disabled=true; btn.textContent="LOADING..."; }
-    feedEl.innerHTML = `<div class="loading-state"><div class="spinner"></div>GENERATING BROADCAST...</div>`;
+
+  // Try loading from DB first (if silent/initial load)
+  if (silent) {
+    const loaded = await loadStationFromDB(sid);
+    if (loaded) return; // Fresh enough, use cached broadcast
   }
+
+  if (btn) { btn.disabled=true; btn.textContent="LOADING..."; }
+  feedEl.innerHTML = `<div class="loading-state"><div class="spinner"></div>GENERATING BROADCAST...</div>`;
+
   try {
     const resp = await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST", headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
@@ -2126,21 +2173,18 @@ async function refreshStation(sid, silent=false) {
     const data = await resp.json();
     const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
     const items = JSON.parse(txt);
-    const now = new Date();
-    feedEl.innerHTML = items.map((item,i) => {
-      const tagColor = TAG_COLORS[item.tag] || TAG_COLORS.default;
-      const isUrgent = ["BREAKING","EXPOSED","EXCLUSIVE"].includes(item.tag);
-      const isHL = ["THEORY","LIVE","SCORES"].includes(item.tag);
-      const t = new Date(now - (items.length-1-i)*180000);
-      const timeStr = t.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
-      return `<div class="broadcast-msg ${isUrgent?"urgent":isHL?"highlight":""}">
-        <div class="bm-hd">
-          <span class="bm-tag" style="background:${tagColor}22;color:${tagColor};border:1px solid ${tagColor}44">${item.tag}</span>
-          <span class="bm-time">${timeStr}</span>
-        </div>
-        <div class="bm-text">${escH(item.text)}</div>
-      </div>`;
-    }).join("");
+
+    // Delete old entries for this station, then insert new ones
+    await sb.from("broadcasts").delete().eq("station_id", sid);
+    const rows = items.map(item => ({
+      station_id: sid,
+      tag: item.tag,
+      text: item.text
+    }));
+    const {data: saved} = await sb.from("broadcasts").insert(rows).select();
+    renderBroadcastItems(saved || items, feedEl);
+    if (btn) btn.title = "Live for ~120 more min";
+    showToast("Broadcast updated — all users can see this!");
   } catch(e) {
     if (feedEl) feedEl.innerHTML = `<div class="empty"><div class="empty-ico">📡</div><p>Broadcast signal lost</p></div>`;
   }
