@@ -3442,6 +3442,7 @@ function showPage(p){
   ["feed","intel","dms","admin","settings","mail","phone"].forEach(x=>{const t=document.getElementById("tab-"+x);if(t)t.classList.toggle("active",x===p);});
   if(p==="intel")loadNewsFull();
   if(p==="dms"){loadDMThreads();renderStationList();document.getElementById("dm-badge").style.display="none";}
+  if(p==="feed"){setTimeout(renderHashtagList,100);}
   if(p==="mail"){loadMailView("inbox");document.getElementById("mail-badge").style.display="none";const addrEl=document.getElementById("mail-addr-text");if(addrEl&&currentProfile)addrEl.textContent=currentProfile.handle+"@marvel-essence.net";}
   if(p==="admin"&&currentProfile.is_admin){renderAdminPanel();setTimeout(injectAdminTrending,600);}
   if(p==="phone"){loadPhoneContacts();}
@@ -4830,7 +4831,7 @@ function restoreMailDraft() {
 }
 
 // Check for draft on mail page load
-const _origLoadMailView = typeof loadMailView === "function" ? loadMailView : null;
+
 
 // =====================================================
 // HASHTAG FOLLOWING
@@ -4995,12 +4996,7 @@ window.addEventListener("scroll", () => {
   if (btn) btn.classList.toggle("show", window.scrollY > 400);
 }, { passive: true });
 
-// Init hashtag list after login
-const _origShowProfile = showPage;
-function showPage(p) {
-  _origShowProfile(p);
-  if (p === "feed") setTimeout(renderHashtagList, 100);
-}
+// Hashtag list rendered via showPage hook below
 
 applyTheme(currentTheme);
 startDisclaimerTimer();
