@@ -945,6 +945,13 @@ async function renderSettingsPage() {
               <input id="s-handle" value="${escAttr(u.handle)}" placeholder="@handle" oninput="checkHandleSettings(this.value)"/>
               <div class="field-hint" id="s-handle-hint"></div>
             </div>
+            <div class="afield" style="margin-bottom:0">
+              <label>Your OC Email</label>
+              <div style="padding:9px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--accent);font-family:'Barlow',sans-serif;font-size:13px;display:flex;align-items:center;gap:7px">
+                <span>✉</span> <span>${escHtml(u.handle)}@marvel-essence.net</span>
+              </div>
+              <div class="field-hint" style="color:var(--muted);margin-top:4px">This is your in-universe email address. Others can mail you at this address.</div>
+            </div>
           </div>
         </div>
 
@@ -3577,8 +3584,8 @@ async function openMail(id) {
           <div class="md-av" style="background:${fromCol}">${fromInit}</div>
           <div class="md-from">
             <strong>${escHtml(fromName)}</strong>
-            <span style="color:var(--muted)"> @${escHtml(fromP?.handle||"")}</span>
-            <span style="color:var(--muted);font-size:12px;display:block;margin-top:1px">To: <strong style="color:var(--text)">${escHtml(toName)}</strong></span>
+            <span style="color:var(--muted);font-size:12px"> &lt;${escHtml(fromP?.handle||"")}@marvel-essence.net&gt;</span>
+            <span style="color:var(--muted);font-size:12px;display:block;margin-top:1px">To: <strong style="color:var(--text)">${escHtml(toName)}</strong> <span style="color:var(--muted)">&lt;${escHtml(toP?.handle||"")}@marvel-essence.net&gt;</span></span>
           </div>
           <span class="md-time">${fmtDate(m.created_at)}</span>
         </div>
@@ -3670,7 +3677,7 @@ async function searchMailRecipient(val) {
         const init = p.hero_name.split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
         return `<div class="mcp-to-result" onclick="selectMailTo('${p.id}','${escAttr(p.hero_name)}','${escAttr(p.handle)}')">
           <div style="width:28px;height:28px;border-radius:50%;background:${p.color};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${init}</div>
-          <div><div style="font-weight:700;color:var(--white);font-size:13px">${escHtml(p.hero_name)}</div><div style="font-size:11px;color:var(--muted)">@${escHtml(p.handle)}</div></div>
+          <div><div style="font-weight:700;color:var(--white);font-size:13px">${escHtml(p.hero_name)}</div><div style="font-size:11px;color:var(--muted)">${escHtml(p.handle)}@marvel-essence.net</div></div>
         </div>`;
       }).join("");
     } catch(e) { results.style.display = "none"; }
@@ -3680,7 +3687,7 @@ async function searchMailRecipient(val) {
 function selectMailTo(id, name, handle) {
   mailToUserId = id;
   mailToUserName = name;
-  document.getElementById("mcp-to-input").value = `${name} (@${handle})`;
+  document.getElementById("mcp-to-input").value = `${name} <${handle}@marvel-essence.net>`;
   document.getElementById("mcp-to-results").style.display = "none";
   document.getElementById("mcp-subject").focus();
 }
