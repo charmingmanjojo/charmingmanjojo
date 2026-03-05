@@ -354,6 +354,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 .now-playing-bar{background:linear-gradient(90deg,rgba(0,0,0,.6),rgba(0,50,0,.3));border-bottom:1px solid rgba(0,230,118,.15);padding:7px 16px;display:flex;align-items:center;gap:9px;flex-shrink:0}
 .np-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-glow 1.5s infinite}
 @keyframes pulse-glow{0%,100%{box-shadow:0 0 6px var(--green)}50%{box-shadow:0 0 14px var(--green),0 0 20px rgba(0,230,118,.4)}}
+@keyframes visBounce{from{transform:scaleY(.3)}to{transform:scaleY(1.5)}}
 .np-text{font-size:11px;color:var(--green);font-weight:600;letter-spacing:1px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .np-toggle{background:none;border:1px solid rgba(0,230,118,.3);color:var(--green);border-radius:3px;padding:3px 10px;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:1px;cursor:pointer;transition:.2s;flex-shrink:0}
 .np-toggle:hover{background:rgba(0,230,118,.1)}
@@ -678,6 +679,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 <div class="toast" id="toast"></div>
 
 <script>
+
 // =====================================================
 // CONSTANTS
 // =====================================================
@@ -1043,31 +1045,46 @@ async function deleteOwnAccount() {
 // INTERFACE THEMING
 // =====================================================
 const THEMES = [
-  { id:"cyan",    name:"SHIELD Blue",   accent:"#00b4ff", accent2:"#0077bb" },
-  { id:"red",     name:"Iron Red",      accent:"#ff3b3b", accent2:"#bb1111" },
-  { id:"gold",    name:"Stark Gold",    accent:"#f5a623", accent2:"#c07d0a" },
-  { id:"green",   name:"Gamma Green",   accent:"#00e676", accent2:"#00a854" },
-  { id:"purple",  name:"Mystic Purple", accent:"#b44fff", accent2:"#7b2fbe" },
-  { id:"white",   name:"Ghost White",   accent:"#e8f0ff", accent2:"#aabbcc" },
-  { id:"orange",  name:"Spider Orange", accent:"#ff6b2b", accent2:"#cc4400" },
-  { id:"pink",    name:"Neon Rose",     accent:"#ff2d78", accent2:"#bb0050" },
+  {id:"default", name:"SHIELD Blue",    bg:"#050a14", surface:"#0a1221", card:"#0d1828", card2:"#101e30", text:"#c8d5e8", muted:"#5a6f8a", accent:"#00b4ff", accent2:"#0077bb"},
+  {id:"blood",   name:"Iron Man Red",   bg:"#0f0505", surface:"#1a0808", card:"#200b0b", card2:"#280e0e", text:"#e8cfc8", muted:"#7a4a45", accent:"#ff3b3b", accent2:"#bb1111"},
+  {id:"gold",    name:"Stark Gold",     bg:"#0f0d04", surface:"#1a1608", card:"#211c0a", card2:"#29230c", text:"#e8e0c0", muted:"#7a6a30", accent:"#f5a623", accent2:"#c07d0a"},
+  {id:"gamma",   name:"Gamma Green",    bg:"#040f06", surface:"#07180a", card:"#091e0c", card2:"#0b250f", text:"#c2e8c8", muted:"#3a6b44", accent:"#00e676", accent2:"#00a854"},
+  {id:"mystic",  name:"Mystic Purple",  bg:"#0a0514", surface:"#12091e", card:"#160b26", card2:"#1c0e30", text:"#d8c8e8", muted:"#5a3f7a", accent:"#b44fff", accent2:"#7b2fbe"},
+  {id:"wakanda", name:"Vibranium",      bg:"#050510", surface:"#08081a", card:"#0a0a20", card2:"#0d0d28", text:"#c8cce8", muted:"#3a3a6b", accent:"#9d4edd", accent2:"#5a189a"},
+  {id:"spider",  name:"Spider Orange",  bg:"#0f0800", surface:"#1a1000", card:"#201500", card2:"#281b00", text:"#e8d8c0", muted:"#7a5a30", accent:"#ff6b2b", accent2:"#cc4400"},
+  {id:"rose",    name:"Neon Rose",      bg:"#0f0408", surface:"#1a0610", card:"#200814", card2:"#280a18", text:"#e8c8d4", muted:"#7a3a52", accent:"#ff2d78", accent2:"#bb0050"},
+  {id:"midnight",name:"Midnight Black", bg:"#000000", surface:"#0a0a0a", card:"#111111", card2:"#181818", text:"#cccccc", muted:"#555555", accent:"#ffffff", accent2:"#aaaaaa"},
+  {id:"arctic",  name:"Arctic White",   bg:"#e8eef8", surface:"#d8e2f2", card:"#ccd8ee", card2:"#c0cce8", text:"#1a2540", muted:"#6070a0", accent:"#0055cc", accent2:"#003a99"},
 ];
 
-let currentTheme = localStorage.getItem("me_theme") || "cyan";
+let currentTheme = localStorage.getItem("me_theme") || "default";
 
 function applyTheme(id) {
-  const t = THEMES.find(x=>x.id===id) || THEMES[0];
+  const t = THEMES.find(x => x.id === id) || THEMES[0];
   currentTheme = id;
   localStorage.setItem("me_theme", id);
-  const root = document.documentElement;
-  root.style.setProperty("--accent", t.accent);
-  root.style.setProperty("--accent2", t.accent2);
-  root.style.setProperty("--border", t.accent.replace(")", ",.12)").replace("rgb","rgba").replace("#", "rgba(").replace(/rgba\(([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})/, (m,r,g,b)=>`rgba(${parseInt(r,16)},${parseInt(g,16)},${parseInt(b,16)}`));
-  // Simpler border approach
-  const hex = t.accent;
-  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
-  root.style.setProperty("--border", `rgba(${r},${g},${b},.15)`);
-  root.style.setProperty("--border2", `rgba(${r},${g},${b},.28)`);
+  const r = document.documentElement;
+  r.style.setProperty("--bg",      t.bg);
+  r.style.setProperty("--surface", t.surface);
+  r.style.setProperty("--card",    t.card);
+  r.style.setProperty("--card2",   t.card2);
+  r.style.setProperty("--text",    t.text);
+  r.style.setProperty("--muted",   t.muted);
+  r.style.setProperty("--accent",  t.accent);
+  r.style.setProperty("--accent2", t.accent2);
+  // Derive border colors from accent
+  const hx = t.accent.replace("#","");
+  const ar = parseInt(hx.slice(0,2),16), ag = parseInt(hx.slice(2,4),16), ab = parseInt(hx.slice(4,6),16);
+  r.style.setProperty("--border",  "rgba("+ar+","+ag+","+ab+",.15)");
+  r.style.setProperty("--border2", "rgba("+ar+","+ag+","+ab+",.28)");
+  // For light themes adjust some things
+  if (id === "arctic") {
+    r.style.setProperty("--white", "#0a1030");
+  } else {
+    r.style.setProperty("--white", "#e8f0ff");
+  }
+  // Update body background directly too
+  document.body && (document.body.style.background = t.bg);
 }
 
 function renderThemePicker() {
@@ -1222,7 +1239,7 @@ ${feedText.substring(0,1500)}
 
 Return ONLY JSON array: [{"topic":"#TopicName","category":"🔥 Viral"},...]`;
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
+    const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:400,messages:[{role:"user",content:prompt}]})});
     const data = await resp.json();
     const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
     const trends = JSON.parse(txt);
@@ -1319,37 +1336,11 @@ const STATIONS = [
     icon:"👽", color:"#7c3b9e", type:"text",
     persona:"You are a paranoid conspiracy theory radio station in a Marvel universe where gamma experiments and strange beings have just appeared publicly for the first time. Write 5 short conspiracy broadcasts — theories about the gamma creature being a government weapon, the armored figure being corporate espionage, secret labs, cover-ups, MK-Ultra style programs, lizard people who caused it, etc. Entertaining and unhinged but internally consistent. Format as JSON array: [{tag:'THEORY',text:'...'},{tag:'EXPOSED',text:'...'},{tag:'CLASSIFIED',text:'...'},{tag:'CALLER',text:'...'},{tag:'PROOF',text:'...'}]"
   },
-  // MUSIC STATIONS (Spotify embeds)
-  {
-    id:"rnb-soul", name:"Smooth R&B & Soul", sub:"Vibes Only",
-    icon:"🎵", color:"#c2185b", type:"music",
-    spotifyId:"3KXWtHnL6Lz9Sfl57Y1gEj"
-  },
-  {
-    id:"hiphop-rap", name:"Hip-Hop & Rap", sub:"Street Anthems",
-    icon:"🎤", color:"#ff6f00", type:"music",
-    spotifyId:"58ffpw3vZbjG15BzRpeqyI"
-  },
-  {
-    id:"classical-jazz", name:"Classical & Jazz", sub:"Timeless Sound",
-    icon:"🎹", color:"#1565c0", type:"music",
-    spotifyId:"37i9dQZF1DXbITWG1ZJKYt"
-  },
-  {
-    id:"house-edm", name:"House & EDM", sub:"Keep the City Moving",
-    icon:"🏠", color:"#00897b", type:"music",
-    spotifyId:"7rCeZycpD1OLvxAifTqtDC"
-  },
-  {
-    id:"country", name:"Country", sub:"Heartland Sounds",
-    icon:"🤠", color:"#8d6534", type:"music",
-    spotifyId:"3WbeIGifjcSgzGxpyvmV65"
-  },
-  {
-    id:"blues", name:"Blues", sub:"Soul from the Delta",
-    icon:"🎸", color:"#4a235a", type:"music",
-    spotifyId:"0A1IHcqjyImN9uoHRsVtBn"
-  }
+  // MUSIC STATIONS — YouTube playlists
+  {id:"hiphop-rnb", name:"Hip-Hop & R&B", sub:"Street anthems & smooth vibes", icon:"🎤", color:"#ff6f00", type:"music", ytVideo:"DtrIWQ8J9jw", ytList:"PLm90DCMQmtllGPVGffVk5kqNCIdRsi3q9"},
+  {id:"jazz",       name:"Jazz",           sub:"Timeless sound",                icon:"🎹", color:"#1565c0", type:"music", ytVideo:"ZZcuSBouhVA",  ytList:"PL8F6B0753B2CCA128"},
+  {id:"country",    name:"Country",        sub:"Heartland sounds",              icon:"🤠", color:"#8d6534", type:"music", ytVideo:"lHdXQAQHjd8",  ytList:"PLzh6xENs3P_Rq3ODcHMfpfluk-NFHgtvl"},
+  {id:"blues",      name:"Blues",          sub:"Soul from the delta",           icon:"🎸", color:"#4a235a", type:"music", ytVideo:"4zAThXFOy2c",  ytList:"PLjzeyhEA84sQKuXp-rpM1dFuL2aQM_a3S"}
 ];
 
 let currentStation = null;
@@ -1374,9 +1365,6 @@ async function openStation(sid) {
   const s = STATIONS.find(x=>x.id===sid);
   if (!s) return;
 
-  // Stop any playing radio if switching stations
-  const audio = document.getElementById("radio-audio");
-
   if (s.type === "music") {
     renderMusicStation(s);
   } else {
@@ -1385,33 +1373,27 @@ async function openStation(sid) {
 }
 
 function renderMusicStation(s) {
-  document.getElementById("dm-chat-area").innerHTML = `
-    <div class="station-view">
-      <div class="station-hd">
-        <div class="station-hd-ico" style="background:${s.color}22;border:1px solid ${s.color}44">${s.icon}</div>
-        <div class="station-hd-info">
-          <div class="station-hd-name">${s.name}</div>
-          <div class="station-hd-sub">${s.sub}</div>
-        </div>
-        <span style="font-size:9px;color:var(--green);letter-spacing:1px;font-weight:700">● SPOTIFY</span>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-        <iframe
-          id="spotify-frame-${s.id}"
-          src="https://open.spotify.com/embed/playlist/${s.spotifyId}?utm_source=generator&theme=0"
-          width="100%"
-          height="100%"
-          style="border:none;min-height:380px;flex:1"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy">
-        </iframe>
-      </div>
-      <div style="padding:8px 14px;border-top:1px solid var(--border);background:rgba(0,0,0,.3);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px">
-        <span style="color:#1db954;font-size:12px">●</span>
-        Powered by Spotify · Full tracks require a free Spotify account
-      </div>
-    </div>`;
+  const startIdx = Math.floor(Math.random() * 15) + 1;
+  const embedUrl = "https://www.youtube.com/embed/" + s.ytVideo +
+    "?list=" + s.ytList + "&autoplay=1&shuffle=1&index=" + startIdx +
+    "&rel=0&modestbranding=1&color=white";
+  document.getElementById("dm-chat-area").innerHTML =
+    '<div class="station-view">' +
+    '<div class="station-hd">' +
+      '<div class="station-hd-ico" style="background:' + s.color + '22;border:1px solid ' + s.color + '44">' + s.icon + '</div>' +
+      '<div class="station-hd-info"><div class="station-hd-name">' + s.name + '</div><div class="station-hd-sub">' + s.sub + '</div></div>' +
+      '<span style="font-size:9px;color:#ff0000;letter-spacing:1px;font-weight:700;flex-shrink:0">&#9654; YOUTUBE</span>' +
+    '</div>' +
+    '<div style="flex:1;overflow:hidden;min-height:0">' +
+      '<iframe src="' + embedUrl + '" width="100%" height="100%" style="border:none;min-height:400px;display:block" allow="autoplay;encrypted-media;fullscreen" allowfullscreen loading="lazy"></iframe>' +
+    '</div>' +
+    '<div style="padding:8px 14px;border-top:1px solid var(--border);background:rgba(0,0,0,.4);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:7px">' +
+      '<span style="color:#ff0000">&#9654;</span>YouTube &middot; Free &middot; No account needed &middot; Shuffled' +
+    '</div></div>';
 }
+
+function toggleRadio(sid) {}
+
 
 const TAG_COLORS = {
   BREAKING:"#ff3333", EXCLUSIVE:"#f5a623", UPDATE:"#00b4ff",
@@ -1458,7 +1440,7 @@ async function refreshStation(sid, silent=false) {
   }
   try {
     const resp = await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST", headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},
+      method:"POST", headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
       body: JSON.stringify({
         model:"claude-sonnet-4-20250514", max_tokens:800,
         messages:[{role:"user",content:s.persona+"\n\nReturn ONLY the JSON array, no markdown, no explanation."}]
@@ -1714,7 +1696,7 @@ async function moderateImage(b64,type){
   try{
     const resp=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},
+      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
       body:JSON.stringify({
         model:"claude-sonnet-4-20250514",
         max_tokens:200,
@@ -1956,7 +1938,7 @@ async function loadAIFeed(){
   const eventCtx=topNews?.[0]?`${topNews[0].title}: ${topNews[0].content.substring(0,200)}`:"A massive gamma-powered creature is rampaging through Midtown Manhattan while a prototype armored figure tries to stop it";
   const prompt=`Generate 5 short authentic social media posts from ordinary NYC civilians reacting to: "${eventCtx}"\nRules: different people (student, barista, office worker, tourist, cabbie), panicked/confused/excited, 1-3 sentences, casual language, typos ok, they don't know hero names, first time anyone has seen this.\nRespond ONLY with JSON array: [{"handle":"user_handle","name":"Display Name","content":"post text"},...]\nNo markdown.`;
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
     const data=await resp.json();
     const txt=data.content?.[0]?.text||"";
     const clean=txt.replace(/```json|```/g,"").trim();
@@ -2432,7 +2414,7 @@ async function generateAINews(prompt){
   const outDiv=document.getElementById("ai-news-out"),btnRow=document.getElementById("ai-use-btn-row");
   outDiv.style.display="";outDiv.textContent="Generating...";btnRow.style.display="none";
   try{
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-request-header":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,messages:[{role:"user",content:prompt}]})});
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,messages:[{role:"user",content:prompt}]})});
     const data=await resp.json();
     const txt=(data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
     const parsed=JSON.parse(txt);
@@ -2484,6 +2466,8 @@ function togglePass(id,btn){
 
 applyTheme(currentTheme);
 startDisclaimerTimer();
+
+
 </script>
 </body>
 </html>
