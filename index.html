@@ -3813,12 +3813,37 @@ async function sendMail() {
   const subject = document.getElementById("mcp-subject").value.trim();
   const body = document.getElementById("mcp-body").value.trim();
   const btn = document.getElementById("mcp-send-btn");
-  if(!mailToUserId) { showToast("Please select a recipient.", true); document.getElementById("mcp-to-input").focus(); return; }
+
+  // If no recipient selected yet, try to resolve from whatever's typed
+  if(!mailToUserId) {
+    const raw = document.getElementById("mcp-to-input").value.trim();
+    if(!raw) { showToast("Please enter a recipient.", true); document.getElementById("mcp-to-input").focus(); return; }
+    // Strip email format e.g. "Name <handle@...>" or "@handle" or just "handle"
+    const handleGuess = raw.replace(/<[^>]+>/g,"").replace(/^@/,"").replace(/@marvel-essence\.net$/i,"").trim().split(" ")[0].toLowerCase();
+    btn.disabled = true; btn.innerHTML = "Looking up...";
+    try {
+      const {data} = await sb.from("profiles").select("id,hero_name,handle")
+        .or(`handle.ilike.${handleGuess},hero_name.ilike.${raw.split("<")[0].trim()}`)
+        .neq("id", currentProfile.id).limit(1);
+      if(data?.length) {
+        mailToUserId = data[0].id;
+        mailToUserName = data[0].hero_name;
+      } else {
+        btn.disabled = false; btn.innerHTML = "📨 Send";
+        showToast(`No user found matching "${raw}" — pick from the dropdown.`, true);
+        return;
+      }
+    } catch(e) {
+      btn.disabled = false; btn.innerHTML = "📨 Send";
+      showToast("Recipient lookup failed: "+e.message, true);
+      return;
+    }
+  }
+
   if(!body) { showToast("Message body is empty.", true); document.getElementById("mcp-body").focus(); return; }
   btn.disabled = true;
   btn.innerHTML = mailAttachments.length ? "⬆ Uploading..." : "Sending...";
   try {
-    // Upload attachments first
     const uploaded = [];
     for(const att of mailAttachments) {
       const result = await uploadAttachment(att);
