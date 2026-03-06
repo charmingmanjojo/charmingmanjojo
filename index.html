@@ -2783,30 +2783,28 @@ async function adminGenerateStation(sid, btnEl) {
     const arrEnd = raw.lastIndexOf("]");
     if (arrStart !== -1 && arrEnd > arrStart) txt = raw.slice(arrStart, arrEnd + 1);
 
-    // Sanitize common AI JSON-breaking patterns before parsing:
-    // Replace unescaped newlines inside string values, fix smart quotes, etc.
+    // Sanitize smart quotes, dashes, and newlines before JSON.parse
     txt = txt
-      .replace(/[‘’]/g, "'")           // smart single quotes → straight
-      .replace(/[“”]/g, '\"')          // smart double quotes → escaped
-      .replace(/[–—]/g, "-")            // en/em dashes → hyphen (safe in JSON strings)
-      .replace(/
-?
-/g, "\n");                  // literal newlines inside strings → 
-
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '\\"')
+      .replace(/[\u2013\u2014]/g, "-")
+      .replace(/[\r\n]+/g, "\\n");
 
     let items;
     try {
       items = JSON.parse(txt);
     } catch(parseErr) {
-      // Last-resort: extract individual objects with regex and rebuild array
       console.warn("JSON.parse failed, attempting recovery:", parseErr.message);
-      const objMatches = [...txt.matchAll(/\{[^{}]*"tag"\s*:\s*"([^"]+)"[^{}]*"text"\s*:\s*"((?:[^"\]|\.)*)"/g)];
-      if (objMatches.length) {
-        items = objMatches.map(m => ({ tag: m[1], text: m[2].replace(/\n/g, "
-") }));
-      } else {
-        throw new Error("Could not parse AI response as JSON. " + parseErr.message);
-      }
+      const recovered = [];
+      const tagRx = /"tag"\s*:\s*"([^"]+)"/;
+      const textRx = /"text"\s*:\s*"((?:[^"\\]|\\.)*)"/;
+      txt.split(/\},?\s*\{/).forEach(chunk => {
+        const tm = chunk.match(tagRx);
+        const xm = chunk.match(textRx);
+        if (tm && xm) recovered.push({ tag: tm[1], text: xm[1].replace(/\\n/g, "\n") });
+      });
+      if (recovered.length) { items = recovered; }
+      else { throw new Error("Could not parse AI response. " + parseErr.message); }
     }
 
     await sb.from("broadcasts").delete().eq("station_id", sid);
@@ -2936,6 +2934,7 @@ function togglePass(id,btn){
   else{inp.type="password";btn.textContent="👁";}
 }
 
+applyTheme(currentTheme);
 startDisclaimerTimer();
 
 async function saveConfig(){
@@ -3242,9 +3241,9 @@ function renderPost(p){
   // Parse quote-repost embed (base64-encoded payload, format: [[QR:<base64>]])
   let postContent = p.content || "";
   let quoteEmbedHtml = "";
-  const qMatch = postContent.match(/^\[\[QR:([A-Za-z0-9+/=]+)\]\]/);
+  const qMatch = postContent.match(/^\[\[QR:([A-Za-z0-9+\/=]+)\]\]/);
   if (qMatch) {
-    postContent = postContent.replace(/^\[\[QR:[A-Za-z0-9+/=]+\]\]\n?/, "");
+    postContent = postContent.replace(/^\[\[QR:[A-Za-z0-9+\/=]+\]\]\n?/, "");
     try {
       const qd = JSON.parse(decodeURIComponent(escape(atob(qMatch[1]))));
       quoteEmbedHtml = `<div class="quote-embed" onclick="event.stopPropagation();showProfilePage('${qd.uid||""}')">
@@ -5655,9 +5654,6 @@ function clearContactEdit(userId) {
   showToast("Contact reset");
   loadPhoneContacts();
 }
-
-applyTheme(currentTheme);
-startDisclaimerTimer();
 
 // =====================================================
 // THEME TOGGLE
