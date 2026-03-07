@@ -3850,7 +3850,7 @@ async function handleSearch(q){
 function showPage(p){
   currentPage=p;
   ["feed","intel","dms","admin","search","settings","mail","phone","profile"].forEach(x=>{
-    const el=document.getElementById("page-"+x);if(el)el.style.display=x===p?"":"none";
+    const el=document.getElementById("page-"+x);if(el)el.style.display=x===p?"block":"none";
   });
   ["feed","intel","dms","admin","settings","mail","phone"].forEach(x=>{const t=document.getElementById("tab-"+x);if(t)t.classList.toggle("active",x===p);});
   if(p==="intel")loadNewsFull();
