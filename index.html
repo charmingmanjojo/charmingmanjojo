@@ -84,7 +84,7 @@ body.light-theme .profile-page-banner{filter:brightness(.9)}
 .profile-page-meta-item{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px}
 .profile-page-stats{display:flex;gap:20px;padding:12px 16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:10px}
 .profile-page-stat{display:flex;flex-direction:column;align-items:center}
-.profile-page-stat-n{font-size:18px;font-weight:700;color:var(--white);font-family:'Orbitron',sans-serif}
+.profile-page-stat-n{font-size:18px;font-weight:700;color:var(--white);font-family:'Barlow',sans-serif}
 .profile-page-stat-l{font-size:10px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
 .profile-page-posts{margin-top:14px;display:flex;flex-direction:column;gap:10px}
 .profile-page-back{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px;margin-bottom:14px;font-family:'Barlow',sans-serif;transition:.15s}
@@ -1554,6 +1554,29 @@ async function renderSettingsPage() {
         </div>
       </div>
     </div>
+    <!-- BANNER IMAGE -->
+    <div class="sett-sec">
+      <div class="sett-hd">🖼 PROFILE BANNER</div>
+      <div class="sett-body">
+        <div id="banner-upload-area" onclick="document.getElementById('banner-file-in').click()" style="position:relative;width:100%;height:140px;border-radius:var(--radius);overflow:hidden;cursor:pointer;border:2px dashed var(--border);background:linear-gradient(135deg,${u.color||'#1d2d44'}44,${u.color||'#0a0f1a'}22);transition:.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          ${u.banner_url ? `<img src="${escAttr(u.banner_url)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/>` : ''}
+          <div id="banner-placeholder" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;${u.banner_url?'display:none':''}" >
+            <span style="font-size:28px">🖼</span>
+            <span style="font-size:11px;color:var(--muted);letter-spacing:1px">Click to upload banner image</span>
+            <span style="font-size:10px;color:var(--muted);opacity:.6">JPG, PNG, GIF, WEBP · Max 5MB · Recommended 1200×400</span>
+          </div>
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
+            <span style="font-size:12px;color:#fff;font-weight:700;letter-spacing:1px;font-family:'Barlow',sans-serif">📷 CHANGE BANNER</span>
+          </div>
+        </div>
+        <input type="file" id="banner-file-in" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="handleBannerUpload(event)"/>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="abtn sm" onclick="document.getElementById('banner-file-in').click()" style="font-size:11px">📷 Upload banner</button>
+          <button id="banner-remove-btn" class="abtn warn sm" onclick="removeBanner()" style="font-size:11px;display:${u.banner_url?'':'none'}">✕ Remove</button>
+        </div>
+      </div>
+    </div>
+
     <!-- NOTIFICATION SOUNDS -->
     <div class="sett-sec">
       <div class="sett-hd">🔔 NOTIFICATIONS</div>
@@ -6368,7 +6391,10 @@ async function showProfilePage(userId) {
 
   wrap.innerHTML = `
     <button class="profile-page-back" onclick="showPage('feed')">← Back</button>
-    <div class="profile-page-banner">${bannerHtml}</div>
+    <div class="profile-page-banner" ${isOwn ? `onclick="showPage('settings')" title="Click to change banner" style="cursor:pointer"` : ""}>
+      ${bannerHtml}
+      ${isOwn ? `<div style="position:absolute;bottom:8px;right:10px;background:rgba(0,0,0,.55);padding:4px 10px;border-radius:var(--radius-btn);font-size:10px;color:#fff;letter-spacing:.5px;font-family:'Barlow',sans-serif;font-weight:700">✏ EDIT PROFILE</div>` : ""}
+    </div>
     <div class="profile-page-av-row">
       <div class="profile-page-av" style="background:${u.avatar_url?"transparent":u.color}">
         ${avHtml}
