@@ -204,6 +204,97 @@ body.light-theme .profile-page-banner{filter:brightness(.9)}
 /* ── Keyboard shortcut hint ── */
 .kbd-hint{display:inline-block;padding:1px 5px;border:1px solid var(--border);border-radius:3px;font-family:'Orbitron',sans-serif;font-size:8px;color:var(--muted);margin-left:4px;vertical-align:middle}
 
+/* ── NOTIFICATIONS PANEL ── */
+#notif-panel{position:fixed;top:58px;right:0;width:360px;height:calc(100vh - 58px);background:var(--card);border-left:1px solid var(--border2);z-index:160;transform:translateX(100%);transition:transform .28s ease;display:flex;flex-direction:column;overflow:hidden}
+#notif-panel.open{transform:translateX(0)}
+.notif-panel-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.notif-panel-title{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--accent)}
+.notif-panel-actions{display:flex;gap:6px;align-items:center}
+.notif-mark-all{padding:4px 10px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;letter-spacing:.5px;font-family:'Barlow',sans-serif}
+.notif-mark-all:hover{color:var(--white);border-color:var(--border2)}
+.notif-close{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:none;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#notif-list{flex:1;overflow-y:auto}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:.12s}
+.notif-item:hover{background:rgba(59,130,246,.06)}
+.notif-item.unread{background:rgba(59,130,246,.07)}
+.notif-item.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);border-radius:0 2px 2px 0}
+.notif-item{position:relative}
+.notif-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.notif-type-icon{margin-right:4px}
+.notif-text{font-size:13px;color:var(--text);line-height:1.4}
+.notif-text strong{color:var(--white)}
+.notif-time{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.3px}
+.notif-empty{padding:40px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px}
+.notif-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.notif-tab{flex:1;padding:8px;text-align:center;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;font-family:'Barlow',sans-serif}
+.notif-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+@media(max-width:600px){#notif-panel{width:100vw!important}}
+
+/* ── FEED TABS ── */
+.feed-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:10px;background:var(--card);border-radius:var(--radius) var(--radius) 0 0;overflow:hidden}
+.ftab{flex:1;padding:12px 6px;text-align:center;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);cursor:pointer;transition:.15s;border-bottom:2px solid transparent;font-family:'Barlow',sans-serif;background:none;border-top:none;border-left:none;border-right:none}
+.ftab:hover{color:var(--white);background:rgba(255,255,255,.03)}
+.ftab.active{color:var(--accent);border-bottom-color:var(--accent)}
+@media(max-width:600px){.feed-tabs .ftab{font-size:8px!important;padding:9px 4px!important;letter-spacing:.5px!important}}
+
+/* ── STORIES ── */
+.stories-row{display:flex;gap:10px;padding:12px 14px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--border)}
+.stories-row::-webkit-scrollbar{display:none}
+.story-bubble{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;flex-shrink:0}
+.story-ring{width:52px;height:52px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--accent),#a855f7);flex-shrink:0}
+.story-ring.seen{background:var(--border)}
+.story-ring.add-story{background:rgba(59,130,246,.2);border:2px dashed rgba(59,130,246,.4)}
+.story-av{width:100%;height:100%;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:#fff;overflow:hidden;border:2px solid var(--bg)}
+.story-av img{width:100%;height:100%;object-fit:cover}
+.story-label{font-size:9px;color:var(--muted);letter-spacing:.3px;max-width:54px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Story viewer modal */
+.story-modal{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center}
+.story-viewer{width:340px;max-width:95vw;background:var(--card2);border-radius:var(--radius);overflow:hidden;position:relative}
+.story-progress-bar{height:3px;background:rgba(255,255,255,.2);position:absolute;top:0;left:0;right:0;z-index:1}
+.story-progress-fill{height:100%;background:var(--accent);transition:width linear}
+.story-viewer-hd{display:flex;align-items:center;gap:9px;padding:12px 14px 8px;position:relative;z-index:2}
+.story-viewer-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.story-viewer-name{font-size:13px;font-weight:700;color:var(--white)}
+.story-viewer-time{font-size:10px;color:var(--muted)}
+.story-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--white);font-size:18px;cursor:pointer;z-index:3}
+.story-content-area{min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.story-text-content{font-size:22px;font-weight:700;color:var(--white);text-align:center;line-height:1.4;padding:20px;word-break:break-word}
+.story-image-content{width:100%;max-height:380px;object-fit:contain}
+.story-compose-modal{position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center}
+.story-compose-box{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;width:420px;max-width:94vw;display:flex;flex-direction:column;gap:12px}
+
+/* ── POLLS ── */
+.poll-compose{border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.poll-compose-title{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--accent);font-family:'Orbitron',sans-serif}
+.poll-option-inp{display:flex;gap:6px;align-items:center}
+.poll-option-inp input{flex:1;padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.3);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none}
+.poll-option-inp input:focus{border-color:var(--accent)}
+.poll-option-rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 4px}
+.poll-add-opt{padding:4px 10px;border-radius:var(--radius-btn);border:1px dashed var(--border);background:none;color:var(--muted);font-size:11px;cursor:pointer;align-self:flex-start}
+.poll-duration-row{display:flex;align-items:center;gap:8px}
+.poll-duration-label{font-size:10px;color:var(--muted);letter-spacing:.5px}
+.poll-duration-sel{padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.3);color:var(--text);font-size:11px;outline:none}
+/* Poll in post */
+.post-poll{border:1px solid var(--border2);border-radius:var(--radius-sm);overflow:hidden;margin:8px 0}
+.poll-option-btn{width:100%;padding:10px 14px;background:none;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;cursor:pointer;text-align:left;position:relative;overflow:hidden;transition:.2s;display:flex;align-items:center;justify-content:space-between}
+.poll-option-btn:last-child{border-bottom:none}
+.poll-option-btn:hover{background:rgba(59,130,246,.07)}
+.poll-option-btn.voted{color:var(--white)}
+.poll-option-btn.my-vote{color:var(--accent)}
+.poll-bar{position:absolute;left:0;top:0;bottom:0;background:rgba(59,130,246,.15);transition:width .4s ease;z-index:0}
+.poll-bar.my-bar{background:rgba(59,130,246,.25)}
+.poll-opt-label{position:relative;z-index:1;display:flex;align-items:center;gap:6px}
+.poll-opt-pct{position:relative;z-index:1;font-size:11px;color:var(--muted);font-weight:700}
+.poll-footer{padding:8px 14px;font-size:10px;color:var(--muted);display:flex;gap:10px;border-top:1px solid var(--border)}
+
+/* ── VERIFIED BADGE ── */
+.verified-badge{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--accent);margin-left:4px;flex-shrink:0;vertical-align:middle}
+.verified-badge::after{content:'✓';font-size:8px;color:#fff;font-weight:900;line-height:1}
+.verified-badge.gold{background:var(--gold)}
+
+/* ── DM READ RECEIPTS ── */
+.dm-seen{font-size:10px;color:var(--accent);text-align:right;padding:0 4px 4px;letter-spacing:.3px;display:flex;align-items:center;justify-content:flex-end;gap:3px}
+
 /* ── Notif sound toggle ── */
 .sound-toggle{display:flex;align-items:center;gap:10px;padding:8px 0}
 .sound-toggle-knob{width:34px;height:18px;border-radius:9px;background:var(--border);position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
@@ -1023,6 +1114,8 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </button>
     </div>
     <div class="feed">
+      <!-- STORIES ROW -->
+      <div class="stories-row" id="stories-row"></div>
       <div class="compose">
         <div class="compose-row">
           <div class="c-av" id="compose-av"></div>
@@ -1034,6 +1127,7 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
         <div class="compose-foot">
           <div class="img-attach-area">
             <button class="img-attach-btn" onclick="document.getElementById('img-file-in').click()">📷 Image</button>
+            <button class="img-attach-btn" onclick="togglePollCompose()" id="poll-compose-btn" style="background:rgba(59,130,246,.1)">📊 Poll</button>
             <input type="file" id="img-file-in" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="handleImgSelect(event)"/>
             <div id="img-preview-container"></div>
             <span id="mod-status"></span>
@@ -1049,6 +1143,30 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
       </div>
       <div style="padding:4px 14px 8px;display:flex;gap:6px">
         <button style="font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:.5px;padding:0" onclick="document.getElementById('schedule-row').style.display=document.getElementById('schedule-row').style.display==='none'?'flex':'none'">📅 Schedule post</button>
+      </div>
+      <div id="poll-compose-area" style="display:none;padding:0 14px 10px">
+        <div class="poll-compose">
+          <div class="poll-compose-title">📊 ADD POLL</div>
+          <div id="poll-options-list">
+            <div class="poll-option-inp"><input placeholder="Option 1" id="poll-opt-0" maxlength="80"/><button class="poll-option-rm" onclick="removePollOption(0)" style="display:none">✕</button></div>
+            <div class="poll-option-inp"><input placeholder="Option 2" id="poll-opt-1" maxlength="80"/><button class="poll-option-rm" onclick="removePollOption(1)" style="display:none">✕</button></div>
+          </div>
+          <button class="poll-add-opt" onclick="addPollOption()">＋ Add option</button>
+          <div class="poll-duration-row">
+            <span class="poll-duration-label">DURATION</span>
+            <select class="poll-duration-sel" id="poll-duration">
+              <option value="1">1 day</option>
+              <option value="3" selected>3 days</option>
+              <option value="7">7 days</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="feed-tabs">
+        <button class="ftab active" id="ftab-all" onclick="switchFeedTab('all')">FOR YOU</button>
+        <button class="ftab" id="ftab-following" onclick="switchFeedTab('following')">FOLLOWING</button>
+        <button class="ftab" id="ftab-explore" onclick="switchFeedTab('explore')">EXPLORE</button>
+        <button class="ftab" id="ftab-bookmarks" onclick="switchFeedTab('bookmarks')">🔖 SAVED</button>
       </div>
       <div id="posts-list"><div class="loading-state"><div class="spinner"></div>LOADING FEED</div></div>
     </div>
@@ -1276,6 +1394,24 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div class="pdr-stats" id="pdr-stats"></div>
   <div class="pdr-actions" id="pdr-actions"></div>
   <div class="pdr-posts" id="pdr-posts"><div class="pdr-empty">Loading...</div></div>
+</div>
+
+<!-- NOTIFICATIONS PANEL -->
+<div id="notif-panel">
+  <div class="notif-panel-hd">
+    <span class="notif-panel-title">NOTIFICATIONS</span>
+    <div class="notif-panel-actions">
+      <button class="notif-mark-all" onclick="markAllNotifsRead()">Mark all read</button>
+      <button class="notif-close" onclick="toggleNotifPanel()">✕</button>
+    </div>
+  </div>
+  <div class="notif-tabs">
+    <div class="notif-tab active" id="ntab-all" onclick="switchNotifTab('all')">ALL</div>
+    <div class="notif-tab" id="ntab-likes" onclick="switchNotifTab('like')">LIKES</div>
+    <div class="notif-tab" id="ntab-follows" onclick="switchNotifTab('follow')">FOLLOWS</div>
+    <div class="notif-tab" id="ntab-mentions" onclick="switchNotifTab('mention')">MENTIONS</div>
+  </div>
+  <div id="notif-list"><div class="notif-empty">Loading...</div></div>
 </div>
 
 <!-- TRENDING DRAWER -->
@@ -2095,7 +2231,7 @@ function refreshFollowBtn(userId) {
 // =====================================================
 async function switchFeedTab(tab) {
   currentFeedTab = tab;
-  ["all","following","bookmarks"].forEach(t => {
+  ["all","following","bookmarks","explore"].forEach(t => {
     const el = document.getElementById("ftab-"+t);
     if(el) el.classList.toggle("active", t===tab);
   });
@@ -3099,7 +3235,7 @@ function showApp(){
   updateNavAvatar();
   renderMyCard();renderFactionFilter();
   loadNotifications();loadUserBookmarks();loadUserFollowing();loadUserBlocks();initCharCounter();updateLastSeen();setInterval(updateLastSeen,2*60*1000);setInterval(loadNotifications,30*1000);setInterval(checkScheduledPosts,60*1000);if(currentProfile.is_admin){const sr=document.getElementById('schedule-row');if(sr)sr.style.display='flex';}if(currentProfile.banner_url){const _ba=document.getElementById('banner-upload-area');if(_ba){let _bi=_ba.querySelector('img');if(!_bi){_bi=document.createElement('img');_ba.appendChild(_bi);}  _bi.src=currentProfile.banner_url;_bi.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';const _bp=document.getElementById('banner-placeholder');if(_bp)_bp.style.display='none';const _brb=document.getElementById('banner-remove-btn');if(_brb)_brb.style.display='block';}}
-  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();setupRealtimeDMs();setupIncomingCallListener();renderStationList();loadTrending();updateMailBadge();
+  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();setupRealtimeDMs();setupIncomingCallListener();renderStationList();loadTrending();updateMailBadge();loadStories();
 }
 
 function renderMyCard(){
@@ -3214,7 +3350,14 @@ async function loadFeed(){
     return;
   }
   let q=sb.from("posts").select("*,profiles(*),likes(user_id),comments(*,profiles(hero_name,color,handle))").order("created_at",{ascending:false}).limit(50);
-  if (currentFeedTab === "following" && userFollowing.length) {
+  if (currentFeedTab === "explore") {
+    // Show posts from people you don't follow (and not yourself)
+    if (userFollowing.length) {
+      q = q.not("user_id","in",`(${[currentProfile.id,...userFollowing].join(",")})`);
+    } else {
+      q = q.neq("user_id", currentProfile.id);
+    }
+  } else if (currentFeedTab === "following" && userFollowing.length) {
     q = q.in("user_id", userFollowing);
   } else if (currentFeedTab === "following") {
     document.getElementById("posts-list").innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px">Follow some operatives to see their posts here.</div>';
@@ -3231,7 +3374,10 @@ async function loadFeed(){
   // Filter by followed hashtags if any are active
   const activeTag=localStorage.getItem("me_active_htag");
   if(activeTag){filtered=filtered.filter(p=>p.content&&p.content.toLowerCase().includes(activeTag.toLowerCase()));}
-  postsData=filtered;renderFeed(postsData);
+  postsData=filtered;
+  // Attach poll data
+  await attachPollsToFeed(postsData);
+  renderFeed(postsData);
 }
 
 function renderFeed(posts){
@@ -3287,6 +3433,36 @@ function renderPost(p){
   const authorOnline = u.last_seen ? isOnline(u.last_seen) : false;
   const onlineDotHtml = authorOnline ? `<div class="online-dot on" style="position:absolute;bottom:1px;right:1px;width:8px;height:8px" title="Online now"></div>` : "";
 
+  // Poll rendering
+  let pollHtml = "";
+  if (p.poll) {
+    const poll = p.poll;
+    const totalVotes = (poll.options||[]).reduce((s,o)=>s+(o.votes||0),0);
+    const userVote = poll.user_vote ?? null;
+    const expired = poll.ends_at && new Date(poll.ends_at) < new Date();
+    const showResults = userVote !== null || expired;
+    pollHtml = `<div class="post-poll">
+      ${(poll.options||[]).map((opt,i)=>{
+        const pct = totalVotes>0 ? Math.round((opt.votes||0)/totalVotes*100) : 0;
+        const isMyVote = userVote===i;
+        if (showResults) {
+          return `<div class="poll-option-btn voted${isMyVote?' my-vote':''}">
+            <div class="poll-bar${isMyVote?' my-bar':''}" style="width:${pct}%"></div>
+            <span class="poll-opt-label">${isMyVote?'✓ ':' '}${escH(opt.text)}</span>
+            <span class="poll-opt-pct">${pct}%</span>
+          </div>`;
+        }
+        return `<button class="poll-option-btn" onclick="castPollVote('${p.id}','${poll.id}',${i})">
+          <span class="poll-opt-label">${escH(opt.text)}</span>
+        </button>`;
+      }).join('')}
+      <div class="poll-footer">
+        <span>${totalVotes} vote${totalVotes!==1?'s':''}</span>
+        ${expired?'<span>· Ended</span>':(poll.ends_at?`<span>· Ends ${timeAgo(poll.ends_at)}</span>`:'')}
+      </div>
+    </div>`;
+  }
+
   return`<div class="post${p.is_pinned?" pinned":""}" id="post-${p.id}">
     ${p.is_pinned?'<div class="post-pin-badge">📌 PINNED</div>':""}
     <div class="post-stripe" style="background:${u.color}"></div>
@@ -3294,13 +3470,14 @@ function renderPost(p){
       <div class="post-hd">
         <div class="p-av" style="background:${u.avatar_url?'transparent':u.color};cursor:pointer;position:relative" onclick="showProfilePage('${p.user_id}')">${avHtml||u.hero_name[0]}${onlineDotHtml}</div>
         <div class="post-meta">
-          <div class="post-name" style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">${u.hero_name}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
+          <div class="post-name" style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">${u.hero_name}${u.is_verified?'<span class="verified-badge" title="Verified"></span>':''}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
           <div class="post-sub"><span style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
         </div>
         ${delBtn}
       </div>
       ${postContent?`<div class="post-content" id="pcontent-${p.id}">${renderHashtags(escH(postContent))}</div>`:""}
       ${quoteEmbedHtml}
+      ${pollHtml}
     </div>
     ${imgHtml}
     <div class="post-body" style="padding-top:0">
@@ -3401,6 +3578,7 @@ async function submitPost(asScheduled=false){
   document.getElementById("compose-ta").value="";
   clearPendingImg();
   showToast("Transmitted!");
+  if (window._pendingPoll) await _attachPollToNewPost();
   loadFeed();
 }
 
@@ -3564,15 +3742,21 @@ async function openDM(uid,name,color){
   document.querySelectorAll(".dm-thread").forEach(e=>e.classList.remove("active"));
   const t=document.getElementById("thread-"+uid);if(t)t.classList.add("active");
   const{data:msgs}=await sb.from("messages").select("*").or(`and(sender_id.eq.${currentProfile.id},receiver_id.eq.${uid}),and(sender_id.eq.${uid},receiver_id.eq.${currentProfile.id})`).order("created_at",{ascending:true});
-  const msgsHtml=(msgs||[]).map(m=>{
+  const msgsArr = msgs||[];
+  // Find last sent message index for read receipt
+  let lastSentIdx = -1;
+  msgsArr.forEach((m,i)=>{if(m.sender_id===currentProfile.id)lastSentIdx=i;});
+  const msgsHtml=msgsArr.map((m,i)=>{
     const mine=m.sender_id===currentProfile.id;
     const rxs=Array.isArray(m.reactions)?m.reactions:[];
     const rxHtml=rxs.length?`<div class="msg-reactions">${rxs.map(r=>`<span class="msg-reaction-chip${r.user_id===currentProfile.id?" mine":""}" onclick="toggleDMReaction('${m.id}','${r.emoji}',${uid})" title="${escAttr(r.hero_name||"")}">${r.emoji}</span>`).join("")}</div>`:"";
+    const seenHtml = mine && i===lastSentIdx && m.read ? `<div class="dm-seen">✓✓ Seen</div>` : "";
     return`<div class="msg-row ${mine?"mine":""}" id="dmsg-${m.id}" oncontextmenu="openDMReactionPicker(event,'${m.id}',${uid});return false">
       <div>
         <div class="msg-bub" ondblclick="openDMReactionPicker(event,'${m.id}',${uid})">${escH(m.content)}</div>
         ${rxHtml}
         <div class="msg-time">${timeAgo(m.created_at)}</div>
+        ${seenHtml}
       </div>
     </div>`;
   }).join("");
@@ -3847,6 +4031,8 @@ async function renderAdminPanel(){
             <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
               <span style="font-size:9px;letter-spacing:1px;color:${u.is_admin?"var(--green)":"var(--muted)"}">${u.is_admin?"● ADMIN":"○ USER"}</span>
               ${u.is_admin?`<button class="abtn warn" onclick="setUserAdmin('${u.id}',false)">DEMOTE</button>`:`<button class="abtn sm" onclick="setUserAdmin('${u.id}',true)">PROMOTE</button>`}
+              ${u.is_verified?`<span style="font-size:9px;color:var(--accent);letter-spacing:.5px">✓ VERIFIED</span>`:""}
+              <button class="abtn sm" style="background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.3)" onclick="adminToggleVerified('${u.id}',${!!u.is_verified})">${u.is_verified?"UNVERIFY":"✓ VERIFY"}</button>
               <button class="abtn danger sm" onclick="removeUser('${u.id}','${escAttr(u.hero_name)}')">REMOVE</button>
             </div>
           </div>`).join(""):`<p style="font-size:11px;color:var(--muted)">No operatives registered.</p>`}
@@ -5328,6 +5514,301 @@ function restoreMailDraft() {
 
 
 // =====================================================
+// NOTIFICATIONS - filter by tab
+// =====================================================
+let currentNotifTab = 'all';
+function switchNotifTab(type) {
+  currentNotifTab = type;
+  ['all','like','follow','mention'].forEach(t=>{
+    const el=document.getElementById('ntab-'+({all:'all',like:'likes',follow:'follows',mention:'mentions'}[t]||t));
+    if(el)el.classList.toggle('active',t===type);
+  });
+  loadNotifications();
+}
+
+// Override loadNotifications to support tab filtering
+const _origLoadNotifs = loadNotifications;
+async function loadNotifications() {
+  let q = sb.from("notifications")
+    .select("*,from_user:profiles!notifications_from_user_id_fkey(id,hero_name,color,avatar_url)")
+    .eq("user_id", currentProfile.id)
+    .order("created_at", {ascending:false})
+    .limit(40);
+  if (currentNotifTab !== 'all') q = q.eq("type", currentNotifTab);
+  const { data } = await q;
+  const unread = (data||[]).filter(n=>!n.read).length;
+  const badge = document.getElementById("notif-badge");
+  if (badge) { badge.style.display = unread > 0 ? "flex" : "none"; badge.textContent = unread > 9 ? "9+" : unread; }
+  const list = document.getElementById("notif-list");
+  if (!list) return;
+  if (!data?.length) { list.innerHTML = '<div class="notif-empty">Nothing here yet</div>'; return; }
+  const icons = {like:"❤️",comment:"💬",dm:"📨",mention:"@",follow:"👤",reaction:"✨",missed_call:"📵"};
+  list.innerHTML = data.map(n => {
+    const u = n.from_user;
+    const av = u?.avatar_url ? '<img src="'+escAttr(u.avatar_url)+'" style="width:100%;height:100%;object-fit:cover"/>' : (u?.hero_name?.[0]||"?");
+    return '<div class="notif-item'+(n.read?'':' unread')+'" onclick="handleNotifClick(\''+n.id+'\',\''+n.type+'\',\''+(n.post_id||'')+'\',\''+(n.from_user_id||'')+'\')">' +
+      '<div class="notif-av" style="background:'+(u?.color||'#555')+'">'+av+'</div>'+
+      '<div style="flex:1"><div class="notif-text"><span class="notif-type-icon">'+(icons[n.type]||"🔔")+'</span>'+
+        '<strong>'+(u?.hero_name||"Someone")+'</strong> '+describeNotif(n)+'</div>'+
+        '<div class="notif-time">'+timeAgo(n.created_at)+'</div></div>'+
+    '</div>';
+  }).join("");
+}
+
+// =====================================================
+// STORIES
+// =====================================================
+async function loadStories() {
+  const storiesRow = document.getElementById("stories-row");
+  if (!storiesRow) return;
+  // Load recent stories (24h) from followed users + self
+  const since = new Date(Date.now()-24*60*60*1000).toISOString();
+  const followedIds = [currentProfile.id, ...userFollowing];
+  const { data: stories } = await sb.from("stories")
+    .select("*,profiles(id,hero_name,color,avatar_url,handle)")
+    .in("user_id", followedIds)
+    .gt("created_at", since)
+    .order("created_at", {ascending:false})
+    .limit(30);
+
+  // Group by user, keep first (latest) per user
+  const seenUsers = new Set();
+  const seenStoryIds = JSON.parse(localStorage.getItem("me_seen_stories")||"[]");
+  const grouped = [];
+  for (const s of (stories||[])) {
+    if (!seenUsers.has(s.user_id)) { seenUsers.add(s.user_id); grouped.push(s); }
+  }
+
+  let html = `<div class="story-bubble" onclick="openStoryCompose()" title="Add story">
+    <div class="story-ring add-story"><div class="story-av" style="background:var(--accent);font-size:20px">＋</div></div>
+    <div class="story-label">Your story</div>
+  </div>`;
+  grouped.forEach(s => {
+    const u = s.profiles;
+    const av = u?.avatar_url ? `<img src="${escAttr(u.avatar_url)}"/>` : (u?.hero_name?.[0]||"?");
+    const seen = seenStoryIds.includes(s.id);
+    const isMe = s.user_id === currentProfile.id;
+    html += `<div class="story-bubble" onclick="viewStory('${s.id}')">
+      <div class="story-ring${seen?' seen':''}"><div class="story-av" style="background:${u?.color||'#555'}">${av}</div></div>
+      <div class="story-label">${escH(isMe?'You':(u?.hero_name||'?'))}</div>
+    </div>`;
+  });
+  storiesRow.innerHTML = html;
+}
+
+async function viewStory(storyId) {
+  const since = new Date(Date.now()-24*60*60*1000).toISOString();
+  const { data: stories } = await sb.from("stories")
+    .select("*,profiles(hero_name,color,avatar_url)")
+    .gt("created_at", since)
+    .order("created_at", {ascending:false});
+  const story = (stories||[]).find(s=>s.id===storyId);
+  if (!story) return;
+
+  // Mark as seen
+  const seen = JSON.parse(localStorage.getItem("me_seen_stories")||"[]");
+  if (!seen.includes(storyId)) { seen.push(storyId); localStorage.setItem("me_seen_stories",JSON.stringify(seen)); }
+
+  const u = story.profiles;
+  const av = u?.avatar_url ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>` : (u?.hero_name?.[0]||"?");
+  const contentHtml = story.image_url
+    ? `<img class="story-image-content" src="${escAttr(story.image_url)}" alt="Story image"/>`
+    : `<div class="story-text-content" style="background:${story.bg_color||'rgba(59,130,246,.15)'}">${escH(story.content||"")}</div>`;
+
+  const modal = document.createElement("div");
+  modal.className = "story-modal";
+  modal.id = "story-modal";
+  modal.innerHTML = `
+    <div class="story-viewer">
+      <div class="story-progress-bar"><div class="story-progress-fill" id="story-prog" style="width:0%"></div></div>
+      <div class="story-viewer-hd">
+        <div class="story-viewer-av" style="background:${u?.color||'#555'}">${av}</div>
+        <div><div class="story-viewer-name">${escH(u?.hero_name||"?")}</div><div class="story-viewer-time">${timeAgo(story.created_at)}</div></div>
+      </div>
+      <button class="story-close" onclick="closeStoryModal()">✕</button>
+      <div class="story-content-area">${contentHtml}</div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  // Animate progress bar over 5s
+  const prog = document.getElementById("story-prog");
+  let pct = 0;
+  const timer = setInterval(()=>{
+    pct += 2;
+    if (prog) prog.style.width = pct + "%";
+    if (pct >= 100) { clearInterval(timer); setTimeout(closeStoryModal, 300); }
+  }, 100);
+  modal._timer = timer;
+  modal.addEventListener("click", e=>{if(e.target===modal)closeStoryModal();});
+  loadStories(); // refresh seen state
+}
+
+function closeStoryModal() {
+  const m = document.getElementById("story-modal");
+  if (m) { clearInterval(m._timer); m.remove(); }
+}
+
+function openStoryCompose() {
+  const bgColors = ["rgba(59,130,246,.3)","rgba(168,85,247,.3)","rgba(239,68,68,.3)","rgba(34,211,153,.3)","rgba(245,158,11,.3)"];
+  let selBg = bgColors[0];
+  const modal = document.createElement("div");
+  modal.className = "story-compose-modal";
+  modal.id = "story-compose-modal";
+  modal.innerHTML = `
+    <div class="story-compose-box">
+      <div style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--accent)">CREATE STORY</div>
+      <textarea id="story-text-inp" placeholder="What's on your mind? (visible for 24h)" style="width:100%;min-height:100px;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.3);color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;resize:vertical;outline:none" maxlength="200"></textarea>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${bgColors.map((c,i)=>`<div style="width:28px;height:28px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${i===0?'var(--accent)':'transparent'}" onclick="this.parentNode.querySelectorAll('div').forEach(d=>d.style.borderColor='transparent');this.style.borderColor='var(--accent)';document.getElementById('story-compose-modal')._bg='${c}'"></div>`).join("")}
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="document.getElementById('story-compose-modal').remove()" style="padding:8px 18px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-family:'Barlow',sans-serif;font-weight:700;font-size:13px">Cancel</button>
+        <button onclick="submitStory()" style="padding:8px 20px;border-radius:var(--radius-btn);border:none;background:var(--accent);color:#fff;cursor:pointer;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px">POST</button>
+      </div>
+    </div>`;
+  modal._bg = bgColors[0];
+  document.body.appendChild(modal);
+  modal.addEventListener("click",e=>{if(e.target===modal)modal.remove();});
+}
+
+async function submitStory() {
+  const modal = document.getElementById("story-compose-modal");
+  const content = document.getElementById("story-text-inp")?.value.trim();
+  if (!content) { showToast("Write something for your story.", true); return; }
+  const bg = modal?._bg || "rgba(59,130,246,.3)";
+  const { error } = await sb.from("stories").insert({ user_id: currentProfile.id, content, bg_color: bg });
+  if (error) {
+    if (error.message.includes("does not exist") || error.code === "42P01") {
+      showToast("Stories table not set up yet. Run: CREATE TABLE stories (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, user_id uuid REFERENCES profiles(id) ON DELETE CASCADE, content text, image_url text, bg_color text, created_at timestamptz DEFAULT now());", true);
+    } else { showToast("Error: "+error.message, true); }
+    return;
+  }
+  modal?.remove();
+  showToast("Story posted! Visible for 24 hours ✦");
+  loadStories();
+}
+
+// =====================================================
+// POLLS
+// =====================================================
+let pollOptionsCount = 2;
+let pollActive = false;
+
+function togglePollCompose() {
+  pollActive = !pollActive;
+  const area = document.getElementById("poll-compose-area");
+  const btn = document.getElementById("poll-compose-btn");
+  if (area) area.style.display = pollActive ? "block" : "none";
+  if (btn) btn.style.background = pollActive ? "rgba(59,130,246,.25)" : "rgba(59,130,246,.1)";
+  if (!pollActive) { pollOptionsCount = 2; renderPollOptions(); }
+}
+
+function renderPollOptions() {
+  const list = document.getElementById("poll-options-list");
+  if (!list) return;
+  list.innerHTML = Array.from({length:pollOptionsCount},(_,i)=>`
+    <div class="poll-option-inp">
+      <input placeholder="Option ${i+1}" id="poll-opt-${i}" maxlength="80"/>
+      <button class="poll-option-rm" onclick="removePollOption(${i})" style="display:${pollOptionsCount>2?'':'none'}">✕</button>
+    </div>`).join("");
+}
+
+function addPollOption() {
+  if (pollOptionsCount >= 4) { showToast("Max 4 options.", true); return; }
+  pollOptionsCount++;
+  renderPollOptions();
+}
+
+function removePollOption(idx) {
+  if (pollOptionsCount <= 2) return;
+  pollOptionsCount--;
+  renderPollOptions();
+}
+
+async function attachPollsToFeed(posts) {
+  const postIds = posts.map(p=>p.id);
+  if (!postIds.length) return;
+  try {
+    const { data: polls } = await sb.from("polls").select("*").in("post_id", postIds);
+    if (!polls?.length) return;
+    const pollIds = polls.map(p=>p.id);
+    const { data: votes } = await sb.from("poll_votes").select("poll_id,user_id,option_index").in("poll_id", pollIds);
+    polls.forEach(poll => {
+      const options = (poll.options||[]).map((opt,i)=>({
+        text: typeof opt==="string"?opt:opt.text,
+        votes: (votes||[]).filter(v=>v.poll_id===poll.id && v.option_index===i).length
+      }));
+      const userVoteRow = (votes||[]).find(v=>v.poll_id===poll.id && v.user_id===currentProfile.id);
+      poll.options = options;
+      poll.user_vote = userVoteRow ? userVoteRow.option_index : null;
+      const post = posts.find(p=>p.id===poll.post_id);
+      if (post) post.poll = poll;
+    });
+  } catch(e) { /* polls table may not exist yet */ }
+}
+
+async function castPollVote(postId, pollId, optionIndex) {
+  try {
+    const { error } = await sb.from("poll_votes").insert({ poll_id: pollId, user_id: currentProfile.id, option_index: optionIndex });
+    if (error) { showToast("Could not vote: "+error.message, true); return; }
+    loadFeed();
+  } catch(e) { showToast("Poll voting not available.", true); }
+}
+
+// Override submitPost to attach polls
+const _origSubmitPost = submitPost;
+async function submitPost(asScheduled=false) {
+  // If poll is active, validate options before calling original
+  if (pollActive && !asScheduled) {
+    const options = [];
+    for (let i=0;i<pollOptionsCount;i++){
+      const val = document.getElementById("poll-opt-"+i)?.value.trim();
+      if (val) options.push(val);
+    }
+    if (options.length < 2) { showToast("Add at least 2 poll options.", true); return; }
+    // Store poll data to be inserted after post creation
+    window._pendingPoll = { options, duration: parseInt(document.getElementById("poll-duration")?.value||"3") };
+  } else {
+    window._pendingPoll = null;
+  }
+  await _origSubmitPost(asScheduled);
+}
+
+// Hook into post insert to add poll after
+const _origSbInsert = null; // We'll patch a different way
+// We need to add poll after post creation — wrap insertPost
+async function _attachPollToNewPost() {
+  if (!window._pendingPoll) return;
+  // Find the most recent post by current user
+  const { data } = await sb.from("posts").select("id").eq("user_id", currentProfile.id).order("created_at",{ascending:false}).limit(1);
+  if (!data?.[0]) return;
+  const postId = data[0].id;
+  const days = window._pendingPoll.duration;
+  const endsAt = new Date(Date.now()+days*24*60*60*1000).toISOString();
+  try {
+    await sb.from("polls").insert({ post_id: postId, options: window._pendingPoll.options, ends_at: endsAt });
+  } catch(e) {
+    showToast("Poll could not be saved. Run: CREATE TABLE polls (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, post_id uuid REFERENCES posts(id) ON DELETE CASCADE, options jsonb, ends_at timestamptz, created_at timestamptz DEFAULT now()); CREATE TABLE poll_votes (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, poll_id uuid REFERENCES polls(id) ON DELETE CASCADE, user_id uuid REFERENCES profiles(id) ON DELETE CASCADE, option_index int, created_at timestamptz DEFAULT now(), UNIQUE(poll_id,user_id));", true);
+  }
+  window._pendingPoll = null;
+  // Close poll compose
+  pollActive = false;
+  const area = document.getElementById("poll-compose-area");
+  if (area) area.style.display = "none";
+  pollOptionsCount = 2;
+}
+
+// =====================================================
+// VERIFIED BADGES
+// =====================================================
+async function adminToggleVerified(userId, currentState) {
+  const { error } = await sb.from("profiles").update({is_verified: !currentState}).eq("id", userId);
+  if (error) { showToast("Error: "+error.message, true); return; }
+  showToast(!currentState ? "✓ User verified" : "Verification removed");
+  loadFeed();
+}
+
+// =====================================================
 // HASHTAG FOLLOWING
 // =====================================================
 function renderHashtagList() {
@@ -5902,6 +6383,7 @@ async function showProfilePage(userId) {
     <div class="profile-page-info">
       <div class="profile-page-name" style="color:${u.profile_accent||"var(--white)"}">
         ${escHtml(u.hero_name)}
+        ${u.is_verified ? '<span class="verified-badge gold" title="Verified" style="width:18px;height:18px;font-size:10px;margin-left:6px"></span>' : ""}
         ${online ? '<span style="font-size:11px;color:var(--green);font-family:Barlow,sans-serif;font-weight:400;margin-left:6px">● online</span>' : ""}
       </div>
       <div class="profile-page-handle">@${escHtml(u.handle)}</div>
