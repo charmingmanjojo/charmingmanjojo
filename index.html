@@ -3411,7 +3411,7 @@ function renderFeed(posts){
 }
 
 function renderPost(p){
-  const u=p.profiles;if(!u)return"";
+  const u=p.npc_data||p.profiles;if(!u)return"";
   const fc=FC_COLORS[u.faction]||"#555";
   const liked=p.likes?.some(l=>l.user_id===currentProfile.id);
   const avHtml=u.avatar_url?`<img src="${escAttr(u.avatar_url)}" class="av-img"/>`:``;
@@ -5641,6 +5641,252 @@ function restoreMailDraft() {
 // =====================================================
 let npcList = [];
 let selectedNpc = null;
+
+function toggleNpcPanel(panel) {
+  document.getElementById("npc-create-panel").style.display = panel === "create" ? "block" : "none";
+  document.getElementById("npc-bulk-panel").style.display = panel === "bulk" ? "block" : "none";
+}
+
+async function loadNpcList() {
+  // Try npcs table first; fall back to profiles with is_npc flag
+  let data = null;
+  const { data: npcData, error } = await sb.from("npcs").select("*").order("hero_name");
+  if (error && (error.code === "42P01" || error.message.includes("does not exist"))) {
+    // npcs table doesn't exist yet — show SQL hint
+    const el = document.getElementById("npc-list");
+    if (el) el.innerHTML = `<div style="padding:16px;color:var(--gold);font-size:11px;line-height:1.7">
+      ⚠ Run this SQL in Supabase to enable NPCs:<br>
+      <code style="background:rgba(0,0,0,.4);padding:4px 8px;border-radius:4px;display:block;margin-top:6px;font-size:10px;white-space:pre-wrap">CREATE TABLE npcs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  hero_name text NOT NULL,
+  handle text UNIQUE NOT NULL,
+  real_name text, faction text DEFAULT 'Independent',
+  bio text, color text, avatar_url text,
+  created_at timestamptz DEFAULT now()
+);</code>
+      Then add to posts:<br>
+      <code style="background:rgba(0,0,0,.4);padding:4px 8px;border-radius:4px;display:block;margin-top:6px;font-size:10px">ALTER TABLE posts ADD COLUMN IF NOT EXISTS npc_data jsonb;</code>
+    </div>`;
+    document.getElementById("npc-count").textContent = "—";
+    return;
+  }
+  data = npcData || [];
+  npcList = data;
+  document.getElementById("npc-count").textContent = npcList.length;
+  renderNpcList(npcList);
+  renderNpcManageList(npcList);
+}
+
+function filterNpcList(q) {
+  const factionFilter = document.getElementById("npc-faction-filter")?.value || "";
+  let filtered = npcList;
+  if (q.trim()) {
+    const sq = q.toLowerCase();
+    filtered = filtered.filter(n => (n.hero_name||"").toLowerCase().includes(sq) || (n.handle||"").toLowerCase().includes(sq) || (n.real_name||"").toLowerCase().includes(sq));
+  }
+  if (factionFilter) filtered = filtered.filter(n => n.faction === factionFilter);
+  renderNpcList(filtered);
+}
+
+function renderNpcList(npcs) {
+  const el = document.getElementById("npc-list");
+  if (!el) return;
+  if (!npcs.length) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px">No NPCs found. Create some above!</div>'; return; }
+  el.innerHTML = npcs.map(n => {
+    const fc = FC_COLORS[n.faction] || "#555";
+    const av = n.avatar_url ? `<img src="${escAttr(n.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : (n.hero_name?.[0] || "?");
+    const sel = selectedNpc?.id === n.id;
+    return `<div onclick="selectNpcForPost('${n.id}')" style="display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:.12s;background:${sel?"rgba(59,130,246,.12)":"none"}" onmouseover="this.style.background='rgba(59,130,246,.07)'" onmouseout="this.style.background='${sel?"rgba(59,130,246,.12)":"none"}'">
+      <div style="width:32px;height:32px;border-radius:50%;background:${n.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">${av}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(n.hero_name)}</div>
+        <div style="font-size:10px;color:var(--muted)">@${escH(n.handle)} · <span style="color:${fc}">${n.faction}</span></div>
+      </div>
+      ${sel ? '<span style="color:var(--accent);font-size:16px">✓</span>' : ''}
+    </div>`;
+  }).join("");
+}
+
+function renderNpcManageList(npcs) {
+  const el = document.getElementById("npc-manage-list");
+  if (!el) return;
+  if (!npcs.length) { el.innerHTML = ""; return; }
+  el.innerHTML = npcs.map(n => `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);background:rgba(0,0,0,.2)">
+      <div style="width:26px;height:26px;border-radius:50%;background:${n.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${n.hero_name?.[0]||"?"}</div>
+      <div style="flex:1;min-width:0">
+        <span style="font-size:12px;font-weight:700;color:var(--text)">${escH(n.hero_name)}</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:5px">@${escH(n.handle)}</span>
+      </div>
+      <button class="abtn sm" style="font-size:9px" onclick="selectNpcForPost('${n.id}')">POST AS</button>
+      <button class="abtn danger sm" style="font-size:9px" onclick="deleteNpc('${n.id}','${escAttr(n.hero_name)}')">✕</button>
+    </div>`).join("");
+}
+
+function selectNpcForPost(npcId) {
+  selectedNpc = npcList.find(n => n.id === npcId);
+  if (!selectedNpc) return;
+  const wrap = document.getElementById("npc-compose-wrap");
+  if (!wrap) return;
+  wrap.style.display = "block";
+  const av = document.getElementById("npc-compose-av");
+  av.style.background = selectedNpc.color || "#555";
+  av.innerHTML = selectedNpc.avatar_url ? `<img src="${escAttr(selectedNpc.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>` : (selectedNpc.hero_name?.[0] || "?");
+  document.getElementById("npc-compose-name").textContent = selectedNpc.hero_name;
+  document.getElementById("npc-compose-handle").textContent = "@" + selectedNpc.handle;
+  document.getElementById("npc-post-ta").focus();
+  renderNpcList(npcList);
+}
+
+function clearNpcSelection() {
+  selectedNpc = null;
+  document.getElementById("npc-compose-wrap").style.display = "none";
+  document.getElementById("npc-post-ta").value = "";
+  renderNpcList(npcList);
+}
+
+async function postAsNpc() {
+  if (!selectedNpc) return;
+  const content = document.getElementById("npc-post-ta")?.value.trim();
+  if (!content) { showToast("Write something first.", true); return; }
+  const btn = document.getElementById("npc-post-btn");
+  const status = document.getElementById("npc-post-status");
+  btn.disabled = true; btn.textContent = "Posting...";
+
+  const schedChk = document.getElementById("npc-schedule-chk")?.checked;
+  const schedDt = document.getElementById("npc-schedule-dt")?.value;
+
+  // Embed NPC snapshot into the post so it renders without a profiles join
+  const npc_data = {
+    id: selectedNpc.id,
+    hero_name: selectedNpc.hero_name,
+    handle: selectedNpc.handle,
+    real_name: selectedNpc.real_name || selectedNpc.hero_name,
+    faction: selectedNpc.faction || "Independent",
+    bio: selectedNpc.bio || "",
+    color: selectedNpc.color || "#555",
+    avatar_url: selectedNpc.avatar_url || null,
+    is_npc: true
+  };
+
+  const row = { user_id: currentProfile.id, content, is_ai: false, likes_count: 0, npc_data };
+  if (schedChk && schedDt) { row.scheduled_at = new Date(schedDt).toISOString(); row.is_draft = true; }
+
+  const { error } = await sb.from("posts").insert(row);
+  btn.disabled = false; btn.textContent = "📤 POST AS NPC";
+  if (error) {
+    status.style.color = "var(--red)";
+    status.textContent = error.message.includes("npc_data") || error.message.includes("column")
+      ? "Run: ALTER TABLE posts ADD COLUMN IF NOT EXISTS npc_data jsonb;"
+      : "Error: " + error.message;
+    return;
+  }
+
+  status.style.color = "var(--green)";
+  status.textContent = schedChk && schedDt ? `✓ Scheduled for ${fmtDateTime(new Date(schedDt).toISOString())}` : `✓ Posted as ${selectedNpc.hero_name}!`;
+  document.getElementById("npc-post-ta").value = "";
+  document.getElementById("npc-schedule-chk").checked = false;
+  document.getElementById("npc-schedule-row").style.display = "none";
+  setTimeout(() => { status.textContent = ""; }, 4000);
+  loadFeed();
+}
+
+async function createNpcAccount() {
+  const hero = document.getElementById("npc-hero")?.value.trim();
+  const handle = document.getElementById("npc-handle")?.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+  const real = document.getElementById("npc-real")?.value.trim();
+  const faction = document.getElementById("npc-faction")?.value;
+  const bio = document.getElementById("npc-bio")?.value.trim();
+  const status = document.getElementById("npc-create-status");
+
+  if (!hero || !handle) { status.style.color = "var(--red)"; status.textContent = "Hero name and handle required."; return; }
+
+  const color = OC_COLORS[Math.floor(Math.random() * OC_COLORS.length)];
+  const { error } = await sb.from("npcs").insert({
+    hero_name: hero, handle, real_name: real || hero,
+    faction: faction || "Independent", bio: bio || "", color
+  });
+
+  if (error) {
+    status.style.color = "var(--red)";
+    status.textContent = error.code === "42P01"
+      ? "npcs table missing — run the SQL shown above first."
+      : (error.code === "23505" ? `Handle @${handle} already taken.` : "Error: " + error.message);
+    return;
+  }
+  status.style.color = "var(--green)"; status.textContent = `✓ NPC @${handle} created!`;
+  ["npc-hero","npc-handle","npc-real","npc-bio"].forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; });
+  setTimeout(() => { status.textContent = ""; }, 3000);
+  loadNpcList();
+}
+
+async function bulkCreateNpcs() {
+  const raw = document.getElementById("npc-bulk-ta")?.value.trim();
+  const status = document.getElementById("npc-bulk-status");
+  if (!raw) return;
+  const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
+  status.style.color = "var(--muted)";
+  status.textContent = `Creating ${lines.length} NPCs...`;
+
+  const rows = [];
+  const skipped = [];
+  for (const line of lines) {
+    const parts = line.split("|").map(p => p.trim());
+    const [hero, handle, real, faction, bio] = parts;
+    if (!hero || !handle) { skipped.push(`Bad format: "${line.substring(0,30)}"`); continue; }
+    const cleanHandle = handle.toLowerCase().replace(/[^a-z0-9_]/g, "");
+    if (!cleanHandle) { skipped.push(`Bad handle: "${handle}"`); continue; }
+    const color = OC_COLORS[Math.floor(Math.random() * OC_COLORS.length)];
+    rows.push({ hero_name: hero, handle: cleanHandle, real_name: real || hero, faction: faction || "Independent", bio: bio || "", color });
+  }
+
+  if (!rows.length) { status.style.color = "var(--red)"; status.textContent = "No valid rows found."; return; }
+
+  // Insert in batches of 50
+  let created = 0, failed = 0, errorMsg = "";
+  for (let i = 0; i < rows.length; i += 50) {
+    const batch = rows.slice(i, i + 50);
+    const { data, error } = await sb.from("npcs").insert(batch).select("id");
+    if (error) {
+      if (error.code === "42P01") { errorMsg = "npcs table missing — run the SQL shown above first."; break; }
+      // Try one by one to skip duplicates
+      for (const row of batch) {
+        const { error: e2 } = await sb.from("npcs").insert(row);
+        if (e2) { failed++; skipped.push(`@${row.handle}: ${e2.message}`); } else created++;
+      }
+    } else {
+      created += (data||batch).length;
+    }
+  }
+
+  if (errorMsg) {
+    status.style.color = "var(--red)"; status.textContent = errorMsg;
+  } else {
+    status.style.color = failed > 0 ? "var(--gold)" : "var(--green)";
+    status.textContent = `✓ ${created} created${failed > 0 ? `, ${failed} skipped` : ""}`;
+    if (skipped.length) console.warn("NPC bulk skipped:", skipped);
+    document.getElementById("npc-bulk-ta").value = "";
+  }
+  setTimeout(() => { status.textContent = ""; }, 6000);
+  loadNpcList();
+}
+
+async function deleteNpc(id, name) {
+  if (!confirm(`Delete NPC "${name}"?`)) return;
+  await sb.from("npcs").delete().eq("id", id);
+  showToast(`NPC ${name} deleted`);
+  if (selectedNpc?.id === id) clearNpcSelection();
+  loadNpcList();
+}
+
+async function confirmDeleteAllNpcs() {
+  if (!confirm(`Delete ALL NPC accounts? This cannot be undone.`)) return;
+  await sb.from("npcs").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  showToast("All NPCs deleted");
+  npcList = []; selectedNpc = null;
+  document.getElementById("npc-compose-wrap").style.display = "none";
+  loadNpcList();
+}
 
 function toggleNpcPanel(panel) {
   document.getElementById("npc-create-panel").style.display = panel === "create" ? "block" : "none";
