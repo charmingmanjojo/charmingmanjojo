@@ -5770,10 +5770,16 @@ async function createNpcAccount() {
   if (taken) { status.style.color = "var(--red)"; status.textContent = `Handle @${handle} is already taken.`; return; }
 
   const color = OC_COLORS[Math.floor(Math.random() * OC_COLORS.length)];
-  const { error } = await sb.from("profiles").insert({
+  const row = {
     id: crypto.randomUUID(), handle, hero_name: hero, real_name: real || hero,
-    faction: faction || "Independent", bio: bio || "", color, is_admin: false, is_npc: true
-  });
+    faction: faction || "Independent", bio: bio || "", color, is_admin: false
+  };
+  let { error } = await sb.from("profiles").insert({...row, is_npc: true});
+  if (error && (error.message.includes("is_npc") || error.code === "42703" || error.message.includes("column"))) {
+    const res2 = await sb.from("profiles").insert(row);
+    error = res2.error;
+    if (!error) showToast("⚠ Add is_npc column: ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_npc boolean DEFAULT false;");
+  }
 
   if (error) { status.style.color = "var(--red)"; status.textContent = "Error: " + error.message; return; }
   status.style.color = "var(--green)"; status.textContent = `✓ NPC @${handle} created!`;
@@ -5790,27 +5796,45 @@ async function bulkCreateNpcs() {
   const status = document.getElementById("npc-bulk-status");
   if (!raw) return;
   const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
+  status.style.color = "var(--muted)";
   status.textContent = `Creating ${lines.length} NPCs...`;
-  let created = 0, failed = 0;
+  let created = 0, failed = 0, errors = [];
   for (const line of lines) {
     const parts = line.split("|").map(p => p.trim());
     const [hero, handle, real, faction, bio] = parts;
-    if (!hero || !handle) { failed++; continue; }
+    if (!hero || !handle) { failed++; errors.push(`Bad line: "${line.substring(0,40)}"`); continue; }
     const cleanHandle = handle.toLowerCase().replace(/[^a-z0-9_]/g, "");
+    if (!cleanHandle) { failed++; errors.push(`Bad handle: "${handle}"`); continue; }
     const { data: taken } = await sb.from("profiles").select("id").eq("handle", cleanHandle).maybeSingle();
-    if (taken) { failed++; continue; }
+    if (taken) { failed++; errors.push(`Handle taken: @${cleanHandle}`); continue; }
     const color = OC_COLORS[Math.floor(Math.random() * OC_COLORS.length)];
-    const { error } = await sb.from("profiles").insert({
+    const row = {
       id: crypto.randomUUID(), handle: cleanHandle, hero_name: hero,
       real_name: real || hero, faction: faction || "Independent",
-      bio: bio || "", color, is_admin: false, is_npc: true
-    });
-    if (error) failed++; else created++;
+      bio: bio || "", color, is_admin: false
+    };
+    // Try with is_npc first, fall back without if column doesn't exist
+    let { error } = await sb.from("profiles").insert({...row, is_npc: true});
+    if (error && (error.message.includes("is_npc") || error.code === "42703" || error.message.includes("column"))) {
+      const res2 = await sb.from("profiles").insert(row);
+      error = res2.error;
+      if (!error) showToast("⚠ is_npc column missing — NPCs created without flag. Run: ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_npc boolean DEFAULT false;", false);
+    }
+    if (error) { failed++; errors.push(`@${cleanHandle}: ${error.message}`); } else created++;
   }
-  status.style.color = failed > 0 ? "var(--gold)" : "var(--green)";
-  status.textContent = `✓ ${created} created${failed > 0 ? `, ${failed} skipped (duplicate handles)` : ""}`;
-  document.getElementById("npc-bulk-ta").value = "";
-  setTimeout(() => { status.textContent = ""; }, 5000);
+  if (errors.length) {
+    status.style.color = "var(--red)";
+    status.textContent = `${created} created, ${failed} failed`;
+    // Show errors in a visible spot
+    const el = document.getElementById("npc-bulk-ta");
+    if (el) el.placeholder = "ERRORS:\n" + errors.join("\n");
+    console.error("Bulk NPC errors:", errors);
+  } else {
+    status.style.color = "var(--green)";
+    status.textContent = `✓ ${created} NPCs created!`;
+    document.getElementById("npc-bulk-ta").value = "";
+  }
+  setTimeout(() => { status.textContent = ""; }, 8000);
   loadNpcList();
 }
 
