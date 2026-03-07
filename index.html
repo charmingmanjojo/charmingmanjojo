@@ -3493,7 +3493,7 @@ function renderPost(p){
       <div class="post-hd">
         <div class="p-av" style="background:${u.avatar_url?'transparent':u.color};cursor:pointer;position:relative" onclick="showProfilePage('${p.user_id}')">${avHtml||u.hero_name[0]}${onlineDotHtml}</div>
         <div class="post-meta">
-          <div class="post-name" style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">${u.hero_name}${u.is_verified?'<span class="verified-badge" title="Verified"></span>':''}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
+          <div class="post-name" style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">${u.hero_name}${u.is_verified?'<span class="verified-badge" title="Verified"></span>':''}${u.is_npc&&isAdmin?` <span style="font-size:9px;color:var(--gold);font-family:Barlow,sans-serif;opacity:.7">[NPC]</span>`:''}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
           <div class="post-sub"><span style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
         </div>
         ${delBtn}
@@ -3881,7 +3881,7 @@ function showPage(p){
   if(p==="dms"){loadDMThreads();renderStationList();document.getElementById("dm-badge").style.display="none";}
   if(p==="feed"){setTimeout(renderHashtagList,100);}
   if(p==="mail"){loadMailView("inbox");document.getElementById("mail-badge").style.display="none";const addrEl=document.getElementById("mail-addr-text");if(addrEl&&currentProfile)addrEl.textContent=currentProfile.handle+"@marvel-essence.net";}
-  if(p==="admin"&&currentProfile.is_admin){renderAdminPanel();setTimeout(injectAdminTrending,600);}
+  if(p==="admin"&&currentProfile.is_admin){renderAdminPanel();setTimeout(()=>{injectAdminTrending();loadNpcList();},600);}
   if(p==="phone"){loadPhoneContacts();}
   if(p==="settings"){renderSettingsPage();setTimeout(()=>{const el=document.getElementById('theme-picker-wrap');if(el)el.innerHTML=renderThemePicker();},50);}
 }
@@ -4041,6 +4041,104 @@ async function renderAdminPanel(){
               <button class="abtn danger sm" onclick="deleteNews('${n.id}')">✕ DELETE</button>
             </div>
           </div>`).join(""):`<p style="font-size:11px;color:var(--muted)">No news posted yet.</p>`}
+      </div>
+    </div>
+
+    <!-- NPC HUB -->
+    <div class="adm-sec" id="npc-hub-sec">
+      <div class="adm-hd" style="display:flex;align-items:center;justify-content:space-between">
+        <span>🎭 NPC HUB — POST AS ANY ACCOUNT</span>
+        <div style="display:flex;gap:6px">
+          <button class="abtn sm" style="font-size:9px" onclick="toggleNpcPanel('create')">＋ CREATE NPC</button>
+          <button class="abtn sm" style="font-size:9px" onclick="toggleNpcPanel('bulk')">⚡ BULK CREATE</button>
+        </div>
+      </div>
+      <div class="adm-body">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.3px;line-height:1.6">
+          NPC accounts have no login. Only you can post as them. Use them to make the feed feel alive — bystanders, reporters, civilians reacting to events.
+        </div>
+
+        <!-- CREATE SINGLE NPC -->
+        <div id="npc-create-panel" style="display:none;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px">
+          <div style="font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:10px">NEW NPC ACCOUNT</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="afield" style="margin:0"><label>Hero/OC Name</label><input id="npc-hero" placeholder="e.g. Maya Chen"/></div>
+            <div class="afield" style="margin:0"><label>Handle</label><input id="npc-handle" placeholder="e.g. mayachen"/></div>
+            <div class="afield" style="margin:0"><label>Real Name</label><input id="npc-real" placeholder="Full name"/></div>
+            <div class="afield" style="margin:0"><label>Faction</label>
+              <select id="npc-faction" style="width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;outline:none">
+                <option>Independent</option><option>Military</option><option>Science Division</option><option>Vigilante</option><option>Government</option>
+              </select>
+            </div>
+          </div>
+          <div class="afield" style="margin:8px 0 0"><label>Bio</label><textarea id="npc-bio" rows="2" placeholder="Short bio..." style="width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;outline:none;resize:vertical"></textarea></div>
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <button class="abtn" onclick="createNpcAccount()">CREATE NPC</button>
+            <button class="abtn warn" onclick="toggleNpcPanel(null)">CANCEL</button>
+          </div>
+          <div id="npc-create-status" style="font-size:11px;color:var(--muted);margin-top:6px"></div>
+        </div>
+
+        <!-- BULK CREATE -->
+        <div id="npc-bulk-panel" style="display:none;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px">
+          <div style="font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:8px">BULK CREATE NPCs</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Paste one NPC per line: <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px;font-size:10px">HeroName | handle | Real Name | Faction | Bio</code></div>
+          <textarea id="npc-bulk-ta" rows="8" placeholder="Spider-Man Fan | spiderfan99 | Peter Nguyen | Independent | Just a guy who saw Spider-Man once and never shut up about it&#10;Shield Agent | agent_brooks | Dana Brooks | Government | Mid-level SHIELD analyst. Clearance 4.&#10;Midtown Reporter | mtnews | Carmen Vega | Independent | Beat reporter, Midtown Bugle. DM tips." style="width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none;resize:vertical;line-height:1.7"></textarea>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:10px;flex-wrap:wrap">
+            <button class="abtn" onclick="bulkCreateNpcs()">⚡ CREATE ALL</button>
+            <button class="abtn warn" onclick="toggleNpcPanel(null)">CANCEL</button>
+            <span id="npc-bulk-status" style="font-size:11px;color:var(--muted)"></span>
+          </div>
+        </div>
+
+        <!-- POST AS NPC -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;letter-spacing:1.5px;color:var(--white);margin-bottom:8px;font-family:'Orbitron',sans-serif">POST AS NPC</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+            <input id="npc-search" placeholder="🔍 Search NPCs by name or handle..." style="flex:1;min-width:180px;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;outline:none" oninput="filterNpcList(this.value)"/>
+            <select id="npc-faction-filter" style="padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none" onchange="filterNpcList(document.getElementById('npc-search').value)">
+              <option value="">All factions</option>
+              <option>Independent</option><option>Military</option><option>Science Division</option><option>Vigilante</option><option>Government</option>
+            </select>
+          </div>
+          <div id="npc-list" style="max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);background:rgba(0,0,0,.2)">
+            <div style="padding:20px;text-align:center;color:var(--muted);font-size:11px">Loading NPC accounts...</div>
+          </div>
+        </div>
+
+        <!-- NPC COMPOSE BOX (shown when an NPC is selected) -->
+        <div id="npc-compose-wrap" style="display:none;background:rgba(59,130,246,.05);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius-sm);padding:14px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <div id="npc-compose-av" style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden"></div>
+            <div>
+              <div id="npc-compose-name" style="font-size:13px;font-weight:700;color:var(--white)"></div>
+              <div id="npc-compose-handle" style="font-size:11px;color:var(--muted)"></div>
+            </div>
+            <button onclick="clearNpcSelection()" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+          </div>
+          <div style="position:relative">
+            <textarea id="npc-post-ta" rows="3" placeholder="What is this NPC posting?" style="width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;outline:none;resize:vertical"></textarea>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <button class="abtn" onclick="postAsNpc()" id="npc-post-btn">📤 POST AS NPC</button>
+            <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);cursor:pointer">
+              <input type="checkbox" id="npc-schedule-chk" onchange="document.getElementById('npc-schedule-row').style.display=this.checked?'flex':'none'"/> Schedule
+            </label>
+            <div id="npc-schedule-row" style="display:none;align-items:center;gap:6px">
+              <input type="datetime-local" id="npc-schedule-dt" style="padding:5px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-size:12px;outline:none"/>
+            </div>
+            <span id="npc-post-status" style="font-size:11px;color:var(--muted)"></span>
+          </div>
+        </div>
+
+        <!-- NPC MANAGEMENT LIST -->
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <div style="font-size:10px;letter-spacing:1.5px;color:var(--muted)">ALL NPC ACCOUNTS (<span id="npc-count">—</span>)</div>
+            <button class="abtn sm" style="font-size:9px;background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.25);color:var(--red)" onclick="confirmDeleteAllNpcs()">🗑 DELETE ALL NPCs</button>
+          </div>
+          <div id="npc-manage-list" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+        </div>
       </div>
     </div>
 
@@ -5536,6 +5634,208 @@ function restoreMailDraft() {
 
 // Check for draft on mail page load
 
+
+// =====================================================
+// =====================================================
+// NPC HUB
+// =====================================================
+let npcList = [];
+let selectedNpc = null;
+
+function toggleNpcPanel(panel) {
+  document.getElementById("npc-create-panel").style.display = panel === "create" ? "block" : "none";
+  document.getElementById("npc-bulk-panel").style.display = panel === "bulk" ? "block" : "none";
+}
+
+async function loadNpcList() {
+  const { data } = await sb.from("profiles").select("*").eq("is_npc", true).order("hero_name");
+  npcList = data || [];
+  document.getElementById("npc-count").textContent = npcList.length;
+  renderNpcList(npcList);
+  renderNpcManageList(npcList);
+}
+
+function filterNpcList(q) {
+  const factionFilter = document.getElementById("npc-faction-filter")?.value || "";
+  let filtered = npcList;
+  if (q.trim()) {
+    const sq = q.toLowerCase();
+    filtered = filtered.filter(n => (n.hero_name||"").toLowerCase().includes(sq) || (n.handle||"").toLowerCase().includes(sq) || (n.real_name||"").toLowerCase().includes(sq));
+  }
+  if (factionFilter) filtered = filtered.filter(n => n.faction === factionFilter);
+  renderNpcList(filtered);
+}
+
+function renderNpcList(npcs) {
+  const el = document.getElementById("npc-list");
+  if (!el) return;
+  if (!npcs.length) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:11px">No NPCs found. Create some above!</div>'; return; }
+  el.innerHTML = npcs.map(n => {
+    const fc = FC_COLORS[n.faction] || "#555";
+    const av = n.avatar_url ? `<img src="${escAttr(n.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : (n.hero_name?.[0] || "?");
+    const sel = selectedNpc?.id === n.id;
+    return `<div onclick="selectNpcForPost('${n.id}')" style="display:flex;align-items:center;gap:9px;padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:.12s;background:${sel ? "rgba(59,130,246,.12)" : "none"}" onmouseover="this.style.background='rgba(59,130,246,.07)'" onmouseout="this.style.background='${sel ? "rgba(59,130,246,.12)" : "none"}'">
+      <div style="width:32px;height:32px;border-radius:50%;background:${n.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">${av}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(n.hero_name)}</div>
+        <div style="font-size:10px;color:var(--muted)">@${escH(n.handle)} · <span style="color:${fc}">${n.faction}</span></div>
+      </div>
+      ${sel ? '<span style="color:var(--accent);font-size:16px">✓</span>' : ''}
+    </div>`;
+  }).join("");
+}
+
+function renderNpcManageList(npcs) {
+  const el = document.getElementById("npc-manage-list");
+  if (!el) return;
+  if (!npcs.length) { el.innerHTML = ""; return; }
+  el.innerHTML = npcs.map(n => `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);background:rgba(0,0,0,.2)">
+      <div style="width:26px;height:26px;border-radius:50%;background:${n.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${n.hero_name?.[0]||"?"}</div>
+      <div style="flex:1;min-width:0">
+        <span style="font-size:12px;font-weight:700;color:var(--text)">${escH(n.hero_name)}</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:5px">@${escH(n.handle)}</span>
+      </div>
+      <button class="abtn sm" style="font-size:9px" onclick="selectNpcForPost('${n.id}');document.getElementById('npc-list').scrollIntoView({behavior:'smooth'})">POST AS</button>
+      <button class="abtn danger sm" style="font-size:9px" onclick="deleteNpc('${n.id}','${escAttr(n.hero_name)}')">✕</button>
+    </div>`).join("");
+}
+
+function selectNpcForPost(npcId) {
+  selectedNpc = npcList.find(n => n.id === npcId);
+  if (!selectedNpc) return;
+  const wrap = document.getElementById("npc-compose-wrap");
+  if (!wrap) return;
+  wrap.style.display = "block";
+  const av = document.getElementById("npc-compose-av");
+  av.style.background = selectedNpc.color || "#555";
+  av.innerHTML = selectedNpc.avatar_url ? `<img src="${escAttr(selectedNpc.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>` : (selectedNpc.hero_name?.[0] || "?");
+  document.getElementById("npc-compose-name").textContent = selectedNpc.hero_name;
+  document.getElementById("npc-compose-handle").textContent = "@" + selectedNpc.handle;
+  document.getElementById("npc-post-ta").focus();
+  renderNpcList(npcList.filter(n => {
+    const q = document.getElementById("npc-search")?.value || "";
+    const ff = document.getElementById("npc-faction-filter")?.value || "";
+    return (!q || n.hero_name.toLowerCase().includes(q.toLowerCase()) || n.handle.toLowerCase().includes(q.toLowerCase()))
+      && (!ff || n.faction === ff);
+  }));
+}
+
+function clearNpcSelection() {
+  selectedNpc = null;
+  document.getElementById("npc-compose-wrap").style.display = "none";
+  document.getElementById("npc-post-ta").value = "";
+  renderNpcList(npcList);
+}
+
+async function postAsNpc() {
+  if (!selectedNpc) return;
+  const content = document.getElementById("npc-post-ta")?.value.trim();
+  if (!content) { showToast("Write something first.", true); return; }
+  const btn = document.getElementById("npc-post-btn");
+  const status = document.getElementById("npc-post-status");
+  btn.disabled = true; btn.textContent = "Posting...";
+
+  const schedChk = document.getElementById("npc-schedule-chk")?.checked;
+  const schedDt = document.getElementById("npc-schedule-dt")?.value;
+
+  const row = { user_id: selectedNpc.id, content, is_ai: false, likes_count: 0 };
+  if (schedChk && schedDt) { row.scheduled_at = new Date(schedDt).toISOString(); row.is_draft = true; }
+
+  const { error } = await sb.from("posts").insert(row);
+  btn.disabled = false; btn.textContent = "📤 POST AS NPC";
+  if (error) { status.style.color = "var(--red)"; status.textContent = "Error: " + error.message; return; }
+
+  status.style.color = "var(--green)";
+  status.textContent = schedChk && schedDt ? `✓ Scheduled for ${fmtDateTime(new Date(schedDt).toISOString())}` : `✓ Posted as ${selectedNpc.hero_name}!`;
+  document.getElementById("npc-post-ta").value = "";
+  document.getElementById("npc-schedule-chk").checked = false;
+  document.getElementById("npc-schedule-row").style.display = "none";
+  setTimeout(() => { status.textContent = ""; }, 4000);
+  loadFeed();
+}
+
+async function createNpcAccount() {
+  const hero = document.getElementById("npc-hero")?.value.trim();
+  const handle = document.getElementById("npc-handle")?.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+  const real = document.getElementById("npc-real")?.value.trim();
+  const faction = document.getElementById("npc-faction")?.value;
+  const bio = document.getElementById("npc-bio")?.value.trim();
+  const status = document.getElementById("npc-create-status");
+
+  if (!hero || !handle) { status.style.color = "var(--red)"; status.textContent = "Hero name and handle required."; return; }
+
+  // Check handle uniqueness
+  const { data: taken } = await sb.from("profiles").select("id").eq("handle", handle).maybeSingle();
+  if (taken) { status.style.color = "var(--red)"; status.textContent = `Handle @${handle} is already taken.`; return; }
+
+  const color = OC_COLORS[Math.floor(Math.random() * OC_COLORS.length)];
+  const { error } = await sb.from("profiles").insert({
+    id: crypto.randomUUID(), handle, hero_name: hero, real_name: real || hero,
+    faction: faction || "Independent", bio: bio || "", color, is_admin: false, is_npc: true
+  });
+
+  if (error) { status.style.color = "var(--red)"; status.textContent = "Error: " + error.message; return; }
+  status.style.color = "var(--green)"; status.textContent = `✓ NPC @${handle} created!`;
+  document.getElementById("npc-hero").value = "";
+  document.getElementById("npc-handle").value = "";
+  document.getElementById("npc-real").value = "";
+  document.getElementById("npc-bio").value = "";
+  setTimeout(() => { status.textContent = ""; }, 3000);
+  loadNpcList();
+}
+
+async function bulkCreateNpcs() {
+  const raw = document.getElementById("npc-bulk-ta")?.value.trim();
+  const status = document.getElementById("npc-bulk-status");
+  if (!raw) return;
+  const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
+  status.textContent = `Creating ${lines.length} NPCs...`;
+  let created = 0, failed = 0;
+  for (const line of lines) {
+    const parts = line.split("|").map(p => p.trim());
+    const [hero, handle, real, faction, bio] = parts;
+    if (!hero || !handle) { failed++; continue; }
+    const cleanHandle = handle.toLowerCase().replace(/[^a-z0-9_]/g, "");
+    const { data: taken } = await sb.from("profiles").select("id").eq("handle", cleanHandle).maybeSingle();
+    if (taken) { failed++; continue; }
+    const color = OC_COLORS[Math.floor(Math.random() * OC_COLORS.length)];
+    const { error } = await sb.from("profiles").insert({
+      id: crypto.randomUUID(), handle: cleanHandle, hero_name: hero,
+      real_name: real || hero, faction: faction || "Independent",
+      bio: bio || "", color, is_admin: false, is_npc: true
+    });
+    if (error) failed++; else created++;
+  }
+  status.style.color = failed > 0 ? "var(--gold)" : "var(--green)";
+  status.textContent = `✓ ${created} created${failed > 0 ? `, ${failed} skipped (duplicate handles)` : ""}`;
+  document.getElementById("npc-bulk-ta").value = "";
+  setTimeout(() => { status.textContent = ""; }, 5000);
+  loadNpcList();
+}
+
+async function deleteNpc(id, name) {
+  if (!confirm(`Delete NPC "${name}"? This will also delete all their posts.`)) return;
+  await sb.from("posts").delete().eq("user_id", id);
+  await sb.from("profiles").delete().eq("id", id);
+  showToast(`NPC ${name} deleted`);
+  loadNpcList();
+  loadFeed();
+}
+
+async function confirmDeleteAllNpcs() {
+  if (!confirm(`Delete ALL NPC accounts and their posts? This cannot be undone.`)) return;
+  const ids = npcList.map(n => n.id);
+  if (!ids.length) return;
+  await sb.from("posts").delete().in("user_id", ids);
+  await sb.from("profiles").delete().eq("is_npc", true);
+  showToast("All NPCs deleted");
+  npcList = [];
+  selectedNpc = null;
+  document.getElementById("npc-compose-wrap").style.display = "none";
+  loadNpcList();
+  loadFeed();
+}
 
 // =====================================================
 // NOTIFICATIONS - filter by tab
