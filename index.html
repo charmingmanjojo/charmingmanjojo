@@ -3849,8 +3849,9 @@ async function handleSearch(q){
 // =====================================================
 function showPage(p){
   currentPage=p;
+  const pageDisplay={feed:"grid",intel:"block",dms:"block",admin:"block",search:"block",settings:"block",mail:"block",phone:"block",profile:"block"};
   ["feed","intel","dms","admin","search","settings","mail","phone","profile"].forEach(x=>{
-    const el=document.getElementById("page-"+x);if(el)el.style.display=x===p?"block":"none";
+    const el=document.getElementById("page-"+x);if(el)el.style.display=x===p?(pageDisplay[x]||"block"):"none";
   });
   ["feed","intel","dms","admin","settings","mail","phone"].forEach(x=>{const t=document.getElementById("tab-"+x);if(t)t.classList.toggle("active",x===p);});
   if(p==="intel")loadNewsFull();
