@@ -66,8 +66,16 @@ body.light-theme .profile-page-banner{filter:brightness(.9)}
 .profile-page-banner{width:100%;height:180px;border-radius:var(--radius);object-fit:cover;background:linear-gradient(135deg,var(--card),var(--card2));position:relative;overflow:hidden;margin-bottom:0}
 .profile-page-banner-img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius)}
 .profile-page-av-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:-36px;padding:0 16px 0}
-.profile-page-av{width:72px;height:72px;border-radius:50%;border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:22px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;position:relative}
+.profile-page-av{width:90px;height:90px;border-radius:50%;border:4px solid var(--bg);display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:26px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;position:relative}
 .profile-page-actions{display:flex;gap:7px;margin-bottom:8px}
+.pp-tabs{display:flex;border-bottom:1px solid var(--border);margin-top:14px}
+.pp-tab{flex:1;padding:12px 0;text-align:center;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);cursor:pointer;transition:.15s;border-bottom:2px solid transparent;font-family:'Barlow',sans-serif}
+.pp-tab:hover{color:var(--white);background:rgba(255,255,255,.03)}
+.pp-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.pp-media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:10px}
+.pp-media-item{aspect-ratio:1;overflow:hidden;cursor:pointer;border-radius:4px;background:var(--card2)}
+.pp-media-item img{width:100%;height:100%;object-fit:cover;transition:.2s}
+.pp-media-item:hover img{transform:scale(1.05)}
 .profile-page-info{padding:10px 16px 0}
 .profile-page-name{font-family:'Barlow',sans-serif;font-size:20px;font-weight:700;color:var(--white)}
 .profile-page-handle{font-size:13px;color:var(--muted);margin-top:1px}
@@ -2857,23 +2865,40 @@ async function refreshStation(sid, silent=false) {
       if(btn){btn.disabled=false;btn.textContent="⚡ REFRESH BROADCAST";}
       return;
     }
-    const txt = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
-    if(!txt){if(feedEl)feedEl.innerHTML=`<div class="empty"><div class="empty-ico">📡</div><p>Empty response — try again</p></div>`;if(btn){btn.disabled=false;btn.textContent="⚡ REFRESH BROADCAST";}return;}
-    const items = JSON.parse(txt);
+    let raw = (data.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
+    if(!raw){if(feedEl)feedEl.innerHTML=`<div class="empty"><div class="empty-ico">📡</div><p>Empty response — try again</p></div>`;if(btn){btn.disabled=false;btn.textContent="⚡ REFRESH BROADCAST";}return;}
+
+    // Robust JSON extraction
+    const arrStart = raw.indexOf("[");
+    const arrEnd = raw.lastIndexOf("]");
+    if (arrStart !== -1 && arrEnd > arrStart) raw = raw.slice(arrStart, arrEnd + 1);
+    raw = raw.replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'\\"').replace(/[\u2013\u2014]/g,"-").replace(/[\r\n]+/g,"\\n");
+
+    let items;
+    try {
+      items = JSON.parse(raw);
+    } catch(pe) {
+      const recovered = [];
+      const tagRx = /"tag"\s*:\s*"([^"]+)"/;
+      const textRx = /"text"\s*:\s*"((?:[^"\\]|\\.)*)"/;
+      raw.split(/\},?\s*\{/).forEach(chunk => {
+        const tm = chunk.match(tagRx); const xm = chunk.match(textRx);
+        if (tm && xm) recovered.push({ tag: tm[1], text: xm[1].replace(/\\n/g,"\n") });
+      });
+      if (recovered.length) { items = recovered; }
+      else { throw new Error("Could not parse broadcast data."); }
+    }
 
     // Delete old entries for this station, then insert new ones
     await sb.from("broadcasts").delete().eq("station_id", sid);
-    const rows = items.map(item => ({
-      station_id: sid,
-      tag: item.tag,
-      text: item.text
-    }));
+    const rows = items.map(item => ({ station_id: sid, tag: item.tag, text: item.text }));
     const {data: saved} = await sb.from("broadcasts").insert(rows).select();
     renderBroadcastItems(saved || items, feedEl);
     if (btn) btn.title = "Live for ~120 more min";
     showToast("Broadcast updated — all users can see this!");
   } catch(e) {
-    if (feedEl) feedEl.innerHTML = `<div class="empty"><div class="empty-ico">📡</div><p>Broadcast signal lost</p></div>`;
+    console.error("Station refresh error:", e);
+    if (feedEl) feedEl.innerHTML = `<div class="empty"><div class="empty-ico">📡</div><p>Broadcast signal lost — ${e.message||"try again"}</p></div>`;
   }
   if (btn) { btn.disabled=false; btn.textContent="⚡ REFRESH BROADCAST"; }
 }
@@ -3442,7 +3467,8 @@ async function loadAIFeed(){
     const data=await resp.json();
     if(!resp.ok){
       const errMsg=data?.error?.message||`API error ${resp.status}`;
-      showToast(`API error: ${errMsg}`,true);
+      const hint = resp.status===401?" — Check your API key in Admin panel":"";
+      showToast(`API error: ${errMsg}${hint}`,true);
       btn.disabled=false;btn.innerHTML="<span>⚡</span> CITIZEN FEED";
       return;
     }
@@ -5833,12 +5859,12 @@ async function showProfilePage(userId) {
   if (!wrap) return;
   wrap.innerHTML = '<div class="loading-state"><div class="spinner"></div>LOADING PROFILE</div>';
 
-  const [{ data: u }, { count: postCount }, { data: posts }, { data: followers }, { data: following }] = await Promise.all([
+  const [{ data: u }, { count: postCount }, { data: posts }, { count: followersCount }, { count: followingCount }] = await Promise.all([
     sb.from("profiles").select("*").eq("id", userId).single(),
     sb.from("posts").select("*", { count: "exact", head: true }).eq("user_id", userId),
     sb.from("posts").select("*,profiles(*),likes(user_id),comments(*,profiles(hero_name,color,handle))").eq("user_id", userId).order("created_at", { ascending: false }).limit(40),
-    sb.from("follows").select("follower_id", { count: "exact", head: true }).eq("following_id", userId),
-    sb.from("follows").select("following_id", { count: "exact", head: true }).eq("follower_id", userId),
+    sb.from("follows").select("*", { count: "exact", head: true }).eq("following_id", userId),
+    sb.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", userId),
   ]);
   if (!u) { wrap.innerHTML = '<div class="loading-state">Profile not found.</div>'; return; }
 
@@ -5849,24 +5875,22 @@ async function showProfilePage(userId) {
 
   const bannerHtml = u.banner_url
     ? `<img class="profile-page-banner-img" src="${escAttr(u.banner_url)}"/>`
-    : `<div style="width:100%;height:100%;background:linear-gradient(135deg,${u.color||"#1d2d44"},${u.color||"#1d2d44"}44)"></div>`;
+    : `<div style="width:100%;height:100%;background:linear-gradient(135deg,${u.color||"#1d2d44"}cc,${u.color||"#0a0f1a"}44)"></div>`;
 
   const avHtml = u.avatar_url
     ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>`
     : u.hero_name[0];
 
-  const postsHtml = (posts||[]).map(p => {
-    p.profiles = p.profiles || u;
-    return renderPost(p);
-  }).join("");
+  const allPosts = posts || [];
+  const mediaPosts = allPosts.filter(p => p.image_url);
 
   wrap.innerHTML = `
-    <button class="profile-page-back" onclick="history.back();showPage('feed')">← Back</button>
+    <button class="profile-page-back" onclick="showPage('feed')">← Back</button>
     <div class="profile-page-banner">${bannerHtml}</div>
     <div class="profile-page-av-row">
       <div class="profile-page-av" style="background:${u.avatar_url?"transparent":u.color}">
         ${avHtml}
-        <div class="online-dot ${online?"on":"off"}" style="position:absolute;bottom:3px;right:3px;width:12px;height:12px" title="${online?"Online now":("Last seen "+timeAgo(u.last_seen))}"></div>
+        <div class="online-dot ${online?"on":"off"}" style="position:absolute;bottom:4px;right:4px;width:13px;height:13px;border:2px solid var(--bg)" title="${online?"Online now":("Last seen "+timeAgo(u.last_seen))}"></div>
       </div>
       <div class="profile-page-actions">
         ${isOwn
@@ -5881,7 +5905,7 @@ async function showProfilePage(userId) {
         ${online ? '<span style="font-size:11px;color:var(--green);font-family:Barlow,sans-serif;font-weight:400;margin-left:6px">● online</span>' : ""}
       </div>
       <div class="profile-page-handle">@${escHtml(u.handle)}</div>
-      ${u.real_name ? `<div style="font-size:12px;color:var(--muted);margin-top:2px">${escHtml(u.real_name)}</div>` : ""}
+      ${u.real_name && u.real_name !== u.hero_name ? `<div style="font-size:12px;color:var(--muted);margin-top:2px">${escHtml(u.real_name)}</div>` : ""}
       ${u.bio ? `<div class="profile-page-bio">${escHtml(u.bio)}</div>` : ""}
       <div class="profile-page-meta">
         <span class="fc-badge" style="background:${fc}22;color:${fc};border:1px solid ${fc}44;font-size:10px;padding:3px 10px">${escHtml(u.faction||"Independent")}</span>
@@ -5891,13 +5915,57 @@ async function showProfilePage(userId) {
       </div>
     </div>
     <div class="profile-page-stats">
-      <div class="profile-page-stat"><div class="profile-page-stat-n">${postCount||0}</div><div class="profile-page-stat-l">Posts</div></div>
-      <div class="profile-page-stat"><div class="profile-page-stat-n">${followers?.count||0}</div><div class="profile-page-stat-l">Followers</div></div>
-      <div class="profile-page-stat"><div class="profile-page-stat-n">${following?.count||0}</div><div class="profile-page-stat-l">Following</div></div>
+      <div class="profile-page-stat" style="cursor:pointer" onclick="ppShowTab('posts')"><div class="profile-page-stat-n">${postCount||0}</div><div class="profile-page-stat-l">Posts</div></div>
+      <div class="profile-page-stat"><div class="profile-page-stat-n">${followersCount||0}</div><div class="profile-page-stat-l">Followers</div></div>
+      <div class="profile-page-stat"><div class="profile-page-stat-n">${followingCount||0}</div><div class="profile-page-stat-l">Following</div></div>
     </div>
-    <div class="profile-page-posts" id="profile-page-posts">
-      ${postsHtml || '<div class="empty"><div class="empty-ico">📡</div><p>No posts yet</p></div>'}
+    <div class="pp-tabs">
+      <div class="pp-tab active" id="pp-tab-posts" onclick="ppShowTab('posts')">POSTS</div>
+      <div class="pp-tab" id="pp-tab-media" onclick="ppShowTab('media')">MEDIA <span style="opacity:.5;font-size:9px">${mediaPosts.length}</span></div>
+      <div class="pp-tab" id="pp-tab-likes" onclick="ppShowTab('likes')">LIKES</div>
+    </div>
+    <div id="pp-panel-posts" class="profile-page-posts">
+      ${allPosts.length ? allPosts.map(p => { p.profiles = p.profiles || u; return renderPost(p); }).join("") : '<div class="empty"><div class="empty-ico">📡</div><p>No posts yet</p></div>'}
+    </div>
+    <div id="pp-panel-media" style="display:none">
+      ${mediaPosts.length
+        ? `<div class="pp-media-grid">${mediaPosts.map(p=>`<div class="pp-media-item" onclick="openPostDetail('${p.id}')"><img src="${escAttr(p.image_url)}" loading="lazy"/></div>`).join("")}</div>`
+        : '<div class="empty"><div class="empty-ico">🖼</div><p>No media posts yet</p></div>'}
+    </div>
+    <div id="pp-panel-likes" style="display:none">
+      <div class="loading-state" id="pp-likes-loader"><div class="spinner"></div>LOADING LIKES</div>
     </div>`;
+
+  // Async-load likes tab
+  ppLoadLikes(userId, u);
+}
+
+async function ppLoadLikes(userId, u) {
+  const panel = document.getElementById("pp-panel-likes");
+  if (!panel) return;
+  try {
+    const { data: likedRows } = await sb.from("likes").select("post_id").eq("user_id", userId).order("created_at", { ascending: false }).limit(30);
+    if (!likedRows || likedRows.length === 0) {
+      panel.innerHTML = '<div class="empty"><div class="empty-ico">❤️</div><p>No liked posts yet</p></div>';
+      return;
+    }
+    const ids = likedRows.map(r => r.post_id);
+    const { data: likedPosts } = await sb.from("posts").select("*,profiles(*),likes(user_id),comments(*,profiles(hero_name,color,handle))").in("id", ids);
+    panel.innerHTML = (likedPosts && likedPosts.length)
+      ? `<div class="profile-page-posts">${likedPosts.map(p => renderPost(p)).join("")}</div>`
+      : '<div class="empty"><div class="empty-ico">❤️</div><p>No liked posts found</p></div>';
+  } catch(e) {
+    panel.innerHTML = '<div class="empty"><div class="empty-ico">❤️</div><p>Could not load likes</p></div>';
+  }
+}
+
+function ppShowTab(tab) {
+  ["posts","media","likes"].forEach(t => {
+    const tabEl = document.getElementById("pp-tab-"+t);
+    const panelEl = document.getElementById("pp-panel-"+t);
+    if (tabEl) tabEl.classList.toggle("active", t === tab);
+    if (panelEl) panelEl.style.display = (t === tab ? "" : "none");
+  });
 }
 
 </script>
