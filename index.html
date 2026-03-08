@@ -5403,30 +5403,44 @@ async function openTextThread(uid, name, color, avatarUrl) {
     ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>`
     : name[0];
 
-  // Mark incoming messages as read
+  // Mark incoming messages as read (accounting for NPC identity)
   await sb.from("phone_texts").update({ is_read: true })
     .eq("sender_id", uid).eq("receiver_id", currentProfile.id).eq("is_read", false);
 
+  // Determine all "my side" sender IDs — my real account + any NPC profile I control
+  const mySenderIds = [currentProfile.id];
+  if (phoneActingAsNpc && currentProfile.is_admin) {
+    const npcProf = await ensureNpcHasProfile(phoneActingAsNpc);
+    if (npcProf) mySenderIds.push(npcProf.id);
+  }
+
+  // Build query: all messages between (any of my IDs) and uid in either direction
+  const myIdList = mySenderIds.join(",");
   const { data: msgs } = await sb.from("phone_texts")
     .select("*")
-    .or(`and(sender_id.eq.${currentProfile.id},receiver_id.eq.${uid}),and(sender_id.eq.${uid},receiver_id.eq.${currentProfile.id})`)
+    .or(`and(sender_id.in.(${myIdList}),receiver_id.eq.${uid}),and(sender_id.eq.${uid},receiver_id.in.(${myIdList}))`)
     .order("created_at", { ascending: true });
 
   // Find last sent message to show "Seen" if read
   let lastSentIdx = -1;
-  (msgs || []).forEach((m, i) => { if (m.sender_id === currentProfile.id) lastSentIdx = i; });
+  (msgs || []).forEach((m, i) => { if (mySenderIds.includes(m.sender_id)) lastSentIdx = i; });
 
   const msgsHtml = (msgs || []).map((m, i) => {
-    const mine = m.sender_id === currentProfile.id;
+    const mine = mySenderIds.includes(m.sender_id);
     const showSeen = mine && i === lastSentIdx && m.is_read;
     const replyQuote = m.reply_to_content
       ? `<div class="reply-quote">↩ ${escHtml(m.reply_to_content.substring(0,60))}</div>` : "";
     const imgBubble = m.image_url ? `<div onclick="openLightbox('${escAttr(m.image_url)}')" style="cursor:pointer;margin-bottom:3px"><img src="${escAttr(m.image_url)}" style="max-width:200px;max-height:180px;border-radius:10px;object-fit:cover;display:block"/></div>` : "";
+    // If this message was sent by an NPC (either via npc_sender_name tag or npc profile id)
+    const isNpcMsg = !mine && false; // other side only
+    const npcLabel = mine && (m.npc_sender_name || (phoneActingAsNpc && m.sender_id !== currentProfile.id))
+      ? (m.npc_sender_name || phoneActingAsNpc?.hero_name) : null;
     return `<div class="phone-msg-row${mine ? " mine" : ""}" id="pmsg-${m.id}">
       <div>
+        ${npcLabel ? `<div style="font-size:9px;color:var(--gold);letter-spacing:.5px;margin-bottom:2px;font-weight:700">📱 ${escHtml(npcLabel)}</div>` : ""}
         ${replyQuote}
         ${imgBubble}
-        ${m.content ? `<div class="phone-bubble" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>` : ""}
+        ${m.content ? `<div class="phone-bubble${m.npc_sender_name ? ' sent-npc' : ''}" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>` : ""}
         <div class="phone-msg-time">${fmtDateTime(m.created_at)}${showSeen ? ' <span class="msg-read">✓ Seen</span>' : ''}</div>
       </div>
     </div>`;
@@ -5568,7 +5582,21 @@ async function sendText(toId) {
     clearPhoneImg();
   }
   const { error } = await sb.from("phone_texts").insert(row);
-  if (error) { showToast("Failed to send: " + error.message, true); return; }
+  if (error) {
+    if (error.code === "42501" || error.message.includes("policy") || error.message.includes("violates")) {
+      // RLS blocked NPC send — likely NPC profile row missing or RLS doesn't allow it
+      // Fall back to sending as real user but tag message with NPC metadata
+      const fallbackRow = { ...row, sender_id: currentProfile.id,
+        npc_sender_name: phoneActingAsNpc?.hero_name || null,
+        npc_sender_color: phoneActingAsNpc?.color || null,
+        npc_sender_avatar: phoneActingAsNpc?.avatar_url || null
+      };
+      const { error: err2 } = await sb.from("phone_texts").insert(fallbackRow);
+      if (err2) { showToast("Failed to send: " + err2.message, true); return; }
+    } else {
+      showToast("Failed to send: " + error.message, true); return;
+    }
+  }
   openTextThread(toId, phoneSelectedUserName, phoneSelectedUserColor, phoneSelectedUserAvatar);
   loadPhoneContacts();
 }
