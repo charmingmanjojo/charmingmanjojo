@@ -5116,6 +5116,84 @@ let callStartTime = null;
 let incomingCallId = null;
 let phoneActingAsNpc = null; // NPC identity for admin phone
 
+// ── NPC Phone Bar ──
+async function populatePhoneNpcSelect() {
+  const bar = document.getElementById("phone-npc-bar");
+  const sel = document.getElementById("phone-npc-select");
+  if (!bar || !sel) return;
+  if (!currentProfile?.is_admin) { bar.style.display = "none"; return; }
+  bar.style.display = "";
+  const { data: npcs } = await sb.from("npcs").select("id,hero_name,handle,color,avatar_url").order("hero_name");
+  sel.innerHTML = '<option value="">— Yourself —</option>';
+  (npcs || []).forEach(n => {
+    const opt = document.createElement("option");
+    opt.value = n.id;
+    opt.textContent = n.hero_name + " (@" + (n.handle || n.id) + ")";
+    sel.appendChild(opt);
+  });
+  if (phoneActingAsNpc) sel.value = phoneActingAsNpc.id;
+}
+
+function selectPhoneNpc(npcId) {
+  const indicator = document.getElementById("phone-npc-indicator");
+  const clearBtn = document.getElementById("phone-npc-clear");
+  if (!npcId) {
+    phoneActingAsNpc = null;
+    if (indicator) { indicator.style.display = "none"; indicator.textContent = ""; }
+    if (clearBtn) clearBtn.style.display = "none";
+    showToast("Acting as yourself");
+    loadPhoneContacts();
+    return;
+  }
+  sb.from("npcs").select("*").eq("id", npcId).single().then(({ data }) => {
+    if (!data) { showToast("NPC not found", true); return; }
+    phoneActingAsNpc = data;
+    if (indicator) { indicator.style.display = ""; indicator.textContent = "Acting as: " + data.hero_name; }
+    if (clearBtn) clearBtn.style.display = "";
+    showToast("📱 Now acting as " + data.hero_name);
+    loadPhoneContacts();
+  });
+}
+
+function clearPhoneNpc() {
+  phoneActingAsNpc = null;
+  const sel = document.getElementById("phone-npc-select");
+  const indicator = document.getElementById("phone-npc-indicator");
+  const clearBtn = document.getElementById("phone-npc-clear");
+  if (sel) sel.value = "";
+  if (indicator) { indicator.style.display = "none"; indicator.textContent = ""; }
+  if (clearBtn) clearBtn.style.display = "none";
+  showToast("Acting as yourself again");
+  loadPhoneContacts();
+}
+
+// ── Ensure an NPC has a matching profile row (for sender_id FK) ──
+async function ensureNpcHasProfile(npc) {
+  if (!npc) return null;
+  // First try by handle
+  const { data: byHandle } = await sb.from("profiles").select("*").eq("handle", npc.handle).maybeSingle();
+  if (byHandle) return byHandle;
+  // Try by id
+  const { data: byId } = await sb.from("profiles").select("*").eq("id", npc.id).maybeSingle();
+  if (byId) return byId;
+  // Create a synthetic profile row for this NPC
+  const { data: created, error } = await sb.from("profiles").insert({
+    id: npc.id,
+    hero_name: npc.hero_name,
+    handle: npc.handle || ("npc_" + npc.id.slice(0,8)),
+    color: npc.color || "#888",
+    avatar_url: npc.avatar_url || null,
+    is_npc: true,
+    bio: npc.bio || "",
+    faction: npc.faction || ""
+  }).select().single();
+  if (error) {
+    console.warn("ensureNpcHasProfile insert error:", error.message);
+    return null;
+  }
+  return created;
+}
+
 // ── Fetch contacts (people you follow OR follow you) ──
 function generatePhoneNumber() {
   // NYC area codes — 4 digits only after code so it's clearly fictional
