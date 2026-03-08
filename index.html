@@ -2154,31 +2154,6 @@ let currentFeedTab = 'all';
 let draftContent = '';
 let draftTimer = null;
 
-async function loadNotifications() {
-  const { data } = await sb.from("notifications")
-    .select("*,from_user:profiles!notifications_from_user_id_fkey(id,hero_name,color,avatar_url)")
-    .eq("user_id", currentProfile.id)
-    .order("created_at", {ascending:false})
-    .limit(30);
-  const unread = (data||[]).filter(n=>!n.read).length;
-  const badge = document.getElementById("notif-badge");
-  if (badge) { badge.style.display = unread > 0 ? "flex" : "none"; badge.textContent = unread > 9 ? "9+" : unread; }
-  const list = document.getElementById("notif-list");
-  if (!list) return;
-  if (!data?.length) { list.innerHTML = '<div class="notif-empty">Nothing here yet</div>'; return; }
-  const icons = {like:"❤️",comment:"💬",dm:"📨",mention:"@",follow:"👤",reaction:"✨"};
-  list.innerHTML = data.map(n => {
-    const u = n.from_user;
-    const av = u?.avatar_url ? '<img src="'+escAttr(u.avatar_url)+'" style="width:100%;height:100%;object-fit:cover"/>' : (u?.hero_name?.[0]||"?");
-    return '<div class="notif-item'+(n.read?'':' unread')+'" onclick="handleNotifClick(\''+n.id+'\',\''+n.type+'\',\''+( n.post_id||'')+'\',\''+( n.from_user_id||'')+'\')">'+
-      '<div class="notif-av" style="background:'+(u?.color||'#555')+'">'+av+'</div>'+
-      '<div style="flex:1"><div class="notif-text"><span class="notif-type-icon">'+( icons[n.type]||"🔔")+'</span>'+
-        '<strong>'+(u?.hero_name||"Someone")+'</strong> '+describeNotif(n)+'</div>'+
-        '<div class="notif-time">'+timeAgo(n.created_at)+'</div></div>'+
-    '</div>';
-  }).join("");
-}
-
 function describeNotif(n) {
   if (n.type==="like") return "liked your post";
   if (n.type==="comment") return "commented: "+escH(n.message||"");
@@ -3794,7 +3769,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")closeLightbox();});
 // =====================================================
 // POST SUBMIT WITH IMAGE
 // =====================================================
-async function submitPost(asScheduled=false){
+async function _baseSubmitPost(asScheduled=false){
   const content=document.getElementById("compose-ta").value.trim();
   if(!content&&!pendingImageB64){showToast("Write something or attach an image.",true);return;}
   // Scheduling
@@ -4668,13 +4643,6 @@ function showToast(msg,err=false){
   setTimeout(()=>t.classList.remove("show"),3400);
 }
 
-async function doLogout(){
-  await sb.auth.signOut();
-  currentUser=null;currentProfile=null;
-  document.getElementById("app").style.display="none";
-  document.getElementById("tab-admin").style.display="none";
-  showScreen("login-screen");
-}
 
 function togglePass(id,btn){
   const inp=document.getElementById(id);
@@ -5403,44 +5371,52 @@ async function openTextThread(uid, name, color, avatarUrl) {
     ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>`
     : name[0];
 
-  // Mark incoming messages as read (accounting for NPC identity)
+  // Check if incoming messages from uid were sent as NPC — if so override display name
+  // (we look at the most recent message from uid to get the NPC identity)
+  let threadDisplayName = phoneContactDisplayName || name;
+  let threadDisplayColor = color;
+  let threadDisplayAv = av;
+
+  // Mark incoming messages as read
   await sb.from("phone_texts").update({ is_read: true })
     .eq("sender_id", uid).eq("receiver_id", currentProfile.id).eq("is_read", false);
 
-  // Determine all "my side" sender IDs — my real account + any NPC profile I control
-  const mySenderIds = [currentProfile.id];
-  if (phoneActingAsNpc && currentProfile.is_admin) {
-    const npcProf = await ensureNpcHasProfile(phoneActingAsNpc);
-    if (npcProf) mySenderIds.push(npcProf.id);
-  }
-
-  // Build query: all messages between (any of my IDs) and uid in either direction
-  const myIdList = mySenderIds.join(",");
+  // sender_id is always the real user's id — query is straightforward
   const { data: msgs } = await sb.from("phone_texts")
     .select("*")
-    .or(`and(sender_id.in.(${myIdList}),receiver_id.eq.${uid}),and(sender_id.eq.${uid},receiver_id.in.(${myIdList}))`)
+    .or(`and(sender_id.eq.${currentProfile.id},receiver_id.eq.${uid}),and(sender_id.eq.${uid},receiver_id.eq.${currentProfile.id})`)
     .order("created_at", { ascending: true });
 
   // Find last sent message to show "Seen" if read
   let lastSentIdx = -1;
-  (msgs || []).forEach((m, i) => { if (mySenderIds.includes(m.sender_id)) lastSentIdx = i; });
+  (msgs || []).forEach((m, i) => { if (m.sender_id === currentProfile.id) lastSentIdx = i; });
 
   const msgsHtml = (msgs || []).map((m, i) => {
-    const mine = mySenderIds.includes(m.sender_id);
+    const mine = m.sender_id === currentProfile.id;
     const showSeen = mine && i === lastSentIdx && m.is_read;
     const replyQuote = m.reply_to_content
       ? `<div class="reply-quote">↩ ${escHtml(m.reply_to_content.substring(0,60))}</div>` : "";
     const imgBubble = m.image_url ? `<div onclick="openLightbox('${escAttr(m.image_url)}')" style="cursor:pointer;margin-bottom:3px"><img src="${escAttr(m.image_url)}" style="max-width:200px;max-height:180px;border-radius:10px;object-fit:cover;display:block"/></div>` : "";
-    // If this message was sent by an NPC (either via npc_sender_name tag or npc profile id)
-    const isNpcMsg = !mine && false; // other side only
-    const npcLabel = mine && (m.npc_sender_name || (phoneActingAsNpc && m.sender_id !== currentProfile.id))
-      ? (m.npc_sender_name || phoneActingAsNpc?.hero_name) : null;
+    // Determine display identity for this bubble
+    // On admin's side: mine=true, npc_sender_name shows gold label
+    // On receiver's side: mine=false, npc_sender_name overrides who it looks like it came from
+    const npcLabel = mine && m.npc_sender_name ? m.npc_sender_name : null;
+    const bubbleClass = (m.npc_sender_name && mine) ? " sent-npc" : "";
+    // For incoming messages that came from an NPC impersonation, show NPC identity
+    const incomingNpcName = !mine && m.npc_sender_name ? m.npc_sender_name : null;
+    const incomingNpcColor = !mine && m.npc_sender_color ? m.npc_sender_color : null;
+    const incomingNpcAvatar = !mine && m.npc_sender_avatar ? m.npc_sender_avatar : null;
+    const incomingAv = incomingNpcAvatar
+      ? `<img src="${escAttr(incomingNpcAvatar)}" style="width:100%;height:100%;object-fit:cover"/>`
+      : incomingNpcName ? incomingNpcName[0] : null;
     return `<div class="phone-msg-row${mine ? " mine" : ""}" id="pmsg-${m.id}">
-      <div>
-        ${npcLabel ? `<div style="font-size:9px;color:var(--gold);letter-spacing:.5px;margin-bottom:2px;font-weight:700">📱 ${escHtml(npcLabel)}</div>` : ""}
+      ${!mine ? `<div style="width:26px;height:26px;border-radius:50%;background:${incomingNpcColor||color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;align-self:flex-end;margin-bottom:14px">${incomingAv||av}</div>` : ""}
+      <div style="max-width:75%">
+        ${incomingNpcName ? `<div style="font-size:9px;color:var(--gold);letter-spacing:.5px;margin-bottom:2px;font-weight:700">${escHtml(incomingNpcName)}</div>` : ""}
+        ${npcLabel ? `<div style="font-size:9px;color:var(--gold);letter-spacing:.5px;margin-bottom:2px;font-weight:700;text-align:right">📱 ${escHtml(npcLabel)}</div>` : ""}
         ${replyQuote}
         ${imgBubble}
-        ${m.content ? `<div class="phone-bubble${m.npc_sender_name ? ' sent-npc' : ''}" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>` : ""}
+        ${m.content ? `<div class="phone-bubble${bubbleClass}" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>` : ""}
         <div class="phone-msg-time">${fmtDateTime(m.created_at)}${showSeen ? ' <span class="msg-read">✓ Seen</span>' : ''}</div>
       </div>
     </div>`;
@@ -5558,15 +5534,22 @@ async function sendText(toId) {
   const content = inp?.value.trim();
   if (!content && !pendingPhoneImgB64) return;
   inp.value = ""; inp.style.height = "auto";
-  let effectiveSenderId = currentProfile.id;
-  // If admin is acting as NPC, route through NPC's profile
-  if (phoneActingAsNpc && currentProfile.is_admin) {
-    const npcProf = await ensureNpcHasProfile(phoneActingAsNpc);
-    if (npcProf) effectiveSenderId = npcProf.id;
-  }
-  const row = { sender_id: effectiveSenderId, receiver_id: toId, content: content || "", is_read: false };
+
+  // Always send as auth.uid() — RLS requires this.
+  // Store NPC identity in dedicated columns so receiver sees correct name/avatar.
+  const npc = (phoneActingAsNpc && currentProfile.is_admin) ? phoneActingAsNpc : null;
+  const row = {
+    sender_id: currentProfile.id,
+    receiver_id: toId,
+    content: content || "",
+    is_read: false,
+    npc_sender_name: npc ? (npc.hero_name || null) : null,
+    npc_sender_color: npc ? (npc.color || null) : null,
+    npc_sender_avatar: npc ? (npc.avatar_url || null) : null
+  };
   if (phoneReplyContent) row.reply_to_content = phoneReplyContent;
   clearReply();
+
   // Upload image if pending
   if (pendingPhoneImgB64) {
     try {
@@ -5581,22 +5564,9 @@ async function sendText(toId) {
     } catch(e) { console.warn("Phone img upload failed", e); }
     clearPhoneImg();
   }
+
   const { error } = await sb.from("phone_texts").insert(row);
-  if (error) {
-    if (error.code === "42501" || error.message.includes("policy") || error.message.includes("violates")) {
-      // RLS blocked NPC send — likely NPC profile row missing or RLS doesn't allow it
-      // Fall back to sending as real user but tag message with NPC metadata
-      const fallbackRow = { ...row, sender_id: currentProfile.id,
-        npc_sender_name: phoneActingAsNpc?.hero_name || null,
-        npc_sender_color: phoneActingAsNpc?.color || null,
-        npc_sender_avatar: phoneActingAsNpc?.avatar_url || null
-      };
-      const { error: err2 } = await sb.from("phone_texts").insert(fallbackRow);
-      if (err2) { showToast("Failed to send: " + err2.message, true); return; }
-    } else {
-      showToast("Failed to send: " + error.message, true); return;
-    }
-  }
+  if (error) { showToast("Failed to send: " + error.message, true); return; }
   openTextThread(toId, phoneSelectedUserName, phoneSelectedUserColor, phoneSelectedUserAvatar);
   loadPhoneContacts();
 }
@@ -5916,6 +5886,12 @@ async function openCallDetail(callId, name, color, avatarUrl, otherUserId) {
   const av = avatarUrl
     ? `<img src="${escAttr(avatarUrl)}" style="width:100%;height:100%;object-fit:cover"/>`
     : name[0];
+
+  // Check if incoming messages from uid were sent as NPC — if so override display name
+  // (we look at the most recent message from uid to get the NPC identity)
+  let threadDisplayName = phoneContactDisplayName || name;
+  let threadDisplayColor = color;
+  let threadDisplayAv = av;
 
   const linesHtml = transcript.length
     ? transcript.map(l => {
@@ -6642,10 +6618,8 @@ async function castPollVote(postId, pollId, optionIndex) {
   } catch(e) { showToast("Poll voting not available.", true); }
 }
 
-// Override submitPost to attach polls
-const _origSubmitPost = submitPost;
+// submitPost: wraps _baseSubmitPost to handle polls
 async function submitPost(asScheduled=false) {
-  // If poll is active, validate options before calling original
   if (pollActive && !asScheduled) {
     const options = [];
     for (let i=0;i<pollOptionsCount;i++){
@@ -6653,12 +6627,11 @@ async function submitPost(asScheduled=false) {
       if (val) options.push(val);
     }
     if (options.length < 2) { showToast("Add at least 2 poll options.", true); return; }
-    // Store poll data to be inserted after post creation
     window._pendingPoll = { options, duration: parseInt(document.getElementById("poll-duration")?.value||"3") };
   } else {
     window._pendingPoll = null;
   }
-  await _origSubmitPost(asScheduled);
+  await _baseSubmitPost(asScheduled);
 }
 
 // Hook into post insert to add poll after
