@@ -3011,8 +3011,8 @@ async function renderMusicStation(s) {
         '<div style="font-size:9px;color:var(--muted)">▶ Now shuffling</div>' +
       '</div>' +
       '<button onclick="renderMusicStation(STATIONS.find(x=>x.id===\'' + s.id + '\'))" title="Shuffle to a different track" style="background:rgba(59,130,246,.12);border:1px solid var(--border);color:var(--accent);border-radius:var(--radius-btn);padding:3px 10px;font-size:9px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.5px">⇄ SKIP</button>' +
-      '<div style="overflow:hidden;height:0;width:0">' +
-        '<iframe src="' + embedUrl + '" width="1" height="1" style="border:none" allow="autoplay;encrypted-media" loading="lazy"></iframe>' +
+      '<div style="flex:0 0 auto;overflow:hidden;height:32px;width:60px;border-radius:4px">' +
+        '<iframe src="' + embedUrl + '" width="60" height="32" style="border:none;display:block;opacity:0.01" allow="autoplay;encrypted-media" loading="lazy"></iframe>' +
       '</div>';
   }
 
