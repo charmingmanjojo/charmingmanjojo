@@ -3493,7 +3493,7 @@ function renderPost(p){
       <div class="post-hd">
         <div class="p-av" style="background:${u.avatar_url?'transparent':u.color};cursor:pointer;position:relative" onclick="showProfilePage('${p.user_id}')">${avHtml||u.hero_name[0]}${onlineDotHtml}</div>
         <div class="post-meta">
-          <div class="post-name" style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">${u.hero_name}${u.is_verified?'<span class="verified-badge" title="Verified"></span>':''}${u.is_npc&&isAdmin?` <span style="font-size:9px;color:var(--gold);font-family:Barlow,sans-serif;opacity:.7">[NPC]</span>`:''}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
+          <div class="post-name" style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">${u.hero_name}${(u.is_verified||u.is_npc&&u.is_verified)?'<span class="verified-badge gold" title="Verified"></span>':''}${u.is_npc&&isAdmin?` <span style="font-size:9px;color:var(--gold);font-family:Barlow,sans-serif;opacity:.7">[NPC]</span>`:''}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
           <div class="post-sub"><span style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
         </div>
         ${delBtn}
@@ -5713,30 +5713,57 @@ function renderNpcManageList(npcs) {
   if (!npcs.length) { el.innerHTML = ""; return; }
   el.innerHTML = npcs.map(n => {
     const av = n.avatar_url ? `<img src="${escAttr(n.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : (n.hero_name?.[0]||"?");
+    const verified = !!n.is_verified;
     return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);background:rgba(0,0,0,.2)">
-      <div onclick="npcAvatarUpload('${n.id}')" title="Click to change photo" style="width:34px;height:34px;border-radius:50%;background:${n.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;position:relative;border:2px solid transparent;transition:.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='transparent'" id="npc-av-${n.id}">${av}</div>
+      <div onclick="npcAvatarUpload('${n.id}')" title="Click to change photo" style="width:36px;height:36px;border-radius:50%;background:${n.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.opacity='.8'" onmouseout="this.style.borderColor='transparent';this.style.opacity='1'" id="npc-av-${n.id}">${av}</div>
       <div style="flex:1;min-width:0">
         <span style="font-size:12px;font-weight:700;color:var(--text)">${escH(n.hero_name)}</span>
-        <span style="font-size:10px;color:var(--muted);margin-left:5px">@${escH(n.handle)}</span>
+        ${verified ? '<span class="verified-badge gold" title="Verified" style="width:13px;height:13px;font-size:8px;margin-left:3px;vertical-align:middle"></span>' : ""}
+        <span style="font-size:10px;color:var(--muted);margin-left:4px">@${escH(n.handle)}</span>
       </div>
+      <button class="abtn sm" style="font-size:9px" onclick="npcToggleVerified('${n.id}',${verified})">${verified ? "✓ UNVERIFY" : "✓ VERIFY"}</button>
       <button class="abtn sm" style="font-size:9px" onclick="selectNpcForPost('${n.id}')">POST AS</button>
       <button class="abtn danger sm" style="font-size:9px" onclick="deleteNpc('${n.id}','${escAttr(n.hero_name)}')">✕</button>
     </div>`;
   }).join("");
 }
 
+async function npcToggleVerified(npcId, current) {
+  const { error } = await sb.from("npcs").update({ is_verified: !current }).eq("id", npcId);
+  if (error) {
+    if (error.message.includes("is_verified") || error.code === "42703") {
+      showToast("Run: ALTER TABLE npcs ADD COLUMN IF NOT EXISTS is_verified boolean DEFAULT false;", true);
+    } else { showToast("Error: " + error.message, true); }
+    return;
+  }
+  const npc = npcList.find(n => n.id === npcId);
+  if (npc) npc.is_verified = !current;
+  showToast(!current ? `✓ ${npc?.hero_name} verified` : "Verification removed");
+  renderNpcManageList(npcList);
+  renderNpcList(npcList);
+}
+
 function npcAvatarUpload(npcId) {
+  // Remove any previous hidden input
+  const old = document.getElementById("npc-av-input");
+  if (old) old.remove();
+
   const input = document.createElement("input");
   input.type = "file";
+  input.id = "npc-av-input";
   input.accept = "image/jpeg,image/png,image/gif,image/webp";
+  input.style.cssText = "position:fixed;top:-999px;left:-999px;opacity:0;width:1px;height:1px";
+  document.body.appendChild(input);
+
   input.onchange = async (e) => {
     const file = e.target.files[0];
+    input.remove();
     if (!file) return;
     if (file.size > 5*1024*1024) { showToast("Max 5MB", true); return; }
     const npc = npcList.find(n => n.id === npcId);
     if (!npc) return;
     showToast("Uploading...");
-    const ext = file.name.split(".").pop().toLowerCase();
+    const ext = file.name.split(".").pop().toLowerCase().replace("jpeg","jpg");
     const path = `npcs/${npcId}.${ext}`;
     const { error } = await sb.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
     if (error) { showToast("Upload failed: " + error.message, true); return; }
@@ -5744,10 +5771,10 @@ function npcAvatarUpload(npcId) {
     const avatar_url = publicUrl + "?t=" + Date.now();
     await sb.from("npcs").update({ avatar_url }).eq("id", npcId);
     npc.avatar_url = avatar_url;
-    // Update avatar in manage list immediately
+    // Update avatar chip immediately
     const avEl = document.getElementById("npc-av-" + npcId);
     if (avEl) { avEl.innerHTML = `<img src="${escAttr(avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`; avEl.style.background = "transparent"; }
-    // Update compose box if this NPC is selected
+    // Update compose box if selected
     if (selectedNpc?.id === npcId) {
       selectedNpc.avatar_url = avatar_url;
       const composeAv = document.getElementById("npc-compose-av");
@@ -5756,6 +5783,7 @@ function npcAvatarUpload(npcId) {
     showToast(`✓ Photo updated for ${npc.hero_name}`);
     renderNpcList(npcList);
   };
+
   input.click();
 }
 
