@@ -2784,6 +2784,152 @@ const STATIONS = [
 let currentStation = null;
 let radioPlaying = false;
 
+// ── Track cache & defaults ──────────────────────────────
+const stationTracksCache = {};
+
+const DEFAULT_STATION_TRACKS = {
+  "hiphop-rnb": [
+    {videoId:"DtrIWQ8J9jw", title:"Hip-Hop Mix Vol.1"},
+    {videoId:"JkcmNBUJIEI", title:"R&B Smooth Hits"},
+    {videoId:"j5a0jTc9S10", title:"Urban Vibes"},
+    {videoId:"FivLpBHcEfs", title:"Street Anthems"},
+    {videoId:"RubBzkZzpUA", title:"NYC Bars"}
+  ],
+  "jazz": [
+    {videoId:"ZZcuSBouhVA", title:"Jazz Session Live"},
+    {videoId:"l7nQMgLNHsA", title:"Late Night Jazz"},
+    {videoId:"FTQbiNvZqaY", title:"Smooth Jazz Lounge"},
+    {videoId:"Jp7_-YHa9mA", title:"Classic Standards"},
+    {videoId:"KJFxEhlgREs", title:"Jazz Quartet"}
+  ],
+  "country": [
+    {videoId:"lHdXQAQHjd8", title:"Country Roads"},
+    {videoId:"McFMpLMGdoQ", title:"Heartland Mix"},
+    {videoId:"GFaDS8Kes7I", title:"Southern Sound"},
+    {videoId:"x_i_3lLfCJE", title:"Country Favorites"},
+    {videoId:"8ccT9bRisBE", title:"Nashville Nights"}
+  ],
+  "blues": [
+    {videoId:"4zAThXFOy2c", title:"Blues Hour Classic"},
+    {videoId:"YMN8xU_6cFc", title:"Delta Blues"},
+    {videoId:"g0LuM5ANXnc", title:"Chicago Blues"},
+    {videoId:"e80YZnFBX4g", title:"Soul Blues"},
+    {videoId:"_bCPW9mFB-w", title:"Deep Blues"}
+  ]
+};
+
+async function loadStationTracks(sid) {
+  if (stationTracksCache[sid]) return stationTracksCache[sid];
+  try {
+    const { data } = await sb.from("broadcasts")
+      .select("text")
+      .eq("station_id", "tracks_" + sid)
+      .eq("tag", "TRACKS_CONFIG")
+      .limit(1)
+      .maybeSingle();
+    if (data?.text) {
+      const parsed = JSON.parse(data.text);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        stationTracksCache[sid] = parsed;
+        return parsed;
+      }
+    }
+  } catch(e) {}
+  return DEFAULT_STATION_TRACKS[sid] || [];
+}
+
+async function saveStationTracks(sid, tracks) {
+  await sb.from("broadcasts").delete()
+    .eq("station_id", "tracks_" + sid)
+    .eq("tag", "TRACKS_CONFIG");
+  if (tracks.length > 0) {
+    await sb.from("broadcasts").insert({
+      station_id: "tracks_" + sid,
+      tag: "TRACKS_CONFIG",
+      text: JSON.stringify(tracks)
+    });
+  }
+  stationTracksCache[sid] = tracks;
+}
+
+// ── Admin track manager ─────────────────────────────────
+async function renderAdminMusicTracks(sid, containerEl) {
+  containerEl.innerHTML = `<div style="font-size:10px;color:var(--muted);padding:8px 0">Loading tracks…</div>`;
+  const tracks = await loadStationTracks(sid);
+  // Clear cache so next load fetches fresh
+  delete stationTracksCache[sid];
+
+  containerEl.innerHTML = `
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;letter-spacing:.5px;color:var(--muted);margin-bottom:7px;text-transform:uppercase">Current Tracks (${tracks.length})</div>
+      <div id="track-list-${sid}" style="display:flex;flex-direction:column;gap:5px;max-height:200px;overflow-y:auto;margin-bottom:10px">
+        ${tracks.length === 0
+          ? `<div style="font-size:11px;color:var(--muted);padding:6px 0">No custom tracks — using defaults.</div>`
+          : tracks.map((t, i) => `
+            <div style="display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:7px 10px" id="track-row-${sid}-${i}">
+              <span style="font-size:10px;color:var(--muted);width:18px;text-align:right;flex-shrink:0">${i+1}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:12px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escH(t.title)}</div>
+                <div style="font-size:10px;color:var(--muted);font-family:Orbitron,sans-serif">ID: ${escH(t.videoId)}</div>
+              </div>
+              <button onclick="adminRemoveTrack('${sid}',${i})" style="background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);color:var(--red);border-radius:4px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0">✕</button>
+            </div>`).join("")}
+      </div>
+      <div style="font-size:10px;letter-spacing:.5px;color:var(--muted);margin-bottom:7px;text-transform:uppercase">Add a Track</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <input id="new-track-title-${sid}" placeholder="Song / playlist title" style="flex:1;min-width:120px;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Barlow,sans-serif;font-size:12px;outline:none"/>
+        <input id="new-track-id-${sid}" placeholder="YouTube Video ID" style="width:140px;padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Barlow,sans-serif;font-size:12px;outline:none"/>
+        <button class="abtn sm" onclick="adminAddTrack('${sid}')">＋ ADD</button>
+      </div>
+      <div id="track-save-status-${sid}" style="font-size:10px;color:var(--muted);margin-top:6px;min-height:14px"></div>
+    </div>`;
+}
+
+async function adminAddTrack(sid) {
+  const titleEl = document.getElementById("new-track-title-" + sid);
+  const idEl    = document.getElementById("new-track-id-" + sid);
+  const status  = document.getElementById("track-save-status-" + sid);
+  const title   = titleEl.value.trim();
+  const videoId = idEl.value.trim().replace(/^.*[?&]v=([^&]+).*$/, "$1").replace(/^https?:.*youtu\.be\/([^?]+).*/, "$1");
+  if (!title || !videoId) { status.style.color="var(--red)"; status.textContent="Enter both a title and a YouTube video ID."; return; }
+  status.style.color="var(--muted)"; status.textContent="Saving…";
+  const existing = await loadStationTracks(sid);
+  const updated = [...existing, {videoId, title}];
+  delete stationTracksCache[sid];
+  try {
+    await saveStationTracks(sid, updated);
+    titleEl.value = ""; idEl.value = "";
+    status.style.color="var(--green)"; status.textContent="✓ Track added!";
+    const container = document.getElementById("music-tracks-" + sid);
+    if (container) await renderAdminMusicTracks(sid, container);
+  } catch(e) {
+    status.style.color="var(--red)"; status.textContent="Failed to save. Check console.";
+  }
+}
+
+async function adminRemoveTrack(sid, idx) {
+  const status = document.getElementById("track-save-status-" + sid);
+  if (status) { status.style.color="var(--muted)"; status.textContent="Removing…"; }
+  const existing = await loadStationTracks(sid);
+  delete stationTracksCache[sid];
+  const updated = existing.filter((_, i) => i !== idx);
+  try {
+    await saveStationTracks(sid, updated);
+    const container = document.getElementById("music-tracks-" + sid);
+    if (container) await renderAdminMusicTracks(sid, container);
+  } catch(e) {
+    if (status) { status.style.color="var(--red)"; status.textContent="Failed to remove."; }
+  }
+}
+
+async function adminResetTracks(sid) {
+  if (!confirm("Reset to default tracks for this station?")) return;
+  await sb.from("broadcasts").delete().eq("station_id","tracks_"+sid).eq("tag","TRACKS_CONFIG");
+  delete stationTracksCache[sid];
+  const container = document.getElementById("music-tracks-" + sid);
+  if (container) await renderAdminMusicTracks(sid, container);
+}
+
 function renderStationList() {
   document.getElementById("station-list").innerHTML = STATIONS.map(s => `
     <div class="station-item ${currentStation===s.id?'active':''}" id="st-${s.id}" onclick="openStation('${s.id}')">
@@ -2810,13 +2956,8 @@ async function openStation(sid) {
   }
 }
 
-function renderMusicStation(s) {
-  const startIdx = Math.floor(Math.random() * 80) + 1;
-  const startSec = Math.floor(Math.random() * 120); // start up to 2 mins into the track
-  const embedUrl = "https://www.youtube.com/embed/" + s.ytVideo +
-    "?list=" + s.ytList + "&autoplay=1&index=" + startIdx +
-    "&start=" + startSec + "&rel=0&modestbranding=1&color=white";
-
+async function renderMusicStation(s) {
+  // Show tuning skeleton immediately while we load tracks
   document.getElementById("dm-chat-area").innerHTML =
     '<div class="station-view">' +
       '<div class="station-hd">' +
@@ -2831,15 +2972,52 @@ function renderMusicStation(s) {
         '<button class="refresh-btn" id="refresh-btn-' + s.id + '" onclick="refreshStation(\'' + s.id + '\')">⚡ REFRESH BROADCAST</button>' +
         '<span style="font-size:10px;color:var(--muted);letter-spacing:.5px">AI-generated • Updates on demand</span>' +
       '</div>' +
-      '<div style="border-top:1px solid var(--border);background:rgba(0,0,0,.5);padding:6px 10px;display:flex;align-items:center;gap:8px">' +
-        '<span style="font-size:9px;color:' + s.color + ';letter-spacing:1px;font-weight:700">♫ MUSIC</span>' +
-        '<div style="flex:1;overflow:hidden;height:32px">' +
-          '<iframe src="' + embedUrl + '" width="100%" height="32" style="border:none;display:block;opacity:0.01;pointer-events:none" allow="autoplay;encrypted-media" loading="lazy"></iframe>' +
-        '</div>' +
-        '<span style="font-size:9px;color:var(--muted)">Audio playing</span>' +
+      '<div id="music-player-bar-' + s.id + '" style="border-top:1px solid var(--border);background:rgba(0,0,0,.5);padding:6px 10px;display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:9px;color:' + s.color + ';letter-spacing:1px;font-weight:700">♫ TUNING…</span>' +
       '</div>' +
     '</div>';
 
+  // Load track list, pick a random one — never the same start
+  const tracks = await loadStationTracks(s.id);
+  const startSec = Math.floor(Math.random() * 90);
+  let embedUrl, nowPlayingLabel;
+
+  if (tracks.length > 0) {
+    // Shuffle: pick randomly, avoid repeating the last pick if possible
+    const lastKey = "_lastTrack_" + s.id;
+    let idx = Math.floor(Math.random() * tracks.length);
+    if (tracks.length > 1 && window[lastKey] === idx) {
+      idx = (idx + 1 + Math.floor(Math.random() * (tracks.length - 1))) % tracks.length;
+    }
+    window[lastKey] = idx;
+    const track = tracks[idx];
+    nowPlayingLabel = escH(track.title) + ' <span style="opacity:.5">[' + (idx+1) + '/' + tracks.length + ']</span>';
+    embedUrl = "https://www.youtube.com/embed/" + track.videoId +
+      "?autoplay=1&start=" + startSec + "&rel=0&modestbranding=1&color=white";
+  } else {
+    // Fallback: random index in the YouTube playlist (no v= so index is respected)
+    const startIdx = Math.floor(Math.random() * 60) + 1;
+    nowPlayingLabel = "Shuffled playlist";
+    embedUrl = "https://www.youtube.com/embed/videoseries?list=" + s.ytList +
+      "&autoplay=1&index=" + startIdx + "&start=" + startSec + "&rel=0&modestbranding=1&color=white";
+  }
+
+  const playerBar = document.getElementById("music-player-bar-" + s.id);
+  if (playerBar) {
+    playerBar.innerHTML =
+      '<span style="font-size:9px;color:' + s.color + ';letter-spacing:1px;font-weight:700">♫</span>' +
+      '<div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">' +
+        '<div style="font-size:9px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + nowPlayingLabel + '</div>' +
+        '<div style="font-size:9px;color:var(--muted)">▶ Now shuffling</div>' +
+      '</div>' +
+      '<button onclick="renderMusicStation(STATIONS.find(x=>x.id===\'' + s.id + '\'))" title="Shuffle to a different track" style="background:rgba(59,130,246,.12);border:1px solid var(--border);color:var(--accent);border-radius:var(--radius-btn);padding:3px 10px;font-size:9px;font-weight:700;cursor:pointer;flex-shrink:0;letter-spacing:.5px">⇄ SKIP</button>' +
+      '<div style="overflow:hidden;height:0;width:0">' +
+        '<iframe src="' + embedUrl + '" width="1" height="1" style="border:none" allow="autoplay;encrypted-media" loading="lazy"></iframe>' +
+      '</div>';
+  }
+
+  radioPlaying = true;
+  renderStationList();
   refreshStation(s.id, true);
 }
 
@@ -4002,8 +4180,36 @@ async function renderAdminPanel(){
     <div class="adm-sec">
       <div class="adm-hd">📻 RADIO STATION CONTROL</div>
       <div class="adm-body">
+
+        <!-- MUSIC STATIONS — Track Management -->
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">🎵 Music Station Track Lists</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+          Add or remove songs for each music station. Each time a listener tunes in, a random track is picked — never the same start. Paste a YouTube video ID (the part after <code style="background:rgba(255,255,255,.07);padding:1px 5px;border-radius:3px">?v=</code>) or a full YouTube URL.
+        </div>
+        ${STATIONS.filter(s=>s.type==='music').map(s=>`
+        <div style="border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:14px;background:var(--card2)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="font-size:18px">${s.icon}</span>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--text)">${s.name}</div>
+                <div style="font-size:10px;color:var(--muted)">${s.sub}</div>
+              </div>
+            </div>
+            <button class="abtn sm" style="font-size:9px;border-color:rgba(248,113,113,.4);color:var(--red)" onclick="adminResetTracks('${s.id}')">↺ RESET TO DEFAULT</button>
+          </div>
+          <div id="music-tracks-${s.id}">
+            <div style="font-size:10px;color:var(--muted);padding:6px 0">Click below to manage this station's track list.</div>
+          </div>
+          <button class="abtn sm" style="width:100%;margin-top:4px" onclick="renderAdminMusicTracks('${s.id}', document.getElementById('music-tracks-${s.id}'))">📋 LOAD / MANAGE TRACKS</button>
+        </div>`).join("")}
+
+        <div style="border-top:1px solid var(--border);margin:18px 0 14px"></div>
+
+        <!-- TEXT STATIONS — Broadcast Generation -->
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">📡 Text Station Broadcasts</div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Generate a custom broadcast for any text station. Leave the prompt blank to use the default station persona, or write your own to override it entirely.</div>
-        ${STATIONS.filter(s=>s.persona).map(s=>`
+        ${STATIONS.filter(s=>s.persona&&s.type!=='music').map(s=>`
         <div style="border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:12px;background:var(--card2)">
           <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
             <span style="font-size:18px">${s.icon}</span>
