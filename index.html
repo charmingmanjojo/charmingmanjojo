@@ -3502,7 +3502,7 @@ function showApp(){
   updateNavAvatar();
   renderMyCard();renderFactionFilter();
   loadNotifications();loadUserBookmarks();loadUserFollowing();loadUserBlocks();initCharCounter();updateLastSeen();setInterval(updateLastSeen,2*60*1000);setInterval(loadNotifications,30*1000);setInterval(checkScheduledPosts,60*1000);if(currentProfile.is_admin){const sr=document.getElementById('schedule-row');if(sr)sr.style.display='flex';}if(currentProfile.banner_url){const _ba=document.getElementById('banner-upload-area');if(_ba){let _bi=_ba.querySelector('img');if(!_bi){_bi=document.createElement('img');_ba.appendChild(_bi);}  _bi.src=currentProfile.banner_url;_bi.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';const _bp=document.getElementById('banner-placeholder');if(_bp)_bp.style.display='none';const _brb=document.getElementById('banner-remove-btn');if(_brb)_brb.style.display='block';}}
-  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();loadGroupChats();setupRealtimeDMs();setupIncomingCallListener();renderStationList();loadTrending();updateMailBadge();loadStories();
+  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();loadGroupChats();setupRealtimeDMs();setupGlobalPhoneListener();setupIncomingCallListener();renderStationList();loadTrending();updateMailBadge();loadStories();
 }
 
 function renderMyCard(){
@@ -4072,6 +4072,24 @@ function setupRealtimeDMs(){
       }).subscribe();
 }
 
+// ── Global phone_texts listener — only fires for THIS user's received texts ──
+let globalPhoneChannel = null;
+function setupGlobalPhoneListener() {
+  if (globalPhoneChannel) sb.removeChannel(globalPhoneChannel);
+  globalPhoneChannel = sb.channel("global-phone-" + currentProfile.id)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "phone_texts",
+      filter: `receiver_id=eq.${currentProfile.id}` },
+      payload => {
+        // Only notify if not currently in that conversation
+        if (phoneSelectedUserId === payload.new.sender_id) return;
+        if (isMutedConvo(payload.new.sender_id)) return;
+        const badge = document.getElementById("phone-badge");
+        if (badge) badge.style.display = "";
+        playNotifSound();
+      })
+    .subscribe();
+}
+
 // =====================================================
 // SEARCH
 // =====================================================
@@ -4127,7 +4145,7 @@ function showPage(p){
   if(p==="feed"){setTimeout(renderHashtagList,100);}
   if(p==="mail"){loadMailView("inbox");document.getElementById("mail-badge").style.display="none";const addrEl=document.getElementById("mail-addr-text");if(addrEl&&currentProfile)addrEl.textContent=currentProfile.handle+"@marvel-essence.net";}
   if(p==="admin"&&currentProfile.is_admin){renderAdminPanel();setTimeout(()=>{injectAdminTrending();loadNpcList();},600);}
-  if(p==="phone"){loadPhoneContacts();populatePhoneNpcSelect();}
+  if(p==="phone"){loadPhoneContacts();populatePhoneNpcSelect();const pb=document.getElementById("phone-badge");if(pb)pb.style.display="none";}
   if(p==="settings"){renderSettingsPage();setTimeout(()=>{const el=document.getElementById('theme-picker-wrap');if(el)el.innerHTML=renderThemePicker();},50);}
 }
 
@@ -5459,10 +5477,10 @@ async function openTextThread(uid, name, color, avatarUrl) {
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "phone_texts",
       filter: `receiver_id=eq.${currentProfile.id}` },
       payload => {
-        if (payload.new.sender_id === uid) {
-          if (!isMutedConvo(uid)) openTextThread(uid, name, color, avatarUrl);
-          else loadPhoneContacts(); // just refresh list silently
-        }
+        // Only refresh if this message is from the person we're currently chatting with
+        if (payload.new.sender_id !== uid) return;
+        if (!isMutedConvo(uid)) openTextThread(uid, name, color, avatarUrl);
+        else loadPhoneContacts();
       })
     .on("broadcast", { event: "typing" }, ({ payload }) => {
       if (!payload || payload.sender_id === currentProfile.id) return;
@@ -5679,7 +5697,7 @@ async function startCall(toId, name, color, avatarUrl) {
   subscribeCallLines(data.id);
 
   // Notify receiver
-  await sb.channel("incoming-calls").send({
+  await sb.channel("incoming-calls-" + toId).send({
     type: "broadcast", event: "incoming",
     payload: {
       call_id: data.id,
@@ -6824,9 +6842,10 @@ let pendingIncomingCall = null;
 
 function setupIncomingCallListener() {
   if (incomingCallChannel) sb.removeChannel(incomingCallChannel);
-  incomingCallChannel = sb.channel("incoming-calls")
+  // Use a user-specific channel so only the intended receiver gets the broadcast
+  incomingCallChannel = sb.channel("incoming-calls-" + currentProfile.id)
     .on("broadcast", { event: "incoming" }, ({ payload }) => {
-      if (payload.receiver_id !== currentProfile.id) return;
+      if (!payload || payload.receiver_id !== currentProfile.id) return;
       pendingIncomingCall = payload;
       showIncomingCallBanner(payload);
     }).subscribe();
