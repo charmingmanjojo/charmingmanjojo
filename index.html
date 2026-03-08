@@ -1331,12 +1331,12 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
   <div id="page-phone" style="display:none;padding:70px 14px 20px;max-width:900px;margin:0 auto">
     <div id="phone-npc-bar" style="display:none;margin-bottom:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:10px 14px">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold);flex-shrink:0">\ud83d\udcf1 ACT AS NPC</span>
+        <span style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold);flex-shrink:0">📱 ACT AS NPC</span>
         <select id="phone-npc-select" style="flex:1;min-width:160px;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid rgba(245,158,11,.3);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none" onchange="selectPhoneNpc(this.value)">
-          <option value="">\u2014 Yourself \u2014</option>
+          <option value="">— Yourself —</option>
         </select>
         <div id="phone-npc-indicator" style="display:none;font-size:11px;color:var(--gold);font-weight:700"></div>
-        <button onclick="clearPhoneNpc()" style="background:none;border:1px solid rgba(245,158,11,.2);color:var(--gold);padding:4px 10px;border-radius:var(--radius-btn);font-size:10px;cursor:pointer;font-family:'Barlow',sans-serif;font-weight:700;letter-spacing:.5px;display:none" id="phone-npc-clear">\u2715 CLEAR</button>
+        <button onclick="clearPhoneNpc()" style="background:none;border:1px solid rgba(245,158,11,.2);color:var(--gold);padding:4px 10px;border-radius:var(--radius-btn);font-size:10px;cursor:pointer;font-family:'Barlow',sans-serif;font-weight:700;letter-spacing:.5px;display:none" id="phone-npc-clear">✕ CLEAR</button>
       </div>
     </div>
     <div class="phone-wrap">
@@ -3196,9 +3196,9 @@ async function adminGenerateStation(sid, btnEl) {
 
     // Sanitize smart quotes, dashes, and newlines before JSON.parse
     txt = txt
-      .replace(/[\u2018\u2019]/g, "'")
-      .replace(/[\u201C\u201D]/g, '\\"')
-      .replace(/[\u2013\u2014]/g, "-")
+      .replace(/[‘’]/g, "'")
+      .replace(/[“”]/g, '\\"')
+      .replace(/[–—]/g, "-")
       .replace(/[\r\n]+/g, "\\n");
 
     let items;
@@ -3275,7 +3275,7 @@ async function refreshStation(sid, silent=false) {
     const arrStart = raw.indexOf("[");
     const arrEnd = raw.lastIndexOf("]");
     if (arrStart !== -1 && arrEnd > arrStart) raw = raw.slice(arrStart, arrEnd + 1);
-    raw = raw.replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'\\"').replace(/[\u2013\u2014]/g,"-").replace(/[\r\n]+/g,"\\n");
+    raw = raw.replace(/[‘’]/g,"'").replace(/[“”]/g,'\\"').replace(/[–—]/g,"-").replace(/[\r\n]+/g,"\\n");
 
     let items;
     try {
@@ -5348,7 +5348,7 @@ async function openTextThread(uid, name, color, avatarUrl) {
         <button class="mute-btn ${isMutedConvo(uid)?'muted':''}" id="mute-btn-thread" onclick="toggleMuteConvo('${uid}',this)" title="${isMutedConvo(uid)?'Unmute':'Mute'}">${isMutedConvo(uid)?'🔇 MUTED':'🔔 MUTE'}</button>
       </div>
     </div>
-    ${phoneActingAsNpc && currentProfile.is_admin ? `<div style="padding:5px 14px;background:rgba(245,158,11,.08);border-bottom:1px solid rgba(245,158,11,.2);font-size:10px;color:var(--gold);letter-spacing:.5px;font-weight:700;flex-shrink:0">\ud83d\udcf1 Texting as: ${escHtml(phoneActingAsNpc.hero_name)}</div>` : ""}
+    ${phoneActingAsNpc && currentProfile.is_admin ? `<div style="padding:5px 14px;background:rgba(245,158,11,.08);border-bottom:1px solid rgba(245,158,11,.2);font-size:10px;color:var(--gold);letter-spacing:.5px;font-weight:700;flex-shrink:0">📱 Texting as: ${escHtml(phoneActingAsNpc.hero_name)}</div>` : ""}
     <div class="phone-msgs" id="phone-msgs-area">${msgsHtml}</div>
     <div id="phone-reply-bar" class="phone-inp-reply" style="display:none">
       <span style="color:var(--green);font-size:11px;flex-shrink:0">↩ Replying to:</span>
@@ -7254,7 +7254,7 @@ async function loadGroupChats() {
     renderGroupList(groupChats);
   } catch(e) {
     const el = document.getElementById("gc-list");
-    if (el) el.innerHTML = `<div style="padding:12px;font-size:10px;color:var(--gold);line-height:1.7">\u26a0 Group chats not set up yet. Run the SQL in Supabase to enable.</div>`;
+    if (el) el.innerHTML = `<div style="padding:12px;font-size:10px;color:var(--gold);line-height:1.7">⚠ Group chats not set up yet. Run the SQL in Supabase to enable.</div>`;
   }
 }
 
@@ -7267,7 +7267,7 @@ function renderGroupList(groups) {
   }
   el.innerHTML = groups.map(g => `
     <div class="gc-item ${selectedGroupId===g.id?'active':''}" onclick="openGroupChat('${g.id}')">
-      <div class="gc-ico" style="background:${g.color||'var(--accent)'}22;color:${g.color||'var(--accent)'}">${g.icon||'\ud83d\udc65'}</div>
+      <div class="gc-ico" style="background:${g.color||'var(--accent)'}22;color:${g.color||'var(--accent)'}">${g.icon||'👥'}</div>
       <div><div class="gc-name">${escHtml(g.name)}</div><div class="gc-sub">Tap to chat</div></div>
     </div>`).join("");
 }
@@ -7283,16 +7283,16 @@ function openCreateGroupModal() {
   const allPeople = [...profiles.map(p=>({...p,_isNpc:false})), ...npcs.filter(n=>!profiles.some(p=>p.handle===n.handle)).map(n=>({...n,_isNpc:true}))];
   modal.innerHTML = `
     <div class="gc-modal-box">
-      <h3>\ud83d\udc65 CREATE GROUP CHAT</h3>
+      <h3>👥 CREATE GROUP CHAT</h3>
       <div class="afield" style="margin-bottom:12px"><label>Group Name</label><input id="gc-name-inp" placeholder="e.g. Avengers Initiative" style="width:100%;padding:8px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Barlow,sans-serif;font-size:13px;outline:none"/></div>
       <div style="display:flex;gap:8px;margin-bottom:12px">
-        <div class="afield" style="margin:0;flex:1"><label>Icon</label><input id="gc-icon-inp" value="\ud83d\udc65" maxlength="4" style="width:100%;padding:8px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-size:18px;text-align:center;outline:none"/></div>
+        <div class="afield" style="margin:0;flex:1"><label>Icon</label><input id="gc-icon-inp" value="👥" maxlength="4" style="width:100%;padding:8px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-size:18px;text-align:center;outline:none"/></div>
         <div class="afield" style="margin:0;flex:1"><label>Color</label><input id="gc-color-inp" type="color" value="#3b82f6" style="width:100%;height:36px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);cursor:pointer"/></div>
       </div>
       <div style="font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:8px">SELECT MEMBERS</div>
       <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px" id="gc-members-list">
         ${allPeople.map(p => `<div class="gc-member-pick" onclick="this.classList.toggle('selected')" data-uid="${p.id}" data-isnpc="${p._isNpc}">
-          <div class="gc-check">\u2713</div>
+          <div class="gc-check">✓</div>
           <div style="width:26px;height:26px;border-radius:50%;background:${p.color||'#555'};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">${p.avatar_url ? '<img src="'+p.avatar_url+'" style="width:100%;height:100%;object-fit:cover"/>' : (p.hero_name?.[0]||'?')}</div>
           <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--white)">${escHtml(p.hero_name)}${p._isNpc?' <span style="font-size:8px;color:var(--gold)">[NPC]</span>':''}</div><div style="font-size:10px;color:var(--muted)">@${escHtml(p.handle)}</div></div>
         </div>`).join("")}
@@ -7308,7 +7308,7 @@ function openCreateGroupModal() {
 
 async function createGroupChat() {
   const name = document.getElementById("gc-name-inp")?.value.trim();
-  const icon = document.getElementById("gc-icon-inp")?.value.trim() || "\ud83d\udc65";
+  const icon = document.getElementById("gc-icon-inp")?.value.trim() || "👥";
   const color = document.getElementById("gc-color-inp")?.value || "#3b82f6";
   if (!name) { showToast("Enter a group name.", true); return; }
   const selected = [...document.querySelectorAll("#gc-members-list .gc-member-pick.selected")];
@@ -7341,7 +7341,7 @@ async function createGroupChat() {
   await sb.from("group_members").insert(memberRows).catch(() => {});
 
   document.getElementById("gc-create-modal")?.remove();
-  showToast(`\ud83d\udc65 Group "${name}" created!`);
+  showToast(`👥 Group "${name}" created!`);
   loadGroupChats();
   openGroupChat(group.id);
 }
@@ -7386,7 +7386,7 @@ async function openGroupChat(groupId) {
   const chatArea = document.getElementById("dm-chat-area");
   chatArea.innerHTML = `
     <div class="dm-chat-hd" style="gap:10px">
-      <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:${group.color||'var(--accent)'}22;display:flex;align-items:center;justify-content:center;font-size:18px;color:${group.color||'var(--accent)'};border:1px solid ${group.color||'var(--accent)'}44">${group.icon||'\ud83d\udc65'}</div>
+      <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:${group.color||'var(--accent)'}22;display:flex;align-items:center;justify-content:center;font-size:18px;color:${group.color||'var(--accent)'};border:1px solid ${group.color||'var(--accent)'}44">${group.icon||'👥'}</div>
       <div style="flex:1"><div class="dm-chat-name">${escHtml(group.name)}</div><div class="dm-status">${memberProfiles.length} members</div></div>
       <div style="display:flex;padding-left:6px">${memberAvatars}</div>
     </div>
@@ -7431,12 +7431,12 @@ async function sendGroupMsg(groupId) {
 // =====================================================
 const RP_STATUSES = [
   { id: "", label: "None", emoji: "", color: "var(--muted)" },
-  { id: "active", label: "Active", emoji: "\ud83d\udfe2", color: "var(--green)" },
-  { id: "injured", label: "Injured", emoji: "\ud83e\ude78", color: "var(--red)" },
-  { id: "hospitalized", label: "Hospitalized", emoji: "\ud83c\udfe5", color: "#ff8888" },
-  { id: "missing", label: "Missing", emoji: "\u2753", color: "var(--gold)" },
-  { id: "undercover", label: "Undercover", emoji: "\ud83d\udd76\ufe0f", color: "#b088f9" },
-  { id: "evacuated", label: "Evacuated", emoji: "\ud83d\udea8", color: "var(--accent)" }
+  { id: "active", label: "Active", emoji: "🟢", color: "var(--green)" },
+  { id: "injured", label: "Injured", emoji: "🩸", color: "var(--red)" },
+  { id: "hospitalized", label: "Hospitalized", emoji: "🏥", color: "#ff8888" },
+  { id: "missing", label: "Missing", emoji: "❓", color: "var(--gold)" },
+  { id: "undercover", label: "Undercover", emoji: "🕶️", color: "#b088f9" },
+  { id: "evacuated", label: "Evacuated", emoji: "🚨", color: "var(--accent)" }
 ];
 
 async function setRpStatus(statusId) {
