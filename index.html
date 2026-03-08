@@ -5791,6 +5791,35 @@ async function postAsNpc() {
   loadFeed();
 }
 
+async function createNpcAccount() {
+  const hero = document.getElementById("npc-hero")?.value.trim();
+  const handle = document.getElementById("npc-handle")?.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+  const real = document.getElementById("npc-real")?.value.trim();
+  const faction = document.getElementById("npc-faction")?.value;
+  const bio = document.getElementById("npc-bio")?.value.trim();
+  const status = document.getElementById("npc-create-status");
+
+  if (!hero || !handle) { status.style.color = "var(--red)"; status.textContent = "Hero name and handle required."; return; }
+
+  const color = OC_COLORS[Math.floor(Math.random() * OC_COLORS.length)];
+  const { error } = await sb.from("npcs").insert({
+    hero_name: hero, handle, real_name: real || hero,
+    faction: faction || "Independent", bio: bio || "", color
+  });
+
+  if (error) {
+    status.style.color = "var(--red)";
+    status.textContent = error.code === "42P01"
+      ? "npcs table missing — run the SQL in Supabase first."
+      : (error.code === "23505" ? `Handle @${handle} already taken.` : "Error: " + error.message);
+    return;
+  }
+  status.style.color = "var(--green)"; status.textContent = `✓ NPC @${handle} created!`;
+  ["npc-hero","npc-handle","npc-real","npc-bio"].forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; });
+  setTimeout(() => { status.textContent = ""; }, 3000);
+  loadNpcList();
+}
+
 // =====================================================
 // NOTIFICATIONS - filter by tab
 // =====================================================
