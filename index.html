@@ -31,10 +31,45 @@ body.light-theme .phone-bubble{background:#e2e8f0;color:#111827}
 body.light-theme .phone-bubble.sent-mine{background:var(--accent);color:#fff}
 body.light-theme .phone-chat-hd{background:#fff;border-color:var(--border2)}
 body.light-theme .profile-page-banner{filter:brightness(.9)}
-/* Typing indicator */
-.typing-indicator{font-size:11px;color:var(--muted);padding:4px 14px;letter-spacing:.5px;min-height:18px;flex-shrink:0;font-style:italic}
+
 /* NPC sent text bubble */
 .phone-bubble.sent-npc{background:rgba(60,50,10,.5)!important;border-color:rgba(245,158,11,.25)!important;color:#f5e8c0!important}
+/* Group chat styles */
+.gc-section-hd{background:rgba(59,130,246,.08);padding:10px 16px;font-family:'Barlow',sans-serif;font-size:11px;letter-spacing:1px;font-weight:600;color:var(--accent);border-bottom:1px solid var(--border);border-top:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.gc-item{display:flex;align-items:center;gap:9px;padding:10px 13px;cursor:pointer;border-bottom:1px solid var(--border);transition:.15s}
+.gc-item:hover{background:rgba(59,130,246,.05)}
+.gc-item.active{background:rgba(59,130,246,.1);border-left:2px solid var(--accent)}
+.gc-ico{width:38px;height:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--border)}
+.gc-name{font-weight:700;font-size:13px;color:var(--white)}
+.gc-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.gc-msg-row{display:flex;gap:8px;animation:fuUp .2s ease;padding:2px 0}
+.gc-msg-row.mine{flex-direction:row-reverse}
+.gc-msg-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.gc-msg-bub{max-width:65%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.5;background:var(--card2);border:1px solid var(--border);color:var(--text);word-break:break-word}
+.gc-msg-row.mine .gc-msg-bub{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.25);color:var(--white)}
+.gc-msg-name{font-size:9px;color:var(--muted);margin-bottom:2px;letter-spacing:.5px;font-weight:700}
+.gc-msg-time{font-size:9px;color:var(--muted);margin-top:2px}
+.gc-msg-row.mine .gc-msg-time{text-align:right}
+/* Create group modal */
+.gc-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:8000;display:flex;align-items:center;justify-content:center}
+.gc-modal-box{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:24px;width:440px;max-width:92vw;max-height:80vh;overflow-y:auto}
+.gc-modal-box h3{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:14px}
+.gc-member-pick{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-radius:var(--radius-sm);transition:.12s}
+.gc-member-pick:hover{background:rgba(59,130,246,.08)}
+.gc-member-pick.selected{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3)}
+.gc-member-pick .gc-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);flex-shrink:0;transition:.12s}
+.gc-member-pick.selected .gc-check{background:rgba(59,130,246,.2);border-color:var(--accent)}
+/* Status badge */
+.status-badge{font-size:10px;padding:2px 8px;border-radius:var(--radius-btn);display:inline-flex;align-items:center;gap:3px;letter-spacing:.3px;font-weight:600}
+.status-badge.injured{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25)}
+.status-badge.missing{background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.25)}
+.status-badge.hospitalized{background:rgba(248,113,113,.15);color:#ff8888;border:1px solid rgba(248,113,113,.3)}
+.status-badge.active{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.25)}
+.status-badge.undercover{background:rgba(128,90,213,.12);color:#b088f9;border:1px solid rgba(128,90,213,.25)}
+.status-badge.evacuated{background:rgba(59,130,246,.1);color:var(--accent);border:1px solid rgba(59,130,246,.25)}
+
+/* Typing indicator */
+.typing-indicator{font-size:11px;color:var(--muted);padding:4px 14px;letter-spacing:.5px;min-height:18px;flex-shrink:0;font-style:italic}
 /* Quote-repost embed */
 .quote-embed{background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:9px 12px;margin:7px 0;cursor:pointer;transition:.15s}
 .quote-embed:hover{background:rgba(59,130,246,.08)}
@@ -1294,15 +1329,14 @@ body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradie
 
   <!-- PHONE PAGE -->
   <div id="page-phone" style="display:none;padding:70px 14px 20px;max-width:900px;margin:0 auto">
-    <!-- Admin NPC Phone Identity Selector -->
-    <div id="phone-npc-bar" style="display:none;margin-bottom:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:10px 14px;display:none">
+    <div id="phone-npc-bar" style="display:none;margin-bottom:10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:10px 14px">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold);flex-shrink:0">📱 ACT AS NPC</span>
+        <span style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold);flex-shrink:0">\ud83d\udcf1 ACT AS NPC</span>
         <select id="phone-npc-select" style="flex:1;min-width:160px;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid rgba(245,158,11,.3);background:rgba(0,0,0,.4);color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none" onchange="selectPhoneNpc(this.value)">
-          <option value="">— Yourself —</option>
+          <option value="">\u2014 Yourself \u2014</option>
         </select>
         <div id="phone-npc-indicator" style="display:none;font-size:11px;color:var(--gold);font-weight:700"></div>
-        <button onclick="clearPhoneNpc()" style="background:none;border:1px solid rgba(245,158,11,.2);color:var(--gold);padding:4px 10px;border-radius:var(--radius-btn);font-size:10px;cursor:pointer;font-family:'Barlow',sans-serif;font-weight:700;letter-spacing:.5px;display:none" id="phone-npc-clear">✕ CLEAR</button>
+        <button onclick="clearPhoneNpc()" style="background:none;border:1px solid rgba(245,158,11,.2);color:var(--gold);padding:4px 10px;border-radius:var(--radius-btn);font-size:10px;cursor:pointer;font-family:'Barlow',sans-serif;font-weight:700;letter-spacing:.5px;display:none" id="phone-npc-clear">\u2715 CLEAR</button>
       </div>
     </div>
     <div class="phone-wrap">
@@ -1586,6 +1620,17 @@ async function renderSettingsPage() {
         <div style="display:flex;gap:8px;margin-top:8px">
           <button class="abtn sm" onclick="document.getElementById('banner-file-in').click()" style="font-size:11px">📷 Upload banner</button>
           <button id="banner-remove-btn" class="abtn warn sm" onclick="removeBanner()" style="font-size:11px;display:${u.banner_url?'':'none'}">✕ Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RP STATUS -->
+    <div class="sett-sec">
+      <div class="sett-hd">🎭 RP STATUS</div>
+      <div class="sett-body">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px;letter-spacing:.5px">Set your in-character status. Visible on your posts and profile.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="status-picker">
+          ${RP_STATUSES.map(s => `<button onclick="setRpStatus('${s.id}')" style="padding:6px 14px;border-radius:var(--radius-btn);border:1px solid ${currentProfile.status===s.id?s.color:'var(--border)'};background:${currentProfile.status===s.id?s.color+'15':'none'};color:${currentProfile.status===s.id?s.color:'var(--muted)'};font-size:11px;font-weight:700;cursor:pointer;font-family:Barlow,sans-serif;transition:.15s;letter-spacing:.3px">${s.emoji?s.emoji+' ':''}${s.label}</button>`).join('')}
         </div>
       </div>
     </div>
@@ -2661,12 +2706,9 @@ function renderHashtags(text) {
   );
   text = text.replace(/@([a-zA-Z0-9_]+)/g, (match, handle) => {
     const profile = Object.values(profilesCache).find(p => p.handle?.toLowerCase() === handle.toLowerCase());
-    const npc = npcList.find(n => n.handle?.toLowerCase() === handle.toLowerCase());
-    if (profile) {
-      return `<span class="hashtag" style="color:var(--green)" onclick="event.stopPropagation();showProfilePage('${profile.id}')" title="${escHtml(profile.hero_name)}">@${handle}</span>`;
-    } else if (npc) {
-      return `<span class="hashtag" style="color:var(--gold)" title="${escHtml(npc.hero_name)}">@${handle}</span>`;
-    }
+    const npc = (npcList||[]).find(n => n.handle?.toLowerCase() === handle.toLowerCase());
+    if (profile) return `<span class="hashtag" style="color:var(--green)" onclick="event.stopPropagation();showProfilePage('${profile.id}')" title="${escHtml(profile.hero_name)}">@${handle}</span>`;
+    if (npc) return `<span class="hashtag" style="color:var(--gold)" title="${escHtml(npc.hero_name)}">@${handle}</span>`;
     return `<span style="color:var(--accent);font-weight:600">@${handle}</span>`;
   });
   return text;
@@ -3460,7 +3502,7 @@ function showApp(){
   updateNavAvatar();
   renderMyCard();renderFactionFilter();
   loadNotifications();loadUserBookmarks();loadUserFollowing();loadUserBlocks();initCharCounter();updateLastSeen();setInterval(updateLastSeen,2*60*1000);setInterval(loadNotifications,30*1000);setInterval(checkScheduledPosts,60*1000);if(currentProfile.is_admin){const sr=document.getElementById('schedule-row');if(sr)sr.style.display='flex';}if(currentProfile.banner_url){const _ba=document.getElementById('banner-upload-area');if(_ba){let _bi=_ba.querySelector('img');if(!_bi){_bi=document.createElement('img');_ba.appendChild(_bi);}  _bi.src=currentProfile.banner_url;_bi.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';const _bp=document.getElementById('banner-placeholder');if(_bp)_bp.style.display='none';const _brb=document.getElementById('banner-remove-btn');if(_brb)_brb.style.display='block';}}
-  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();setupRealtimeDMs();setupIncomingCallListener();renderStationList();loadTrending();updateMailBadge();loadStories();
+  loadFeed();loadSidebarNews();loadFollowList();loadDMThreads();loadGroupChats();setupRealtimeDMs();setupIncomingCallListener();renderStationList();loadTrending();updateMailBadge();loadStories();
 }
 
 function renderMyCard(){
@@ -3696,7 +3738,7 @@ function renderPost(p){
         <div class="p-av" style="background:${u.avatar_url?'transparent':u.color};cursor:pointer;position:relative" onclick="showProfilePage('${p.user_id}')">${avHtml||u.hero_name[0]}${onlineDotHtml}</div>
         <div class="post-meta">
           <div class="post-name" style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">${u.hero_name}${(u.is_verified||u.is_npc&&u.is_verified)?'<span class="verified-badge gold" title="Verified"></span>':''}${u.is_npc&&!u.hide_npc_tag&&isAdmin?` <span style="font-size:9px;color:var(--gold);font-family:Barlow,sans-serif;opacity:.7">[NPC]</span>`:''}${p.is_ai?` <span style="font-size:9px;color:var(--muted);font-family:Barlow,sans-serif">[civilian AI]</span>`:""}</div>
-          <div class="post-sub"><span style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>·<span>${timeAgo(p.created_at)}</span></div>
+          <div class="post-sub"><span style="cursor:pointer" onclick="showProfilePage('${p.user_id}')">@${u.handle}</span>·<span class="fc-badge" style="background:${fc}22;color:${fc};padding:1px 6px;font-size:8px">${u.faction}</span>${getStatusBadgeHtml?.(u)||''}·<span>${timeAgo(p.created_at)}</span></div>
         </div>
         ${delBtn}
       </div>
@@ -3804,11 +3846,7 @@ async function submitPost(asScheduled=false){
   clearPendingImg();
   showToast("Transmitted!");
   if (window._pendingPoll) await _attachPollToNewPost();
-  // Send @mention notifications
-  if (content) {
-    const { data: latestPost } = await sb.from("posts").select("id").eq("user_id", currentProfile.id).order("created_at",{ascending:false}).limit(1);
-    if (latestPost?.[0]) sendMentionNotifications(content, latestPost[0].id);
-  }
+  if(content){const{data:lp}=await sb.from("posts").select("id").eq("user_id",currentProfile.id).order("created_at",{ascending:false}).limit(1);if(lp?.[0])sendMentionNotifications(content,lp[0].id);}
   loadFeed();
 }
 
@@ -4085,7 +4123,7 @@ function showPage(p){
   });
   ["feed","intel","dms","admin","settings","mail","phone"].forEach(x=>{const t=document.getElementById("tab-"+x);if(t)t.classList.toggle("active",x===p);});
   if(p==="intel")loadNewsFull();
-  if(p==="dms"){loadDMThreads();renderStationList();document.getElementById("dm-badge").style.display="none";}
+  if(p==="dms"){loadDMThreads();loadGroupChats();renderStationList();document.getElementById("dm-badge").style.display="none";}
   if(p==="feed"){setTimeout(renderHashtagList,100);}
   if(p==="mail"){loadMailView("inbox");document.getElementById("mail-badge").style.display="none";const addrEl=document.getElementById("mail-addr-text");if(addrEl&&currentProfile)addrEl.textContent=currentProfile.handle+"@marvel-essence.net";}
   if(p==="admin"&&currentProfile.is_admin){renderAdminPanel();setTimeout(()=>{injectAdminTrending();loadNpcList();},600);}
@@ -5076,7 +5114,7 @@ let activeCallTranscript = [];   // local buffer during a call
 let callTimerInterval = null;
 let callStartTime = null;
 let incomingCallId = null;
-let phoneActingAsNpc = null;     // NPC identity for admin texting/calling
+let phoneActingAsNpc = null; // NPC identity for admin phone
 
 // ── Fetch contacts (people you follow OR follow you) ──
 function generatePhoneNumber() {
@@ -5129,39 +5167,6 @@ function switchPhoneTab(tab) {
   document.getElementById("phone-right-panel").innerHTML =
     `<div class="phone-empty"><div style="font-size:40px">📱</div><p>${tab === "texts" ? "Select a contact to text" : "Select a call to view"}</p></div>`;
   loadPhoneContacts();
-}
-
-// ── Admin NPC phone identity ──
-function populatePhoneNpcSelect() {
-  const bar = document.getElementById("phone-npc-bar");
-  if (!bar || !currentProfile?.is_admin) { if(bar) bar.style.display = "none"; return; }
-  bar.style.display = "";
-  const sel = document.getElementById("phone-npc-select");
-  if (!sel) return;
-  sel.innerHTML = '<option value="">— Yourself —</option>' +
-    (npcList||[]).map(n => `<option value="${n.id}" ${phoneActingAsNpc?.id===n.id?'selected':''}>${escHtml(n.hero_name)} (@${n.handle})</option>`).join("");
-}
-
-function selectPhoneNpc(npcId) {
-  if (!npcId) { clearPhoneNpc(); return; }
-  const npc = (npcList||[]).find(n => n.id === npcId);
-  if (!npc) return;
-  phoneActingAsNpc = npc;
-  const ind = document.getElementById("phone-npc-indicator");
-  const clearBtn = document.getElementById("phone-npc-clear");
-  if (ind) { ind.style.display = ""; ind.textContent = `Acting as: ${npc.hero_name}`; }
-  if (clearBtn) clearBtn.style.display = "";
-  showToast(`📱 Now texting/calling as ${npc.hero_name}`);
-}
-
-function clearPhoneNpc() {
-  phoneActingAsNpc = null;
-  const sel = document.getElementById("phone-npc-select");
-  if (sel) sel.value = "";
-  const ind = document.getElementById("phone-npc-indicator");
-  const clearBtn = document.getElementById("phone-npc-clear");
-  if (ind) ind.style.display = "none";
-  if (clearBtn) clearBtn.style.display = "none";
 }
 
 // ── Load contact/call list ──
@@ -5321,15 +5326,11 @@ async function openTextThread(uid, name, color, avatarUrl) {
     const replyQuote = m.reply_to_content
       ? `<div class="reply-quote">↩ ${escHtml(m.reply_to_content.substring(0,60))}</div>` : "";
     const imgBubble = m.image_url ? `<div onclick="openLightbox('${escAttr(m.image_url)}')" style="cursor:pointer;margin-bottom:3px"><img src="${escAttr(m.image_url)}" style="max-width:200px;max-height:180px;border-radius:10px;object-fit:cover;display:block"/></div>` : "";
-    // NPC sender badge for messages sent by admin as NPC
-    const npcSender = m.npc_sender;
-    const npcBadge = npcSender && mine ? `<div style="font-size:9px;color:var(--gold);margin-bottom:2px;letter-spacing:.5px;font-weight:700">📱 ${escHtml(npcSender.hero_name)}</div>` : "";
     return `<div class="phone-msg-row${mine ? " mine" : ""}" id="pmsg-${m.id}">
       <div>
-        ${npcBadge}
         ${replyQuote}
         ${imgBubble}
-        ${m.content ? `<div class="phone-bubble${npcSender && mine?' sent-npc':''}" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>` : ""}
+        ${m.content ? `<div class="phone-bubble" ondblclick="setReply('${m.id}','${escAttr(m.content.substring(0,60))}')">${escHtml(m.content)}</div>` : ""}
         <div class="phone-msg-time">${fmtDateTime(m.created_at)}${showSeen ? ' <span class="msg-read">✓ Seen</span>' : ''}</div>
       </div>
     </div>`;
@@ -5347,7 +5348,7 @@ async function openTextThread(uid, name, color, avatarUrl) {
         <button class="mute-btn ${isMutedConvo(uid)?'muted':''}" id="mute-btn-thread" onclick="toggleMuteConvo('${uid}',this)" title="${isMutedConvo(uid)?'Unmute':'Mute'}">${isMutedConvo(uid)?'🔇 MUTED':'🔔 MUTE'}</button>
       </div>
     </div>
-    ${phoneActingAsNpc && currentProfile.is_admin ? `<div style="padding:5px 14px;background:rgba(245,158,11,.08);border-bottom:1px solid rgba(245,158,11,.2);font-size:10px;color:var(--gold);letter-spacing:.5px;font-weight:700;flex-shrink:0">📱 Texting as: ${escHtml(phoneActingAsNpc.hero_name)} (@${escHtml(phoneActingAsNpc.handle)})</div>` : ""}
+    ${phoneActingAsNpc && currentProfile.is_admin ? `<div style="padding:5px 14px;background:rgba(245,158,11,.08);border-bottom:1px solid rgba(245,158,11,.2);font-size:10px;color:var(--gold);letter-spacing:.5px;font-weight:700;flex-shrink:0">\ud83d\udcf1 Texting as: ${escHtml(phoneActingAsNpc.hero_name)}</div>` : ""}
     <div class="phone-msgs" id="phone-msgs-area">${msgsHtml}</div>
     <div id="phone-reply-bar" class="phone-inp-reply" style="display:none">
       <span style="color:var(--green);font-size:11px;flex-shrink:0">↩ Replying to:</span>
@@ -5447,18 +5448,13 @@ async function sendText(toId) {
   const content = inp?.value.trim();
   if (!content && !pendingPhoneImgB64) return;
   inp.value = ""; inp.style.height = "auto";
-  const row = { sender_id: currentProfile.id, receiver_id: toId, content: content || "", is_read: false };
-  // If admin is acting as NPC, attach NPC sender data
+  let effectiveSenderId = currentProfile.id;
+  // If admin is acting as NPC, route through NPC's profile
   if (phoneActingAsNpc && currentProfile.is_admin) {
-    row.npc_sender = {
-      id: phoneActingAsNpc.id,
-      hero_name: phoneActingAsNpc.hero_name,
-      handle: phoneActingAsNpc.handle,
-      color: phoneActingAsNpc.color || "#555",
-      avatar_url: phoneActingAsNpc.avatar_url || null,
-      phone_number: phoneActingAsNpc.phone_number || ""
-    };
+    const npcProf = await ensureNpcHasProfile(phoneActingAsNpc);
+    if (npcProf) effectiveSenderId = npcProf.id;
   }
+  const row = { sender_id: effectiveSenderId, receiver_id: toId, content: content || "", is_read: false };
   if (phoneReplyContent) row.reply_to_content = phoneReplyContent;
   clearReply();
   // Upload image if pending
@@ -5547,29 +5543,30 @@ let callIsAnon = false;
 let callAnonCodeBuffer = "";
 
 async function startCall(toId, name, color, avatarUrl) {
-  // Resolve the contact's phone number for display
   const { data: toProfile } = await sb.from("profiles").select("phone_number").eq("id", toId).single();
   const toNum = toProfile?.phone_number || "";
   const cd = getContactDisplay({ id: toId, hero_name: name });
 
   // Determine caller identity (self or NPC)
   const actingNpc = phoneActingAsNpc && currentProfile.is_admin ? phoneActingAsNpc : null;
+  let effectiveCallerId = currentProfile.id;
+  if (actingNpc) {
+    const npcProf = await ensureNpcHasProfile(actingNpc);
+    if (npcProf) effectiveCallerId = npcProf.id;
+  }
   const callerName = actingNpc ? actingNpc.hero_name : currentProfile.hero_name;
   const callerColor = actingNpc ? (actingNpc.color||"#555") : currentProfile.color;
   const callerAvatar = actingNpc ? (actingNpc.avatar_url||"") : (currentProfile.avatar_url||"");
-  const callerNum = actingNpc ? (actingNpc.phone_number||"") : (currentProfile.phone_number||"");
+  const callerNum = actingNpc ? "" : (currentProfile.phone_number||"");
 
-  // Create call record
-  const callRow = {
-    caller_id: currentProfile.id,
+  const { data, error } = await sb.from("phone_calls").insert({
+    caller_id: effectiveCallerId,
     receiver_id: toId,
     transcript: JSON.stringify([]),
     duration_seconds: 0,
     ended: false,
     is_anon: false
-  };
-  if (actingNpc) callRow.npc_caller = { id: actingNpc.id, hero_name: actingNpc.hero_name, handle: actingNpc.handle, color: actingNpc.color, avatar_url: actingNpc.avatar_url };
-  const { data, error } = await sb.from("phone_calls").insert(callRow).select().single();
+  }).select().single();
   if (error) { showToast("Could not start call: " + error.message, true); return; }
 
   activeCallId = data.id;
@@ -5591,24 +5588,24 @@ async function startCall(toId, name, color, avatarUrl) {
   document.getElementById("call-ov-name").textContent = cd.displayName;
   document.getElementById("call-ov-num").textContent = toNum;
   document.getElementById("call-ov-timer").textContent = "00:00";
-  document.getElementById("call-transcript").innerHTML = actingNpc ? `<div style="text-align:center;padding:6px;font-size:10px;color:var(--gold);letter-spacing:1px">📱 Calling as ${escHtml(actingNpc.hero_name)}</div>` : "";
+  document.getElementById("call-transcript").innerHTML = "";
   document.getElementById("call-inp").value = "";
   // Reset anon toggle
   const anonBtn = document.getElementById("anon-toggle-btn");
   if (anonBtn) { anonBtn.textContent = "🕶 OFF"; anonBtn.classList.remove("active"); }
   // Reset speaker toggle
-  document.getElementById("call-inp").placeholder = callerName + ": say something...";
+  document.getElementById("call-inp").placeholder = currentProfile.hero_name + ": say something...";
   ov.classList.add("active");
 
   // Subscribe to incoming lines from the receiver in real-time
   subscribeCallLines(data.id);
 
-  // Notify receiver via Supabase realtime broadcast
+  // Notify receiver
   await sb.channel("incoming-calls").send({
     type: "broadcast", event: "incoming",
     payload: {
       call_id: data.id,
-      caller_id: currentProfile.id,
+      caller_id: effectiveCallerId,
       caller_name: callerName,
       caller_num: callerNum,
       caller_color: callerColor,
@@ -5668,9 +5665,8 @@ async function callSay() {
   if (!raw || !activeCallId) return;
   inp.value = "";
 
-  // Always speak as yourself (or NPC if admin is acting) — no more controlling the other side
-  const actingNpc = phoneActingAsNpc && currentProfile.is_admin ? phoneActingAsNpc : null;
-  const speaker = actingNpc ? actingNpc.hero_name : currentProfile.hero_name;
+  // Always speak as yourself — no more controlling the other side
+  const speaker = currentProfile.hero_name;
   const quoted = `"${raw}"`;
   const entry = { speaker, line: quoted, ts: marvelNowISO() };
   activeCallTranscript.push(entry);
@@ -6009,15 +6005,15 @@ function renderNpcManageList(npcs) {
     const av = n.avatar_url ? `<img src="${escAttr(n.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : (n.hero_name?.[0]||"?");
     const verified = !!n.is_verified;
     const hidden = !!n.hide_npc_tag;
-    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);background:rgba(0,0,0,.2)">
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);background:rgba(0,0,0,.2);flex-wrap:wrap">
       <div onclick="npcAvatarUpload('${n.id}')" title="Click to change photo" style="width:36px;height:36px;border-radius:50%;background:${n.color||"#555"};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.opacity='.8'" onmouseout="this.style.borderColor='transparent';this.style.opacity='1'" id="npc-av-${n.id}">${av}</div>
       <div style="flex:1;min-width:0">
         <span style="font-size:12px;font-weight:700;color:var(--text)">${escH(n.hero_name)}</span>
         ${verified ? '<span class="verified-badge gold" title="Verified" style="width:13px;height:13px;font-size:8px;margin-left:3px;vertical-align:middle"></span>' : ""}
-        ${hidden ? '<span style="font-size:8px;color:var(--green);margin-left:3px;letter-spacing:.5px;vertical-align:middle">🟢 STEALTH</span>' : ""}
+        ${hidden ? '<span style="font-size:8px;color:var(--green);margin-left:3px;letter-spacing:.5px">🟢 STEALTH</span>' : ""}
         <span style="font-size:10px;color:var(--muted);margin-left:4px">@${escH(n.handle)}</span>
       </div>
-      <button class="abtn sm" style="font-size:9px;${hidden?'background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.3);color:var(--green)':''}" onclick="npcToggleHideTag('${n.id}',${hidden})" title="${hidden?'NPC tag is hidden — click to show':'Click to hide NPC tag from posts'}">${hidden ? "🟢 STEALTH" : "👁 SHOW TAG"}</button>
+      <button class="abtn sm" style="font-size:9px;${hidden?'background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.3);color:var(--green)':''}" onclick="npcToggleHideTag('${n.id}',${hidden})">${hidden ? "🟢 STEALTH" : "👁 SHOW TAG"}</button>
       <button class="abtn sm" style="font-size:9px" onclick="npcToggleVerified('${n.id}',${verified})">${verified ? "✓ UNVERIFY" : "✓ VERIFY"}</button>
       <button class="abtn sm" style="font-size:9px" onclick="selectNpcForPost('${n.id}')">POST AS</button>
       <button class="abtn danger sm" style="font-size:9px" onclick="deleteNpc('${n.id}','${escAttr(n.hero_name)}')">✕</button>
@@ -6050,7 +6046,7 @@ async function npcToggleHideTag(npcId, currentHidden) {
   }
   const npc = npcList.find(n => n.id === npcId);
   if (npc) npc.hide_npc_tag = !currentHidden;
-  showToast(!currentHidden ? `🟢 ${npc?.hero_name} is now in stealth mode — NPC tag hidden` : `👁 NPC tag restored for ${npc?.hero_name}`);
+  showToast(!currentHidden ? `🟢 ${npc?.hero_name} stealth mode — NPC tag hidden` : `👁 NPC tag restored for ${npc?.hero_name}`);
   renderNpcManageList(npcList);
   renderNpcList(npcList);
   loadFeed();
@@ -6166,11 +6162,7 @@ async function postAsNpc() {
   document.getElementById("npc-schedule-chk").checked = false;
   document.getElementById("npc-schedule-row").style.display = "none";
   setTimeout(() => { status.textContent = ""; }, 4000);
-  // Send @mention notifications for NPC posts
-  if (content) {
-    const { data: latestPost } = await sb.from("posts").select("id").eq("user_id", currentProfile.id).order("created_at",{ascending:false}).limit(1);
-    if (latestPost?.[0]) sendMentionNotifications(content, latestPost[0].id);
-  }
+  if(content){const{data:lp}=await sb.from("posts").select("id").eq("user_id",currentProfile.id).order("created_at",{ascending:false}).limit(1);if(lp?.[0])sendMentionNotifications(content,lp[0].id);}
   loadFeed();
 }
 
@@ -7042,7 +7034,6 @@ let mentionStartIdx = -1;
 function handleMentionInput(ta) {
   const val = ta.value;
   const pos = ta.selectionStart;
-  // Find the @ that triggered this
   let atIdx = -1;
   for (let i = pos - 1; i >= 0; i--) {
     if (val[i] === "@") { atIdx = i; break; }
@@ -7054,7 +7045,6 @@ function handleMentionInput(ta) {
   const query = val.substring(atIdx + 1, pos).toLowerCase();
   if (query.length === 0 && atIdx < pos - 1) { dropdown.style.display = "none"; return; }
   mentionStartIdx = atIdx;
-  // Search profiles + NPCs
   const profileResults = Object.values(profilesCache).filter(p =>
     p.hero_name?.toLowerCase().includes(query) || p.handle?.toLowerCase().includes(query)
   ).slice(0, 4);
@@ -7079,27 +7069,18 @@ function handleMentionInput(ta) {
   mentionDropdownActive = true;
 }
 
-// Parse @mentions from post content and create notifications
+// Parse @mentions and create notifications
 async function sendMentionNotifications(postContent, postId) {
   if (!postContent) return;
   const mentionRegex = /@([a-zA-Z0-9_]+)/g;
   const handles = new Set();
-  let match;
-  while ((match = mentionRegex.exec(postContent)) !== null) {
-    handles.add(match[1].toLowerCase());
-  }
+  let m;
+  while ((m = mentionRegex.exec(postContent)) !== null) handles.add(m[1].toLowerCase());
   if (!handles.size) return;
-  // Look up user IDs for mentioned handles
   for (const handle of handles) {
     const profile = Object.values(profilesCache).find(p => p.handle?.toLowerCase() === handle);
     if (profile && profile.id !== currentProfile.id) {
-      await sb.from("notifications").insert({
-        user_id: profile.id,
-        type: "mention",
-        from_user_id: currentProfile.id,
-        post_id: postId,
-        message: "@" + handle
-      }).catch(() => {});
+      await sb.from("notifications").insert({user_id:profile.id,type:"mention",from_user_id:currentProfile.id,post_id:postId,message:"@"+handle}).catch(()=>{});
     }
   }
 }
@@ -7194,6 +7175,7 @@ async function showProfilePage(userId) {
       <div class="profile-page-handle">@${escHtml(u.handle)}</div>
       ${u.real_name && u.real_name !== u.hero_name ? `<div style="font-size:12px;color:var(--muted);margin-top:2px">${escHtml(u.real_name)}</div>` : ""}
       ${u.bio ? `<div class="profile-page-bio">${escHtml(u.bio)}</div>` : ""}
+      ${u.status ? `<div style="margin-top:6px">${getStatusBadgeHtml(u)}</div>` : ""}
       <div class="profile-page-meta">
         <span class="fc-badge" style="background:${fc}22;color:${fc};border:1px solid ${fc}44;font-size:10px;padding:3px 10px">${escHtml(u.faction||"Independent")}</span>
         ${u.location ? `<span class="profile-page-meta-item">📍 ${escHtml(u.location)}</span>` : ""}
@@ -7256,6 +7238,231 @@ function ppShowTab(tab) {
 }
 
 </script>
+
+// =====================================================
+// GROUP CHATS
+// =====================================================
+let groupChats = [];
+let selectedGroupId = null;
+let gcChannel = null;
+
+async function loadGroupChats() {
+  try {
+    const { data: memberships } = await sb.from("group_members").select("group_id").eq("user_id", currentProfile.id);
+    if (!memberships?.length) { renderGroupList([]); return; }
+    const gids = memberships.map(m => m.group_id);
+    const { data: groups } = await sb.from("group_chats").select("*").in("id", gids).order("created_at", { ascending: false });
+    groupChats = groups || [];
+    renderGroupList(groupChats);
+  } catch(e) {
+    const el = document.getElementById("gc-list");
+    if (el) el.innerHTML = `<div style="padding:12px;font-size:10px;color:var(--gold);line-height:1.7">\u26a0 Group chats not set up yet. Run the SQL in Supabase to enable.</div>`;
+  }
+}
+
+function renderGroupList(groups) {
+  const el = document.getElementById("gc-list");
+  if (!el) return;
+  if (!groups.length) {
+    el.innerHTML = `<div style="padding:14px;font-size:10px;color:var(--muted);text-align:center;letter-spacing:.5px">No groups yet</div>`;
+    return;
+  }
+  el.innerHTML = groups.map(g => `
+    <div class="gc-item ${selectedGroupId===g.id?'active':''}" onclick="openGroupChat('${g.id}')">
+      <div class="gc-ico" style="background:${g.color||'var(--accent)'}22;color:${g.color||'var(--accent)'}">${g.icon||'\ud83d\udc65'}</div>
+      <div><div class="gc-name">${escHtml(g.name)}</div><div class="gc-sub">Tap to chat</div></div>
+    </div>`).join("");
+}
+
+function openCreateGroupModal() {
+  const existing = document.getElementById("gc-create-modal");
+  if (existing) existing.remove();
+  const modal = document.createElement("div");
+  modal.className = "gc-modal";
+  modal.id = "gc-create-modal";
+  const profiles = Object.values(profilesCache).filter(p => p.id !== currentProfile.id);
+  const npcs = (npcList || []);
+  const allPeople = [...profiles.map(p=>({...p,_isNpc:false})), ...npcs.filter(n=>!profiles.some(p=>p.handle===n.handle)).map(n=>({...n,_isNpc:true}))];
+  modal.innerHTML = `
+    <div class="gc-modal-box">
+      <h3>\ud83d\udc65 CREATE GROUP CHAT</h3>
+      <div class="afield" style="margin-bottom:12px"><label>Group Name</label><input id="gc-name-inp" placeholder="e.g. Avengers Initiative" style="width:100%;padding:8px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-family:Barlow,sans-serif;font-size:13px;outline:none"/></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div class="afield" style="margin:0;flex:1"><label>Icon</label><input id="gc-icon-inp" value="\ud83d\udc65" maxlength="4" style="width:100%;padding:8px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);color:var(--white);font-size:18px;text-align:center;outline:none"/></div>
+        <div class="afield" style="margin:0;flex:1"><label>Color</label><input id="gc-color-inp" type="color" value="#3b82f6" style="width:100%;height:36px;border-radius:var(--radius-sm);border:1px solid var(--border);background:rgba(0,0,0,.4);cursor:pointer"/></div>
+      </div>
+      <div style="font-size:10px;letter-spacing:1px;color:var(--muted);margin-bottom:8px">SELECT MEMBERS</div>
+      <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px" id="gc-members-list">
+        ${allPeople.map(p => `<div class="gc-member-pick" onclick="this.classList.toggle('selected')" data-uid="${p.id}" data-isnpc="${p._isNpc}">
+          <div class="gc-check">\u2713</div>
+          <div style="width:26px;height:26px;border-radius:50%;background:${p.color||'#555'};display:flex;align-items:center;justify-content:center;font-family:Orbitron,sans-serif;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden">${p.avatar_url ? '<img src="'+p.avatar_url+'" style="width:100%;height:100%;object-fit:cover"/>' : (p.hero_name?.[0]||'?')}</div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--white)">${escHtml(p.hero_name)}${p._isNpc?' <span style="font-size:8px;color:var(--gold)">[NPC]</span>':''}</div><div style="font-size:10px;color:var(--muted)">@${escHtml(p.handle)}</div></div>
+        </div>`).join("")}
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button onclick="document.getElementById('gc-create-modal').remove()" style="padding:8px 18px;border-radius:var(--radius-btn);border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-family:Barlow,sans-serif;font-weight:700;font-size:13px">Cancel</button>
+        <button onclick="createGroupChat()" style="padding:8px 20px;border-radius:var(--radius-btn);border:none;background:var(--accent);color:#fff;cursor:pointer;font-family:Orbitron,sans-serif;font-size:10px;letter-spacing:2px">CREATE</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener("click", e => { if(e.target === modal) modal.remove(); });
+}
+
+async function createGroupChat() {
+  const name = document.getElementById("gc-name-inp")?.value.trim();
+  const icon = document.getElementById("gc-icon-inp")?.value.trim() || "\ud83d\udc65";
+  const color = document.getElementById("gc-color-inp")?.value || "#3b82f6";
+  if (!name) { showToast("Enter a group name.", true); return; }
+  const selected = [...document.querySelectorAll("#gc-members-list .gc-member-pick.selected")];
+  if (!selected.length) { showToast("Select at least one member.", true); return; }
+
+  const { data: group, error } = await sb.from("group_chats").insert({ name, icon, color, created_by: currentProfile.id }).select().single();
+  if (error) {
+    if (error.code === "42P01" || error.message.includes("does not exist")) {
+      showToast("Run the group chat SQL in Supabase first. Check admin panel notes.", true);
+    } else { showToast("Error: " + error.message, true); }
+    return;
+  }
+
+  // Add members (self + selected)
+  const memberRows = [{ group_id: group.id, user_id: currentProfile.id }];
+  for (const el of selected) {
+    const uid = el.dataset.uid;
+    const isNpc = el.dataset.isnpc === "true";
+    if (isNpc) {
+      // Ensure NPC has a profile entry
+      const npc = (npcList||[]).find(n => n.id === uid);
+      if (npc) {
+        const prof = await ensureNpcHasProfile(npc);
+        if (prof) memberRows.push({ group_id: group.id, user_id: prof.id });
+      }
+    } else {
+      memberRows.push({ group_id: group.id, user_id: uid });
+    }
+  }
+  await sb.from("group_members").insert(memberRows).catch(() => {});
+
+  document.getElementById("gc-create-modal")?.remove();
+  showToast(`\ud83d\udc65 Group "${name}" created!`);
+  loadGroupChats();
+  openGroupChat(group.id);
+}
+
+async function openGroupChat(groupId) {
+  selectedGroupId = groupId;
+  const group = groupChats.find(g => g.id === groupId);
+  if (!group) return;
+
+  renderGroupList(groupChats);
+
+  // Load members
+  const { data: members } = await sb.from("group_members").select("user_id,profiles(id,hero_name,color,avatar_url,handle)").eq("group_id", groupId);
+  const memberProfiles = (members||[]).map(m => m.profiles).filter(Boolean);
+
+  // Load messages
+  const { data: msgs } = await sb.from("group_messages")
+    .select("*,profiles(id,hero_name,color,avatar_url)")
+    .eq("group_id", groupId)
+    .order("created_at", { ascending: true })
+    .limit(100);
+
+  const msgsHtml = (msgs||[]).map(m => {
+    const u = m.profiles || {};
+    const mine = m.sender_id === currentProfile.id;
+    const av = u.avatar_url ? `<img src="${escAttr(u.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>` : (u.hero_name?.[0]||"?");
+    return `<div class="gc-msg-row${mine?' mine':''}">
+      ${!mine?`<div class="gc-msg-av" style="background:${u.color||'#555'}">${av}</div>`:''}
+      <div>
+        ${!mine?`<div class="gc-msg-name">${escHtml(u.hero_name||'?')}</div>`:''}
+        <div class="gc-msg-bub">${escHtml(m.content)}</div>
+        <div class="gc-msg-time">${timeAgo(m.created_at)}</div>
+      </div>
+    </div>`;
+  }).join("") || `<div style="text-align:center;color:var(--muted);font-size:11px;letter-spacing:1px;padding:24px;text-transform:uppercase">No messages yet — say something!</div>`;
+
+  const memberAvatars = memberProfiles.slice(0,5).map(p => {
+    const av = p.avatar_url ? `<img src="${escAttr(p.avatar_url)}" style="width:100%;height:100%;object-fit:cover"/>` : (p.hero_name?.[0]||"?");
+    return `<div style="width:22px;height:22px;border-radius:50%;background:${p.color||'#555'};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0;border:1px solid var(--bg);margin-left:-6px" title="${escAttr(p.hero_name)}">${av}</div>`;
+  }).join("");
+
+  const chatArea = document.getElementById("dm-chat-area");
+  chatArea.innerHTML = `
+    <div class="dm-chat-hd" style="gap:10px">
+      <div style="width:36px;height:36px;border-radius:var(--radius-sm);background:${group.color||'var(--accent)'}22;display:flex;align-items:center;justify-content:center;font-size:18px;color:${group.color||'var(--accent)'};border:1px solid ${group.color||'var(--accent)'}44">${group.icon||'\ud83d\udc65'}</div>
+      <div style="flex:1"><div class="dm-chat-name">${escHtml(group.name)}</div><div class="dm-status">${memberProfiles.length} members</div></div>
+      <div style="display:flex;padding-left:6px">${memberAvatars}</div>
+    </div>
+    <div class="dm-msgs" id="gc-msgs-area" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px">${msgsHtml}</div>
+    <div class="dm-inp-row">
+      <input class="dm-in" id="gc-in" placeholder="Message ${escAttr(group.name)}..." onkeydown="if(event.key==='Enter')sendGroupMsg('${groupId}')"/>
+      <button class="dm-send" onclick="sendGroupMsg('${groupId}')">SEND</button>
+    </div>`;
+
+  setTimeout(() => { const el = document.getElementById("gc-msgs-area"); if(el) el.scrollTop = el.scrollHeight; }, 50);
+
+  // Realtime for group messages
+  if (gcChannel) sb.removeChannel(gcChannel);
+  gcChannel = sb.channel("gc-" + groupId)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "group_messages", filter: `group_id=eq.${groupId}` },
+      () => { openGroupChat(groupId); })
+    .subscribe();
+}
+
+async function sendGroupMsg(groupId) {
+  const inp = document.getElementById("gc-in");
+  const content = inp?.value.trim();
+  if (!content) return;
+  inp.value = "";
+  // Use NPC identity if admin is acting as one
+  let senderId = currentProfile.id;
+  if (phoneActingAsNpc && currentProfile.is_admin) {
+    const npcProf = await ensureNpcHasProfile(phoneActingAsNpc);
+    if (npcProf) senderId = npcProf.id;
+  }
+  const { error } = await sb.from("group_messages").insert({ group_id: groupId, sender_id: senderId, content });
+  if (error) {
+    if (error.code === "42P01") showToast("Run group chat SQL first.", true);
+    else showToast("Error: " + error.message, true);
+    return;
+  }
+  openGroupChat(groupId);
+}
+
+// =====================================================
+// RP STATUS SYSTEM
+// =====================================================
+const RP_STATUSES = [
+  { id: "", label: "None", emoji: "", color: "var(--muted)" },
+  { id: "active", label: "Active", emoji: "\ud83d\udfe2", color: "var(--green)" },
+  { id: "injured", label: "Injured", emoji: "\ud83e\ude78", color: "var(--red)" },
+  { id: "hospitalized", label: "Hospitalized", emoji: "\ud83c\udfe5", color: "#ff8888" },
+  { id: "missing", label: "Missing", emoji: "\u2753", color: "var(--gold)" },
+  { id: "undercover", label: "Undercover", emoji: "\ud83d\udd76\ufe0f", color: "#b088f9" },
+  { id: "evacuated", label: "Evacuated", emoji: "\ud83d\udea8", color: "var(--accent)" }
+];
+
+async function setRpStatus(statusId) {
+  const st = RP_STATUSES.find(s => s.id === statusId) || RP_STATUSES[0];
+  const { error } = await sb.from("profiles").update({ status: statusId || null, status_emoji: st.emoji || null }).eq("id", currentProfile.id);
+  if (error) {
+    if (error.message.includes("status") && error.code === "42703") {
+      showToast("Run: ALTER TABLE profiles ADD COLUMN IF NOT EXISTS status text; ALTER TABLE profiles ADD COLUMN IF NOT EXISTS status_emoji text;", true);
+    } else { showToast("Error: " + error.message, true); }
+    return;
+  }
+  currentProfile.status = statusId || null;
+  currentProfile.status_emoji = st.emoji || null;
+  showToast(statusId ? `Status: ${st.emoji} ${st.label}` : "Status cleared");
+  renderMyCard();
+}
+
+function getStatusBadgeHtml(profile) {
+  if (!profile?.status) return "";
+  const st = RP_STATUSES.find(s => s.id === profile.status);
+  if (!st) return "";
+  return `<span class="status-badge ${st.id}">${st.emoji} ${st.label}</span>`;
+}
+
 <!-- Mail recipient dropdown rendered at body level to avoid clipping -->
 <div id="mcp-to-results" class="mcp-to-results" style="display:none"></div>
 <button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
